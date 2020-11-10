@@ -1,4 +1,4 @@
-module util
+module github.com/ToolPackage/pipe
 
 go 1.13
 

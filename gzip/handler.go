@@ -5,45 +5,37 @@ import (
 	"compress/gzip"
 	"io"
 	"io/ioutil"
-	"os"
 )
 
-func GzipCompress(args []string, in io.Reader, out io.Writer) {
-	switch os.Args[1] {
-	case "--compress":
-		input, err := ioutil.ReadAll(os.Stdin)
-		if err != nil {
-			panic(err)
-		}
+func Compress(_ []string, in io.Reader, out io.Writer) {
+	input, err := ioutil.ReadAll(in)
+	if err != nil {
+		panic(err)
+	}
 
-		w := gzip.NewWriter(os.Stdout)
-		if _, err = w.Write(input); err != nil {
-			panic(err)
-		}
-		if err = w.Close(); err != nil {
-			panic(err)
-		}
-	case "--uncompress":
-		input, err := ioutil.ReadAll(os.Stdin)
-		if err != nil {
-			panic(err)
-		}
-
-		r, err := gzip.NewReader(bytes.NewReader(input))
-		uncompressed, err := ioutil.ReadAll(r)
-		if err != nil {
-			panic(err)
-		}
-
-		_, err = os.Stdout.Write(uncompressed)
-		if err != nil {
-			panic(err)
-		}
-	default:
-		panic("invalid argument")
+	w := gzip.NewWriter(out)
+	if _, err = w.Write(input); err != nil {
+		panic(err)
+	}
+	if err = w.Close(); err != nil {
+		panic(err)
 	}
 }
 
-func GzipDecompress(args []string, in io.Reader, out io.Writer) {
+func Decompress(_ []string, in io.Reader, out io.Writer) {
+	input, err := ioutil.ReadAll(in)
+	if err != nil {
+		panic(err)
+	}
 
+	r, err := gzip.NewReader(bytes.NewReader(input))
+	uncompressed, err := ioutil.ReadAll(r)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = out.Write(uncompressed)
+	if err != nil {
+		panic(err)
+	}
 }
