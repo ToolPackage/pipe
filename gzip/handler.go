@@ -1,13 +1,14 @@
-package main
+package gzip
 
 import (
 	"bytes"
 	"compress/gzip"
+	"io"
 	"io/ioutil"
 	"os"
 )
 
-func main() {
+func GzipCompress(args []string, in io.Reader, out io.Writer) {
 	switch os.Args[1] {
 	case "--compress":
 		input, err := ioutil.ReadAll(os.Stdin)
@@ -41,4 +42,8 @@ func main() {
 	default:
 		panic("invalid argument")
 	}
+}
+
+func GzipDecompress(args []string, in io.Reader, out io.Writer) {
+
 }

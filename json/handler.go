@@ -1,14 +1,15 @@
-package main
+package json
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 )
 
-func main() {
+func JsonPretty(args []string, in io.Reader, out io.Writer) {
 	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		panic(err)

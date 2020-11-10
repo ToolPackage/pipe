@@ -1,12 +1,13 @@
-package main
+package base64
 
 import (
 	"encoding/base64"
+	"io"
 	"io/ioutil"
 	"os"
 )
 
-func main() {
+func Base64Encode(args []string, in io.Reader, out io.Writer) {
 	switch os.Args[1] {
 	case "--encode":
 		input, err := ioutil.ReadAll(os.Stdin)
