@@ -13,13 +13,33 @@ import (
 	"strings"
 )
 
-const commandPatternSeparator = "/"
+const commandPatternSeparator = "="
 
 const commandPathSeparator = "."
 
 const commandArgSeparator = ","
 
 var commandPattern = regexp.MustCompile("(?P<CMD>[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*)(?P<ARGS>\\((\\.|.)*\\))?")
+var groupCmd int
+var groupArgs int
+
+func init() {
+	_ = registerCommand("base64.encode", base64.Encode)
+	_ = registerCommand("base64.decode", base64.Decode)
+	_ = registerCommand("gzip.compress", gzip.Compress)
+	_ = registerCommand("gzip.decompress", gzip.Decompress)
+	_ = registerCommand("json.pretty", json.Pretty)
+	_ = registerCommand("input", input.Input)
+	_ = registerCommand("output", output.Output)
+
+	for idx, name := range commandPattern.SubexpNames() {
+		if name == "CMD" {
+			groupCmd = idx
+		} else if name == "ARGS" {
+			groupArgs = idx
+		}
+	}
+}
 
 type Command struct {
 	path    string
@@ -33,8 +53,8 @@ func parseCommands() []Command {
 	pattern := strings.Split(strings.Join(os.Args[1:], ""), commandPatternSeparator)
 	for _, command := range pattern {
 		match := commandPattern.FindStringSubmatch(command)
-		cmd := match[commandPattern.SubexpIndex("CMD")]
-		argsRaw := match[commandPattern.SubexpIndex("ARGS")]
+		cmd := match[groupCmd]
+		argsRaw := match[groupArgs]
 		var args []string
 		if len(argsRaw) > 0 {
 			// remove ()
@@ -45,7 +65,7 @@ func parseCommands() []Command {
 				args[idx] = strings.Trim(arg, " ")
 			}
 		}
-		//fmt.Println(cmd, args)
+		fmt.Println(cmd, args)
 
 		handler, err := getCommandHandler(cmd)
 		if err != nil {
@@ -60,16 +80,6 @@ func parseCommands() []Command {
 var commandHandlers = &TreeNode{children: make([]*TreeNode, 0)}
 
 type CommandHandler func(args []string, in io.Reader, out io.Writer)
-
-func init() {
-	_ = registerCommand("base64.encode", base64.Encode)
-	_ = registerCommand("base64.decode", base64.Decode)
-	_ = registerCommand("gzip.compress", gzip.Compress)
-	_ = registerCommand("gzip.decompress", gzip.Decompress)
-	_ = registerCommand("json.pretty", json.Pretty)
-	_ = registerCommand("input", input.Input)
-	_ = registerCommand("output", output.Output)
-}
 
 func registerCommand(command string, handler CommandHandler) error {
 	patterns := strings.Split(command, commandPathSeparator)

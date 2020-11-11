@@ -16,7 +16,7 @@ func Output(args []string, in io.Reader, _ io.Writer) {
 	if len(args) > 0 {
 		if args[0] == "file" {
 			if len(args) < 2 {
-				panic(fmt.Errorf("not enough arguments, expect: output(file, filePath)"))
+				panic(fmt.Errorf("not enough arguments, expect: output(file, filename)"))
 			}
 			filename := args[1]
 			outputFile(filename, input)
