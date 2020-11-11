@@ -17,7 +17,9 @@ const commandPatternSeparator = "/"
 
 const commandPathSeparator = "."
 
-var commandPattern = regexp.MustCompile("(?P<CMD>[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*)(?P<ARGS>\\(.*\\))?")
+const commandArgSeparator = ","
+
+var commandPattern = regexp.MustCompile("(?P<CMD>[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*)(?P<ARGS>\\((\\.|.)*\\))?")
 
 type Command struct {
 	path    string
@@ -27,21 +29,29 @@ type Command struct {
 
 func parseCommands() []Command {
 	cmdList := make([]Command, 0)
+	// TODO:
 	pattern := strings.Split(strings.Join(os.Args[1:], ""), commandPatternSeparator)
 	for _, command := range pattern {
 		match := commandPattern.FindStringSubmatch(command)
 		cmd := match[commandPattern.SubexpIndex("CMD")]
-		args := match[commandPattern.SubexpIndex("ARGS")]
-		if len(args) > 0 {
-			args = args[1 : len(args)-1]
+		argsRaw := match[commandPattern.SubexpIndex("ARGS")]
+		var args []string
+		if len(argsRaw) > 0 {
+			// remove ()
+			argsRaw = argsRaw[1 : len(argsRaw)-1]
+			args = strings.Split(argsRaw, commandArgSeparator)
+			// trim
+			for idx, arg := range args {
+				args[idx] = strings.Trim(arg, " ")
+			}
 		}
-		//fmt.Println(cmd + ":" + args)
+		//fmt.Println(cmd, args)
 
 		handler, err := getCommandHandler(cmd)
 		if err != nil {
 			panic(err)
 		} else {
-			cmdList = append(cmdList, Command{path: command, args: strings.Split(args, ","), handler: handler})
+			cmdList = append(cmdList, Command{path: command, args: args, handler: handler})
 		}
 	}
 	return cmdList

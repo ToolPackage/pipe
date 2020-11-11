@@ -11,7 +11,7 @@ func execute(commands []Command) {
 	out := new(strings.Builder)
 
 	for _, cmd := range commands {
-		cmd.handler(nil, in, out)
+		cmd.handler(cmd.args, in, out)
 		buf = []byte(out.String())
 		in = bytes.NewReader(buf)
 		out = new(strings.Builder)
