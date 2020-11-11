@@ -37,11 +37,11 @@ examples:
 examples:
 - compress:
   ```sh
-  echo asd | pipe in=gzip.compress=output('file', './test.gzip')
+  echo asd | pipe in=gzip.compress=out('file', './test.gzip')
   ```
 - decompress:
   ```sh
-  pipe in(type: 'file', './test.gzip')=gzip.decompress=output
+  pipe in(type: 'file', './test.gzip')=gzip.decompress=out
   ```
 
 ### json
@@ -49,10 +49,10 @@ examples:
 examples:
 - pretty:
   ```sh
-  pipe in('file', './test.json')=json.pretty=output
+  pipe in('file', './test.json')=json.pretty=out
   ```
 - get: need one parameter to indicate json path, more details see [gjson](https://github.com/tidwall/gjson)
   ```sh
-  echo "{"name":{"first":[-999]}}" | pipe in=json.get('name.fisrt.0')=output
+  echo "{"name":{"first":[-999]}}" | pipe in=json.get('name.fisrt.0')=out
   ```
   
