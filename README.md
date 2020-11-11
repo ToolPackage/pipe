@@ -1,5 +1,7 @@
 # pipe
 
+A command util package. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
+
 ## commands
 
 ### in & out
