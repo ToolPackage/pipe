@@ -1,14 +1,14 @@
 package core
 
 import (
-	"github.com/ToolPackage/pipe/command"
+	"github.com/ToolPackage/pipe/commands"
 	"io"
 	"testing"
 )
 import "github.com/stretchr/testify/assert"
 
 func TestRegistry(t *testing.T) {
-	err := RegisterCommand("a.b.c.d", func(args command.CommandParameters, in io.Reader, out io.Writer) {})
+	err := RegisterCommand("a.b.c.d", func(args commands.CommandParameters, in io.Reader, out io.Writer) {})
 	assert.Nil(t, err)
 
 	node := commandHandlers

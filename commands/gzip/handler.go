@@ -3,18 +3,12 @@ package gzip
 import (
 	"bytes"
 	"compress/gzip"
-	"github.com/ToolPackage/pipe/command"
-	"github.com/ToolPackage/pipe/core"
+	"github.com/ToolPackage/pipe/commands"
 	"io"
 	"io/ioutil"
 )
 
-func init() {
-	_ = core.RegisterCommand("gzip.compress", Compress)
-	_ = core.RegisterCommand("gzip.decompress", Decompress)
-}
-
-func Compress(_ command.CommandParameters, in io.Reader, out io.Writer) {
+func Compress(_ commands.CommandParameters, in io.Reader, out io.Writer) {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		panic(err)
@@ -29,7 +23,7 @@ func Compress(_ command.CommandParameters, in io.Reader, out io.Writer) {
 	}
 }
 
-func Decompress(_ command.CommandParameters, in io.Reader, out io.Writer) {
+func Decompress(_ commands.CommandParameters, in io.Reader, out io.Writer) {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		panic(err)

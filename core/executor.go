@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/ToolPackage/pipe/command"
+	"github.com/ToolPackage/pipe/commands"
 	"github.com/ToolPackage/pipe/parser"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"os"
@@ -21,7 +21,7 @@ func Execute() {
 	}
 }
 
-func parseCommands() []command.Command {
+func parseCommands() []commands.Command {
 	commands := strings.Join(os.Args[1:], "")
 	input := antlr.NewInputStream(commands)
 	lexer := parser.NewPipeLexer(input)
@@ -61,17 +61,17 @@ func (el *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbo
 type TreeShapeListener struct {
 	*parser.BasePipeListener
 
-	commands []command.Command
-	command  *command.Command
-	param    *command.CommandParameter
+	commands []commands.Command
+	command  *commands.Command
+	param    *commands.CommandParameter
 }
 
 func NewTreeShapeListener() *TreeShapeListener {
-	return &TreeShapeListener{commands: make([]command.Command, 0)}
+	return &TreeShapeListener{commands: make([]commands.Command, 0)}
 }
 
 func (t *TreeShapeListener) EnterPattern(ctx *parser.PatternContext) {
-	t.command = new(command.Command)
+	t.command = new(commands.Command)
 }
 
 func (t *TreeShapeListener) ExitPattern(ctx *parser.PatternContext) {
@@ -84,11 +84,11 @@ func (t *TreeShapeListener) EnterCommandName(ctx *parser.CommandNameContext) {
 }
 
 func (t *TreeShapeListener) EnterCommandArguments(ctx *parser.CommandArgumentsContext) {
-	t.command.Params = make([]command.CommandParameter, 0)
+	t.command.Params = make([]commands.CommandParameter, 0)
 }
 
 func (t *TreeShapeListener) EnterCommandArgument(ctx *parser.CommandArgumentContext) {
-	t.param = new(command.CommandParameter)
+	t.param = new(commands.CommandParameter)
 }
 
 func (t *TreeShapeListener) ExitCommandArgument(ctx *parser.CommandArgumentContext) {
@@ -102,16 +102,16 @@ func (t *TreeShapeListener) EnterCommandArgumentLabel(ctx *parser.CommandArgumen
 }
 
 func (t *TreeShapeListener) EnterNumberValue(ctx *parser.NumberValueContext) {
-	t.param.ValueType = command.DecimalValue
+	t.param.ValueType = commands.DecimalValue
 	t.param.Value = ctx.GetText()
 }
 
 func (t *TreeShapeListener) EnterStringValue(ctx *parser.StringValueContext) {
-	t.param.ValueType = command.StringValue
+	t.param.ValueType = commands.StringValue
 	t.param.Value = ctx.GetText()
 }
 
 func (t *TreeShapeListener) EnterBooleanValue(ctx *parser.BooleanValueContext) {
-	t.param.ValueType = command.BoolValue
+	t.param.ValueType = commands.BoolValue
 	t.param.Value = ctx.GetText()
 }

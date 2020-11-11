@@ -2,7 +2,7 @@ package core
 
 import (
 	"fmt"
-	"github.com/ToolPackage/pipe/command"
+	"github.com/ToolPackage/pipe/commands"
 	"strings"
 )
 
@@ -10,7 +10,7 @@ const commandPathSeparator = "."
 
 var commandHandlers = &TreeNode{children: make([]*TreeNode, 0)}
 
-func RegisterCommand(commandName string, handler command.CommandHandler) error {
+func RegisterCommand(commandName string, handler commands.CommandHandler) error {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
@@ -29,10 +29,10 @@ func RegisterCommand(commandName string, handler command.CommandHandler) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("duplicate command [%s]", commandName)
+	return fmt.Errorf("duplicate commands [%s]", commandName)
 }
 
-func getCommandHandler(commandName string) (command.CommandHandler, error) {
+func getCommandHandler(commandName string) (commands.CommandHandler, error) {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
@@ -42,7 +42,7 @@ func getCommandHandler(commandName string) (command.CommandHandler, error) {
 			root = node
 			patternIdx++
 		} else {
-			return nil, fmt.Errorf("invalid command pattern [%s]", patterns[patternIdx])
+			return nil, fmt.Errorf("invalid commands pattern [%s]", patterns[patternIdx])
 		}
 	}
 
@@ -51,7 +51,7 @@ func getCommandHandler(commandName string) (command.CommandHandler, error) {
 
 type TreeNode struct {
 	value    string
-	handler  command.CommandHandler
+	handler  commands.CommandHandler
 	children []*TreeNode
 }
 

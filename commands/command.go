@@ -1,4 +1,4 @@
-package command
+package commands
 
 import (
 	"fmt"
@@ -72,7 +72,7 @@ func (p *CommandParameter) getValue() interface{} {
 	case BoolValue:
 		v, err = strconv.ParseBool(p.Value)
 	default:
-		panic(fmt.Errorf("invalid command parameter type %d", p.ValueType))
+		panic(fmt.Errorf("invalid commands parameter type %d", p.ValueType))
 	}
 
 	if err != nil {

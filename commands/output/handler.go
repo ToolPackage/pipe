@@ -2,18 +2,13 @@ package output
 
 import (
 	"fmt"
-	"github.com/ToolPackage/pipe/command"
-	"github.com/ToolPackage/pipe/core"
+	"github.com/ToolPackage/pipe/commands"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-func init() {
-	_ = core.RegisterCommand("out", Output)
-}
-
-func Output(params command.CommandParameters, in io.Reader, _ io.Writer) {
+func Output(params commands.CommandParameters, in io.Reader, _ io.Writer) {
 	v, ok := params.GetParameter("type", 0)
 	if ok {
 		switch v.(string) {

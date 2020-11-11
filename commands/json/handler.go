@@ -3,19 +3,13 @@ package json
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/ToolPackage/pipe/command"
-	"github.com/ToolPackage/pipe/core"
+	"github.com/ToolPackage/pipe/commands"
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
 )
 
-func init() {
-	_ = core.RegisterCommand("json.pretty", Pretty)
-	_ = core.RegisterCommand("json.get", Get)
-}
-
-func Pretty(_ command.CommandParameters, in io.Reader, out io.Writer) {
+func Pretty(_ commands.CommandParameters, in io.Reader, out io.Writer) {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		panic(err)
@@ -32,7 +26,7 @@ func Pretty(_ command.CommandParameters, in io.Reader, out io.Writer) {
 	}
 }
 
-func Get(params command.CommandParameters, in io.Reader, out io.Writer) {
+func Get(params commands.CommandParameters, in io.Reader, out io.Writer) {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		panic(err)

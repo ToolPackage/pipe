@@ -2,18 +2,13 @@ package input
 
 import (
 	"fmt"
-	"github.com/ToolPackage/pipe/command"
-	"github.com/ToolPackage/pipe/core"
+	"github.com/ToolPackage/pipe/commands"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-func init() {
-	_ = core.RegisterCommand("in", Input)
-}
-
-func Input(params command.CommandParameters, _ io.Reader, out io.Writer) {
+func Input(params commands.CommandParameters, _ io.Reader, out io.Writer) {
 	var input []byte
 
 	v, ok := params.GetParameter("type", 0)
