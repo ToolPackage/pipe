@@ -34,11 +34,11 @@ fragment NonZeroDigit: [1-9];
 
 stringValue: StringLiteral;
 
-StringLiteral: '\'' StringCharacters? '\'';
+StringLiteral: '"' StringCharacters? '"';
 
 fragment StringCharacters: StringCharacter+;
 
-fragment StringCharacter: ~['];
+fragment StringCharacter: ~["];
 
 // boolean literal
 
