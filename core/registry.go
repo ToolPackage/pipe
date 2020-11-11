@@ -1,53 +1,16 @@
-package main
+package core
 
 import (
 	"fmt"
-	"github.com/ToolPackage/pipe/base64"
-	"github.com/ToolPackage/pipe/gzip"
-	"github.com/ToolPackage/pipe/input"
-	"github.com/ToolPackage/pipe/json"
-	"github.com/ToolPackage/pipe/output"
-	"io"
+	"github.com/ToolPackage/pipe/command"
 	"strings"
 )
 
-func init() {
-	_ = registerCommand("base64.encode", base64.Encode)
-	_ = registerCommand("base64.decode", base64.Decode)
-	_ = registerCommand("gzip.compress", gzip.Compress)
-	_ = registerCommand("gzip.decompress", gzip.Decompress)
-	_ = registerCommand("json.pretty", json.Pretty)
-	_ = registerCommand("input", input.Input)
-	_ = registerCommand("output", output.Output)
-}
-
-type Command struct {
-	name    string
-	params  []*CommandParameter
-	handler CommandHandler
-}
-
-type CommandParameter struct {
-	label     string
-	valueType CommandParameterType
-	value     string
-}
-
-const (
-	NumberValue = iota
-	StringValue
-	BoolValue
-)
-
-type CommandParameterType int
+const commandPathSeparator = "."
 
 var commandHandlers = &TreeNode{children: make([]*TreeNode, 0)}
 
-type CommandHandler func(args []string, in io.Reader, out io.Writer)
-
-const commandPathSeparator = "."
-
-func registerCommand(commandName string, handler CommandHandler) error {
+func RegisterCommand(commandName string, handler command.CommandHandler) error {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
@@ -69,7 +32,7 @@ func registerCommand(commandName string, handler CommandHandler) error {
 	return fmt.Errorf("duplicate command [%s]", commandName)
 }
 
-func getCommandHandler(commandName string) (CommandHandler, error) {
+func getCommandHandler(commandName string) (command.CommandHandler, error) {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
@@ -88,7 +51,7 @@ func getCommandHandler(commandName string) (CommandHandler, error) {
 
 type TreeNode struct {
 	value    string
-	handler  CommandHandler
+	handler  command.CommandHandler
 	children []*TreeNode
 }
 

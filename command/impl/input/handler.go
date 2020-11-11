@@ -2,22 +2,32 @@ package input
 
 import (
 	"fmt"
+	"github.com/ToolPackage/pipe/command"
+	"github.com/ToolPackage/pipe/core"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-func Input(args []string, _ io.Reader, out io.Writer) {
+func init() {
+	_ = core.RegisterCommand("in", Input)
+}
+
+func Input(params command.CommandParameters, _ io.Reader, out io.Writer) {
 	var input []byte
-	if len(args) > 0 {
-		if args[0] == "file" {
-			if len(args) < 2 {
+
+	v, ok := params.GetParameter("type", 0)
+	if ok {
+		switch v.(string) {
+		case "file":
+			v, ok = params.GetParameter("filename", 1)
+			if !ok {
 				panic(fmt.Errorf("not enough arguments, expect: input(file, filename)"))
 			}
-			input = inputFile(args[1])
-		} else if args[0] == "stdin" {
+			input = inputFile(v.(string))
+		case "stdout":
 			input = inputStdin()
-		} else {
+		default:
 			panic("invalid argument, expect: input([file|stdin],...)")
 		}
 	} else {
