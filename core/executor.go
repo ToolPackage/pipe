@@ -1,29 +1,38 @@
 package core
 
 import (
+	"fmt"
 	"github.com/ToolPackage/pipe/commands"
 	"github.com/ToolPackage/pipe/parser"
+	"github.com/ToolPackage/pipe/util"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"os"
 	"strings"
 )
 
 func Execute() {
-	commands := parseCommands()
+	cmds := parseCommands()
 
 	in := NewDualChannel()
 	out := NewDualChannel()
+	for _, cmd := range cmds {
+		if err := cmd.Exec(in, out); err != nil {
+			if err == commands.NotEnoughParameterError {
+				fmt.Print("not enough parameters, usage: ", util.FuncDescription(cmd.Handler))
+			} else {
+				fmt.Println(err.Error())
+			}
+			os.Exit(1)
+		}
 
-	for _, cmd := range commands {
-		cmd.Exec(in, out)
 		in, out = out, in
 		out.Reset()
 	}
 }
 
 func parseCommands() []commands.Command {
-	commands := strings.Join(os.Args[1:], "")
-	input := antlr.NewInputStream(commands)
+	cmds := strings.Join(os.Args[1:], "")
+	input := antlr.NewInputStream(cmds)
 	lexer := parser.NewPipeLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, 0)
 	p := parser.NewPipeParser(stream)
@@ -36,7 +45,8 @@ func parseCommands() []commands.Command {
 	for idx := range listener.commands {
 		handler, err := getCommandHandler(listener.commands[idx].Name)
 		if err != nil {
-			panic(err)
+			fmt.Println(err.Error())
+			os.Exit(1)
 		}
 		listener.commands[idx].Handler = handler
 	}

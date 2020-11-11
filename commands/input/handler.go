@@ -1,52 +1,45 @@
 package input
 
 import (
-	"fmt"
 	"github.com/ToolPackage/pipe/commands"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-func Input(params commands.CommandParameters, _ io.Reader, out io.Writer) {
+// in([file|stdin], filename)
+func Input(params commands.CommandParameters, _ io.Reader, out io.Writer) error {
 	var input []byte
+	var err error
 
+	// validate parameters
+	var opType = "stdin"
+	var filename string
 	v, ok := params.GetParameter("type", 0)
 	if ok {
-		switch v.(string) {
-		case "file":
+		opType = v.(string)
+		if opType == "file" {
 			v, ok = params.GetParameter("filename", 1)
 			if !ok {
-				panic(fmt.Errorf("not enough arguments, expect: input(file, filename)"))
+				return commands.NotEnoughParameterError
 			}
-			input = inputFile(v.(string))
-		case "stdout":
-			input = inputStdin()
-		default:
-			panic("invalid argument, expect: input([file|stdin],...)")
+			filename = v.(string)
+		} else if opType != "stdin" {
+			return commands.IllegalParameterError
 		}
+	}
+
+	// input
+	if opType == "file" {
+		input, err = ioutil.ReadFile(filename)
 	} else {
-		input = inputStdin()
+		input, err = ioutil.ReadAll(os.Stdin)
 	}
 
-	_, err := out.Write(input)
 	if err != nil {
-		panic(err)
+		return err
 	}
-}
 
-func inputStdin() []byte {
-	input, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		panic(err)
-	}
-	return input
-}
-
-func inputFile(filename string) []byte {
-	input, err := ioutil.ReadFile(filename)
-	if err != nil {
-		panic(err)
-	}
-	return input
+	_, err = out.Write(input)
+	return err
 }

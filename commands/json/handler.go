@@ -9,37 +9,34 @@ import (
 	"io/ioutil"
 )
 
-func Pretty(_ commands.CommandParameters, in io.Reader, out io.Writer) {
+func Pretty(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	var prettyJSON bytes.Buffer
 	if err := json.Indent(&prettyJSON, input, "", "\t"); err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = out.Write(prettyJSON.Bytes())
-	if err != nil {
-		panic(err)
-	}
+	return err
 }
 
-func Get(params commands.CommandParameters, in io.Reader, out io.Writer) {
+// json.get(path)
+func Get(params commands.CommandParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	v, ok := params.GetParameter("path", 0)
 	if !ok {
-		panic("not enough arguments, expect: json.get(path)")
+		return commands.NotEnoughParameterError
 	}
 	value := gjson.Get(string(input), v.(string))
 
 	_, err = out.Write([]byte(value.String()))
-	if err != nil {
-		panic(err)
-	}
+	return err
 }

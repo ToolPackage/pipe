@@ -7,24 +7,22 @@ import (
 	"io/ioutil"
 )
 
-func Encode(_ commands.CommandParameters, in io.Reader, out io.Writer) {
+func Encode(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	encoded := base64.StdEncoding.EncodeToString(input)
 
 	_, err = out.Write([]byte(encoded))
-	if err != nil {
-		panic(err)
-	}
+	return err
 }
 
-func Decode(_ commands.CommandParameters, in io.Reader, out io.Writer) {
+func Decode(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	decoded, err := base64.StdEncoding.DecodeString(string(input))
@@ -33,7 +31,5 @@ func Decode(_ commands.CommandParameters, in io.Reader, out io.Writer) {
 	}
 
 	_, err = out.Write([]byte(decoded))
-	if err != nil {
-		panic(err)
-	}
+	return err
 }

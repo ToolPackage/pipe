@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"github.com/ToolPackage/pipe/commands"
+	"os"
 	"strings"
 )
 
@@ -10,7 +11,7 @@ const commandPathSeparator = "."
 
 var commandHandlers = &TreeNode{children: make([]*TreeNode, 0)}
 
-func RegisterCommand(commandName string, handler commands.CommandHandler) error {
+func RegisterCommand(commandName string, handler commands.CommandHandler) {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
@@ -26,10 +27,12 @@ func RegisterCommand(commandName string, handler commands.CommandHandler) error 
 				root = node
 			}
 			root.handler = handler
-			return nil
+			return
 		}
 	}
-	return fmt.Errorf("duplicate commands [%s]", commandName)
+
+	fmt.Printf("unable to register duplicate command: %s\n", commandName)
+	os.Exit(1)
 }
 
 func getCommandHandler(commandName string) (commands.CommandHandler, error) {
@@ -42,7 +45,7 @@ func getCommandHandler(commandName string) (commands.CommandHandler, error) {
 			root = node
 			patternIdx++
 		} else {
-			return nil, fmt.Errorf("invalid commands pattern [%s]", patterns[patternIdx])
+			return nil, fmt.Errorf("command not found: %s, failed to match subname: %s", commandName, patterns[patternIdx])
 		}
 	}
 

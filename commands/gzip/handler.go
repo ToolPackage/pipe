@@ -8,35 +8,34 @@ import (
 	"io/ioutil"
 )
 
-func Compress(_ commands.CommandParameters, in io.Reader, out io.Writer) {
+func Compress(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	w := gzip.NewWriter(out)
 	if _, err = w.Write(input); err != nil {
-		panic(err)
+		return err
 	}
-	if err = w.Close(); err != nil {
-		panic(err)
-	}
+	return w.Close()
 }
 
-func Decompress(_ commands.CommandParameters, in io.Reader, out io.Writer) {
+func Decompress(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	r, err := gzip.NewReader(bytes.NewReader(input))
+	if err != nil {
+		return err
+	}
 	uncompressed, err := ioutil.ReadAll(r)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	_, err = out.Write(uncompressed)
-	if err != nil {
-		panic(err)
-	}
+	return err
 }

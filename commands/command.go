@@ -19,13 +19,13 @@ type Command struct {
 	Handler CommandHandler
 }
 
-func (c *Command) Exec(in io.Reader, out io.Writer) {
-	c.Handler(c.Params, in, out)
+func (c *Command) Exec(in io.Reader, out io.Writer) error {
+	return c.Handler(c.Params, in, out)
 }
 
 type CommandParameterType int
 
-type CommandHandler func(params CommandParameters, in io.Reader, out io.Writer)
+type CommandHandler func(params CommandParameters, in io.Reader, out io.Writer) error
 
 type CommandParameters []CommandParameter
 
