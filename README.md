@@ -15,6 +15,10 @@ examples:
   ```sh
   pipe in('file', './test.txt')=out('file', './test1.txt')
   ```
+- use text as input:
+  ```sh
+  pipe in('text', 'hello world')=out
+  ```
 - use label parameters:
   ```sh
   echo asd | pipe in=out(type:'file', filename:'./test1.txt')
