@@ -6,23 +6,24 @@ import (
 	"github.com/ToolPackage/pipe/commands/input"
 	"github.com/ToolPackage/pipe/commands/json"
 	"github.com/ToolPackage/pipe/commands/output"
-	"github.com/ToolPackage/pipe/core"
+	"github.com/ToolPackage/pipe/executor"
+	"github.com/ToolPackage/pipe/registry"
 )
 
 func main() {
-	core.Execute()
+	executor.Execute()
 }
 
 func init() {
-	core.RegisterCommand("base64.encode", base64.Encode)
-	core.RegisterCommand("base64.decode", base64.Decode)
+	registry.RegisterCommand("base64.encode", base64.Encode)
+	registry.RegisterCommand("base64.decode", base64.Decode)
 
-	core.RegisterCommand("gzip.compress", gzip.Compress)
-	core.RegisterCommand("gzip.decompress", gzip.Decompress)
+	registry.RegisterCommand("gzip.compress", gzip.Compress)
+	registry.RegisterCommand("gzip.decompress", gzip.Decompress)
 
-	core.RegisterCommand("json.pretty", json.Pretty)
-	core.RegisterCommand("json.get", json.Get)
+	registry.RegisterCommand("json.pretty", json.Pretty)
+	registry.RegisterCommand("json.get", json.Get)
 
-	core.RegisterCommand("in", input.Input)
-	core.RegisterCommand("out", output.Output)
+	registry.RegisterCommand("in", input.Input)
+	registry.RegisterCommand("out", output.Output)
 }

@@ -1,9 +1,10 @@
-package core
+package executor
 
 import (
 	"fmt"
 	"github.com/ToolPackage/pipe/commands"
 	"github.com/ToolPackage/pipe/parser"
+	"github.com/ToolPackage/pipe/registry"
 	"github.com/ToolPackage/pipe/util"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"os"
@@ -43,7 +44,7 @@ func parseCommands() []commands.Command {
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
 	for idx := range listener.commands {
-		handler, err := getCommandHandler(listener.commands[idx].Name)
+		handler, err := registry.GetCommandHandler(listener.commands[idx].Name)
 		if err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)

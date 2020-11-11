@@ -1,4 +1,4 @@
-package core
+package registry
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ func RegisterCommand(commandName string, handler commands.CommandHandler) {
 	os.Exit(1)
 }
 
-func getCommandHandler(commandName string) (commands.CommandHandler, error) {
+func GetCommandHandler(commandName string) (commands.CommandHandler, error) {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
