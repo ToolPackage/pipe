@@ -2,7 +2,7 @@
 
 A command util package. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
 
-## commands
+## Commands
 
 ### in & out
 
@@ -59,4 +59,12 @@ examples:
   ```sh
   echo "{"name":{"first":[-999]}}" | pipe in=json.get('name.fisrt.0')=out
   ```
-  
+
+## About command paramter
+
+For now, pipe supports three kinds of command parameter:
+- number: including integer and float
+- string: wrapped by <b>'</b>
+- bool: <b>true</b> or <b>false</b>
+
+<b>NOTE: String parameter doesn't accept spacing character!</b>, most terminal will recogonize space as a separator of two arguments and split them into a string array, so space in a string parameter will be removed.
