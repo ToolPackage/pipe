@@ -64,7 +64,9 @@ examples:
 
 For now, pipe supports three kinds of command parameter:
 - number: including integer and float
-- string: wrapped by <b>'</b>
+- string: wrapped by single quote <b>'</b>
 - bool: <b>true</b> or <b>false</b>
 
-<b>NOTE: String parameter doesn't accept spacing character!</b>, most terminal will recogonize space as a separator of two arguments and split them into a string array, so space in a string parameter will be removed.
+<b>NOTE:</b> Most terminal will recogonize space as a separator of two arguments and split them into a string array, so space in a string parameter will be removed. For examples: ```pipe in('text', 'hello world')=out``` will output ```helloworld``` finally.
+
+<b>Solution:</b> Wrap the string literal with double quote <b>"</b>. E.g: ```"'hello world'"```.
