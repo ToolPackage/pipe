@@ -1,0 +1,1 @@
+antlr4 -Dlanguage=Go parser/Pipe.g4 -o parser

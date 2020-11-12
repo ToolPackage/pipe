@@ -10,7 +10,7 @@ import (
 )
 
 // json.pretty()
-func Pretty(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
+func Pretty(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func Pretty(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
 }
 
 // json.get(path: string)
-func Get(params functions.FunctionParameters, in io.Reader, out io.Writer) error {
+func Get(params functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func Get(params functions.FunctionParameters, in io.Reader, out io.Writer) error
 	if !ok {
 		return functions.NotEnoughParameterError
 	}
-	value := gjson.Get(string(input), v.GetValue().(string))
+	value := gjson.Get(string(input), v.Value.Get().(string))
 
 	_, err = out.Write([]byte(value.String()))
 	return err

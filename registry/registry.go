@@ -12,8 +12,8 @@ const commandPathSeparator = "."
 
 var commandHandlerTree = &TreeNode{children: make([]*TreeNode, 0)}
 
-func RegisterFunction(functionName string, handler functions.FunctionHandler) {
-	patterns := strings.Split(functionName, commandPathSeparator)
+func RegisterFunction(function *functions.FunctionDefinition) {
+	patterns := strings.Split(function.Name, commandPathSeparator)
 	patternIdx := 0
 
 	root := commandHandlerTree
@@ -27,16 +27,16 @@ func RegisterFunction(functionName string, handler functions.FunctionHandler) {
 				root.children = append(root.children, node)
 				root = node
 			}
-			root.handler = handler
+			root.function = function
 			return
 		}
 	}
 
-	fmt.Printf("unable to register duplicate command: %s\n", functionName)
+	fmt.Printf("unable to register duplicate command: %s\n", function.Name)
 	os.Exit(1)
 }
 
-func GetFunctionHandler(commandName string) (functions.FunctionHandler, error) {
+func GetFunctionHandler(commandName string) (*functions.FunctionDefinition, error) {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
@@ -50,7 +50,7 @@ func GetFunctionHandler(commandName string) (functions.FunctionHandler, error) {
 		}
 	}
 
-	return root.handler, nil
+	return root.function, nil
 }
 
 func PrintFunctionUsages() {
@@ -62,8 +62,8 @@ func PrintFunctionUsages() {
 
 func printFuncUsages(indent int, node *TreeNode) {
 	fmt.Print(strings.Repeat("  ", indent), node.value)
-	if node.handler != nil {
-		usage := strings.Trim(util.FuncDescription(node.handler), " \n")
+	if node.function != nil {
+		usage := strings.Trim(util.FuncDescription(node.function.Handler), " \n")
 		fmt.Println(" ->", usage)
 	} else {
 		fmt.Println()
@@ -75,7 +75,7 @@ func printFuncUsages(indent int, node *TreeNode) {
 
 type TreeNode struct {
 	value    string
-	handler  functions.FunctionHandler
+	function *functions.FunctionDefinition
 	children []*TreeNode
 }
 

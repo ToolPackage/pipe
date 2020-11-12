@@ -8,7 +8,7 @@ import (
 )
 
 // base64.encode()
-func Encode(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
+func Encode(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -21,7 +21,7 @@ func Encode(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
 }
 
 // base64.decode()
-func Decode(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
+func Decode(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err

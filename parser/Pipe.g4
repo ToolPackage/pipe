@@ -8,35 +8,35 @@ functionName: Identifier ('.' Identifier)*;
 
 functionParameters: '(' (functionParameter (',' functionParameter)* ','?)? ')';
 
-functionParameter: functionParameterLabel? (listValue | mapValue | numberValue | stringValue | booleanValue);
+functionParameter: functionParameterLabel? (dictValue | numberValue | stringValue | booleanValue);
 
 functionParameterLabel: Identifier ':';
 
 Connect: [=];
 
-// list
+// dict
 
-listValue: '[' listElements? ']';
+dictValue: '[' dictEntries? ']';
 
-listElements: (numberValue | stringValue | booleanValue) (',' (numberValue | stringValue | booleanValue));
+dictEntries: dictEntry (',' dictEntry)*;
 
-// map
+dictEntry: (dictEntryLabel ':')? dictEntryValue;
 
-mapValue: '[' mapEntries? ']';
+dictEntryLabel: Identifier;
 
-mapEntries: mapEntry (',' mapEntry)*;
-
-mapEntry: Identifier ':' (numberValue | stringValue | booleanValue);
+dictEntryValue: numberValue | stringValue | booleanValue;
 
 // number literal
 
-numberValue: NumberLiteral;
+numberValue: integerValue | decimalValue;
 
-NumberLiteral: IntegerLiteral | FloatingPointLiteral;
+integerValue: IntegerLiteral;
 
-fragment IntegerLiteral: '0' | '-'? NonZeroDigit Digits?;
+decimalValue: DecimalLiteral;
 
-fragment FloatingPointLiteral: '-'? Digits '.' Digits? | '.' Digits;
+IntegerLiteral: '0' | '-'? NonZeroDigit Digits?;
+
+DecimalLiteral: '-'? Digits '.' Digits? | '.' Digits;
 
 fragment Digits: Digit+;
 

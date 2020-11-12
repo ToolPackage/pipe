@@ -8,7 +8,7 @@ import (
 )
 
 // in(type: [file|text|stdin] string, filename|value: string)
-func Input(params functions.FunctionParameters, _ io.Reader, out io.Writer) error {
+func Input(params functions.Parameters, _ io.Reader, out io.Writer) error {
 	var input []byte
 	var err error
 
@@ -17,19 +17,29 @@ func Input(params functions.FunctionParameters, _ io.Reader, out io.Writer) erro
 	var param2 string
 	v, ok := params.GetParameter("type", 0)
 	if ok {
-		opType = v.GetValue().(string)
+		if v.Value.Type() != functions.StringValue {
+			return functions.InvalidTypeOfParameterError
+		}
+		opType = v.Value.Get().(string)
+
 		if opType == "file" {
 			v, ok = params.GetParameter("filename", 1)
 			if !ok {
 				return functions.NotEnoughParameterError
 			}
-			param2 = v.GetValue().(string)
+			if v.Value.Type() != functions.StringValue {
+				return functions.InvalidTypeOfParameterError
+			}
+			param2 = v.Value.Get().(string)
 		} else if opType == "text" {
 			v, ok = params.GetParameter("value", 1)
 			if !ok {
 				return functions.NotEnoughParameterError
 			}
-			param2 = v.GetValue().(string)
+			if v.Value.Type() != functions.StringValue {
+				return functions.InvalidTypeOfParameterError
+			}
+			param2 = v.Value.Get().(string)
 		} else if opType != "stdin" {
 			return functions.IllegalParameterError
 		}

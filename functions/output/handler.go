@@ -8,19 +8,19 @@ import (
 )
 
 // out(type: [file|stdout] string, filename: string)
-func Output(params functions.FunctionParameters, in io.Reader, _ io.Writer) error {
+func Output(params functions.Parameters, in io.Reader, _ io.Writer) error {
 	// validate parameters
 	var opType = "stdout"
 	var filename string
 	v, ok := params.GetParameter("type", 0)
 	if ok {
-		opType = v.GetValue().(string)
+		opType = v.Value.Get().(string)
 		if opType == "file" {
 			v, ok = params.GetParameter("filename", 1)
 			if !ok {
 				return functions.NotEnoughParameterError
 			}
-			filename = v.GetValue().(string)
+			filename = v.Value.Get().(string)
 		} else if opType != "stdout" {
 			return functions.IllegalParameterError
 		}

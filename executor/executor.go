@@ -16,20 +16,62 @@ import (
 	"strings"
 )
 
+func defineFunc(name string, handler functions.FunctionHandler, paramConstraint functions.FuncParamConstraint) *functions.FunctionDefinition {
+	return &functions.FunctionDefinition{Name: name, Handler: handler, ParamConstraint: paramConstraint}
+}
+
+func defineParams(paramDefSeqList ...functions.ParamDefSequence) functions.FuncParamConstraint {
+	return paramDefSeqList
+}
+
+func paramSequence(paramDefList ...functions.ParameterDefinition) functions.ParamDefSequence {
+	return paramDefList
+}
+
+func param(paramType functions.ParameterType, optional bool, constValue ...string) functions.ParameterDefinition {
+	return functions.ParameterDefinition{Type: paramType, Optional: optional, ConstValue: constValue}
+}
+
 func init() {
-	registry.RegisterFunction("in", input.Input)
-	registry.RegisterFunction("out", output.Output)
+	registry.RegisterFunction(defineFunc("in", input.Input, defineParams(
+		paramSequence(),
+		paramSequence(
+			param(functions.StringValue, false, "stdin"),
+		),
+		paramSequence(
+			param(functions.StringValue, false, "file", "text"),
+			param(functions.StringValue, false),
+		),
+	)))
+	registry.RegisterFunction(defineFunc("out", output.Output, defineParams(
+		paramSequence(),
+		paramSequence(
+			param(functions.StringValue, false, "stdin"),
+		),
+		paramSequence(
+			param(functions.StringValue, false, "file"),
+			param(functions.StringValue, false),
+		),
+	)))
 
-	registry.RegisterFunction("base64.encode", base64.Encode)
-	registry.RegisterFunction("base64.decode", base64.Decode)
+	registry.RegisterFunction(defineFunc("base64.encode", base64.Encode, defineParams()))
+	registry.RegisterFunction(defineFunc("base64.decode", base64.Decode, defineParams()))
 
-	registry.RegisterFunction("gzip.compress", gzip.Compress)
-	registry.RegisterFunction("gzip.decompress", gzip.Decompress)
+	registry.RegisterFunction(defineFunc("gzip.compress", gzip.Compress, defineParams()))
+	registry.RegisterFunction(defineFunc("gzip.decompress", gzip.Decompress, defineParams()))
 
-	registry.RegisterFunction("json.pretty", json.Pretty)
-	registry.RegisterFunction("json.get", json.Get)
+	registry.RegisterFunction(defineFunc("json.pretty", json.Pretty, defineParams()))
+	registry.RegisterFunction(defineFunc("json.get", json.Get, defineParams(
+		paramSequence(
+			param(functions.StringValue, false, "stdin"),
+		),
+	)))
 
-	registry.RegisterFunction("regexp.test", regexp.Test)
+	registry.RegisterFunction(defineFunc("regexp.test", regexp.Test, defineParams(
+		paramSequence(
+			param(functions.StringValue, false, "stdin"),
+		),
+	)))
 }
 
 func Execute(params []string, streamMode bool) {

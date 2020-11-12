@@ -10,12 +10,12 @@ import (
 )
 
 // regexp.test(pattern: string)
-func Test(params functions.FunctionParameters, in io.Reader, out io.Writer) error {
+func Test(params functions.Parameters, in io.Reader, out io.Writer) error {
 	pattern, ok := params.GetParameter("pattern", 0)
 	if !ok {
 		return functions.NotEnoughParameterError
 	}
-	if pattern.ValueType != functions.StringValue {
+	if pattern.Value.Type() != functions.StringValue {
 		return functions.InvalidTypeOfParameterError
 	}
 
@@ -25,7 +25,7 @@ func Test(params functions.FunctionParameters, in io.Reader, out io.Writer) erro
 		return err
 	}
 
-	ok, err = regexp.Match(pattern.GetValue().(string), input)
+	ok, err = regexp.Match(pattern.Value.Get().(string), input)
 	if err != nil {
 		return err
 	}

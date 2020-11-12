@@ -1,4 +1,3 @@
-- more data type: list, dict
 - =json.get(),json.get(),json.get()=string.concat($0,$1,$2)=output
 - stream
 - highlight

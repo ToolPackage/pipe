@@ -9,7 +9,7 @@ import (
 )
 
 // gzip.compress()
-func Compress(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
+func Compress(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -23,7 +23,7 @@ func Compress(_ functions.FunctionParameters, in io.Reader, out io.Writer) error
 }
 
 // gzip.decompress()
-func Decompress(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
+func Decompress(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err

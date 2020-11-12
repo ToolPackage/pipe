@@ -8,7 +8,7 @@ import (
 )
 
 func TestRegistry(t *testing.T) {
-	RegisterFunction("a.b.c.d", func(args functions.FunctionParameters, in io.Reader, out io.Writer) error { return nil })
+	RegisterFunction("a.b.c.d", func(args functions.Parameters, in io.Reader, out io.Writer) error { return nil })
 
 	node := commandHandlerTree
 	assert.True(t, len(node.children) == 1)

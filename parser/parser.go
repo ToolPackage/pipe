@@ -15,17 +15,24 @@ func ParseScript(script string) []functions.Function {
 	p := NewPipeParser(stream)
 	p.AddErrorListener(NewErrorListener()) // default is console error listener
 	p.BuildParseTrees = true
-	tree := p.Commands()
+	tree := p.Script()
 	listener := NewTreeShapeListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
 	for idx := range listener.functions {
-		handler, err := registry.GetFunctionHandler(listener.functions[idx].Name)
+		f := &listener.functions[idx]
+		funcDef, err := registry.GetFunctionHandler(f.Name)
 		if err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		listener.functions[idx].Handler = handler
+		if err := funcDef.ParamConstraint.Validate(f.Params); err != nil {
+			fmt.Printf("failed to parse function [%d:%s], error: %s",
+				idx, f.Name, err.Error())
+			os.Exit(1)
+
+		}
+		f.Handler = funcDef.Handler
 	}
 
 	return listener.functions
@@ -49,56 +56,90 @@ type TreeShapeListener struct {
 	*BasePipeListener
 
 	functions []functions.Function
-	function  *functions.Function
-	param     *functions.FunctionParameter
+
+	function           *functions.Function
+	param              *functions.Parameter
+	mapEntryLabel      string
+	enterMapEntryValue bool
 }
 
 func NewTreeShapeListener() *TreeShapeListener {
 	return &TreeShapeListener{functions: make([]functions.Function, 0)}
 }
 
-func (t *TreeShapeListener) EnterPattern(ctx *PatternContext) {
+func (t *TreeShapeListener) EnterFunction(ctx *FunctionContext) {
 	t.function = new(functions.Function)
 }
 
-func (t *TreeShapeListener) ExitPattern(ctx *PatternContext) {
+func (t *TreeShapeListener) ExitFunction(ctx *FunctionContext) {
 	t.functions = append(t.functions, *t.function)
 	t.function = nil
 }
 
-func (t *TreeShapeListener) EnterCommandName(ctx *CommandNameContext) {
+func (t *TreeShapeListener) EnterFunctionName(ctx *FunctionNameContext) {
 	t.function.Name = ctx.GetText()
 }
 
-func (t *TreeShapeListener) EnterCommandArguments(ctx *CommandArgumentsContext) {
-	t.function.Params = make([]functions.FunctionParameter, 0)
+func (t *TreeShapeListener) EnterFunctionParameters(ctx *FunctionParametersContext) {
+	t.function.Params = make([]functions.Parameter, 0)
 }
 
-func (t *TreeShapeListener) EnterCommandArgument(ctx *CommandArgumentContext) {
-	t.param = new(functions.FunctionParameter)
+func (t *TreeShapeListener) EnterFunctionParameter(ctx *FunctionParameterContext) {
+	t.param = new(functions.Parameter)
 }
 
-func (t *TreeShapeListener) ExitCommandArgument(ctx *CommandArgumentContext) {
+func (t *TreeShapeListener) ExitFunctionParameter(ctx *FunctionParameterContext) {
 	t.function.Params = append(t.function.Params, *t.param)
 	t.param = nil
 }
 
-func (t *TreeShapeListener) EnterCommandArgumentLabel(ctx *CommandArgumentLabelContext) {
+func (t *TreeShapeListener) EnterFunctionParameterLabel(ctx *FunctionParameterLabelContext) {
 	labelWithColon := ctx.GetText()
 	t.param.Label = labelWithColon[:len(labelWithColon)-1]
 }
 
-func (t *TreeShapeListener) EnterNumberValue(ctx *NumberValueContext) {
-	t.param.ValueType = functions.DecimalValue
-	t.param.Value = ctx.GetText()
+// handle basic type
+
+func (t *TreeShapeListener) EnterIntegerValue(ctx *IntegerValueContext) {
+	t.updateParameterValue(functions.NewBaseParameterValue(functions.IntegerValue, ctx.GetText()))
+}
+
+func (t *TreeShapeListener) EnterDecimalValue(ctx *DecimalValueContext) {
+	t.updateParameterValue(functions.NewBaseParameterValue(functions.DecimalValue, ctx.GetText()))
 }
 
 func (t *TreeShapeListener) EnterStringValue(ctx *StringValueContext) {
-	t.param.ValueType = functions.StringValue
-	t.param.Value = ctx.GetText()
+	t.updateParameterValue(functions.NewBaseParameterValue(functions.StringValue, ctx.GetText()))
 }
 
 func (t *TreeShapeListener) EnterBooleanValue(ctx *BooleanValueContext) {
-	t.param.ValueType = functions.BoolValue
-	t.param.Value = ctx.GetText()
+	t.updateParameterValue(functions.NewBaseParameterValue(functions.BoolValue, ctx.GetText()))
+}
+
+func (t *TreeShapeListener) updateParameterValue(newItem functions.ParameterValue) {
+	if t.enterMapEntryValue {
+		v := t.param.Value.(*functions.DictParameterValue)
+		v.AddEntry(t.mapEntryLabel, newItem)
+		t.mapEntryLabel = ""
+	} else {
+		t.param.Value = newItem
+	}
+}
+
+// handle dict
+
+func (t *TreeShapeListener) EnterDictValue(ctx *DictValueContext) {
+	t.param.Value = functions.NewDictParameterValue()
+}
+
+func (t *TreeShapeListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
+	t.mapEntryLabel = c.GetText()
+}
+
+func (t *TreeShapeListener) EnterDictEntryValue(c *DictEntryValueContext) {
+	t.enterMapEntryValue = true
+}
+
+func (t *TreeShapeListener) ExitDictEntryValue(c *DictEntryValueContext) {
+	t.enterMapEntryValue = false
 }
