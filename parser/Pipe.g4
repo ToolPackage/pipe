@@ -1,18 +1,32 @@
 grammar Pipe;
 
-commands: pattern (CommandSeparator pattern)*;
+script: function (Connect function)*;
 
-pattern: commandName commandArguments?;
+function: functionName functionParameters?;
 
-commandName: Identifier ('.' Identifier)*;
+functionName: Identifier ('.' Identifier)*;
 
-commandArguments: '(' (commandArgument (',' commandArgument)* ','?)? ')';
+functionParameters: '(' (functionParameter (',' functionParameter)* ','?)? ')';
 
-commandArgument: commandArgumentLabel? (numberValue | stringValue | booleanValue);
+functionParameter: functionParameterLabel? (listValue | mapValue | numberValue | stringValue | booleanValue);
 
-commandArgumentLabel: Identifier ':';
+functionParameterLabel: Identifier ':';
 
-CommandSeparator: [=];
+Connect: [=];
+
+// list
+
+listValue: '[' listElements? ']';
+
+listElements: (numberValue | stringValue | booleanValue) (',' (numberValue | stringValue | booleanValue));
+
+// map
+
+mapValue: '[' mapEntries? ']';
+
+mapEntries: mapEntry (',' mapEntry)*;
+
+mapEntry: Identifier ':' (numberValue | stringValue | booleanValue);
 
 // number literal
 
