@@ -1,29 +1,28 @@
 package main
 
 import (
-	"github.com/ToolPackage/pipe/commands/base64"
-	"github.com/ToolPackage/pipe/commands/gzip"
-	"github.com/ToolPackage/pipe/commands/input"
-	"github.com/ToolPackage/pipe/commands/json"
-	"github.com/ToolPackage/pipe/commands/output"
 	"github.com/ToolPackage/pipe/executor"
 	"github.com/ToolPackage/pipe/registry"
+	"github.com/jessevdk/go-flags"
+	"os"
 )
 
 func main() {
-	executor.Execute()
-}
+	var opts struct {
+		Stream  bool `long:"stream" short:"s" description:"Run in stream mode"`
+		Usage   bool `long:"usage" short:"u" description:"Display function usages"`
+		Version bool `long:"version" short:"v" description:"Display the version"`
+	}
 
-func init() {
-	registry.RegisterCommand("base64.encode", base64.Encode)
-	registry.RegisterCommand("base64.decode", base64.Decode)
+	params, err := flags.Parse(&opts)
+	if err != nil {
+		os.Exit(1)
+	}
 
-	registry.RegisterCommand("gzip.compress", gzip.Compress)
-	registry.RegisterCommand("gzip.decompress", gzip.Decompress)
+	if opts.Usage {
+		registry.PrintFunctionUsages()
+		return
+	}
 
-	registry.RegisterCommand("json.pretty", json.Pretty)
-	registry.RegisterCommand("json.get", json.Get)
-
-	registry.RegisterCommand("in", input.Input)
-	registry.RegisterCommand("out", output.Output)
+	executor.Execute(params, opts.Stream)
 }

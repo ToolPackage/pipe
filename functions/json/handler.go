@@ -3,13 +3,14 @@ package json
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/ToolPackage/pipe/commands"
+	"github.com/ToolPackage/pipe/functions"
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
 )
 
-func Pretty(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
+// json.pretty()
+func Pretty(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -24,8 +25,8 @@ func Pretty(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
 	return err
 }
 
-// json.get(path)
-func Get(params commands.CommandParameters, in io.Reader, out io.Writer) error {
+// json.get(path: string)
+func Get(params functions.FunctionParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -33,9 +34,9 @@ func Get(params commands.CommandParameters, in io.Reader, out io.Writer) error {
 
 	v, ok := params.GetParameter("path", 0)
 	if !ok {
-		return commands.NotEnoughParameterError
+		return functions.NotEnoughParameterError
 	}
-	value := gjson.Get(string(input), v.(string))
+	value := gjson.Get(string(input), v.GetValue().(string))
 
 	_, err = out.Write([]byte(value.String()))
 	return err

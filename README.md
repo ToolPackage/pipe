@@ -60,7 +60,15 @@ examples:
   echo "{"name":{"first":[-999]}}" | pipe in=json.get('name.fisrt.0')=out
   ```
 
-## About command paramter
+### regexp
+
+examples:
+- test:
+  ```sh
+  pipe in('text', '192.168.1.1')=regexp.test(pattern: '^([0-9]{1,3})(\.([0-9]{1,3})){3}$')=out
+  ```
+
+## About command parameter
 
 For now, pipe supports three kinds of command parameter:
 - number: including integer and float

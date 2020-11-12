@@ -8,7 +8,7 @@ import "github.com/antlr/antlr4/runtime/Go/antlr"
 type PipeListener interface {
 	antlr.ParseTreeListener
 
-	// EnterCommands is called when entering the commands production.
+	// EnterCommands is called when entering the functions production.
 	EnterCommands(c *CommandsContext)
 
 	// EnterPattern is called when entering the pattern production.
@@ -35,7 +35,7 @@ type PipeListener interface {
 	// EnterBooleanValue is called when entering the booleanValue production.
 	EnterBooleanValue(c *BooleanValueContext)
 
-	// ExitCommands is called when exiting the commands production.
+	// ExitCommands is called when exiting the functions production.
 	ExitCommands(c *CommandsContext)
 
 	// ExitPattern is called when exiting the pattern production.

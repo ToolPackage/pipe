@@ -2,20 +2,21 @@ package registry
 
 import (
 	"fmt"
-	"github.com/ToolPackage/pipe/commands"
+	"github.com/ToolPackage/pipe/functions"
+	"github.com/ToolPackage/pipe/util"
 	"os"
 	"strings"
 )
 
 const commandPathSeparator = "."
 
-var commandHandlers = &TreeNode{children: make([]*TreeNode, 0)}
+var commandHandlerTree = &TreeNode{children: make([]*TreeNode, 0)}
 
-func RegisterCommand(commandName string, handler commands.CommandHandler) {
-	patterns := strings.Split(commandName, commandPathSeparator)
+func RegisterFunction(functionName string, handler functions.FunctionHandler) {
+	patterns := strings.Split(functionName, commandPathSeparator)
 	patternIdx := 0
 
-	root := commandHandlers
+	root := commandHandlerTree
 	for patternIdx < len(patterns) {
 		if node, ok := root.matchChildren(patterns[patternIdx]); ok {
 			root = node
@@ -31,15 +32,15 @@ func RegisterCommand(commandName string, handler commands.CommandHandler) {
 		}
 	}
 
-	fmt.Printf("unable to register duplicate command: %s\n", commandName)
+	fmt.Printf("unable to register duplicate command: %s\n", functionName)
 	os.Exit(1)
 }
 
-func GetCommandHandler(commandName string) (commands.CommandHandler, error) {
+func GetFunctionHandler(commandName string) (functions.FunctionHandler, error) {
 	patterns := strings.Split(commandName, commandPathSeparator)
 	patternIdx := 0
 
-	root := commandHandlers
+	root := commandHandlerTree
 	for patternIdx < len(patterns) {
 		if node, ok := root.matchChildren(patterns[patternIdx]); ok {
 			root = node
@@ -52,9 +53,29 @@ func GetCommandHandler(commandName string) (commands.CommandHandler, error) {
 	return root.handler, nil
 }
 
+func PrintFunctionUsages() {
+	fmt.Println("usages:")
+	for _, child := range commandHandlerTree.children {
+		printFuncUsages(1, child)
+	}
+}
+
+func printFuncUsages(indent int, node *TreeNode) {
+	fmt.Print(strings.Repeat("  ", indent), node.value)
+	if node.handler != nil {
+		usage := strings.Trim(util.FuncDescription(node.handler), " \n")
+		fmt.Println(" ->", usage)
+	} else {
+		fmt.Println()
+	}
+	for _, child := range node.children {
+		printFuncUsages(indent+1, child)
+	}
+}
+
 type TreeNode struct {
 	value    string
-	handler  commands.CommandHandler
+	handler  functions.FunctionHandler
 	children []*TreeNode
 }
 

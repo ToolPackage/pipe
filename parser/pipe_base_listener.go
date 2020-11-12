@@ -21,10 +21,10 @@ func (s *BasePipeListener) EnterEveryRule(ctx antlr.ParserRuleContext) {}
 // ExitEveryRule is called when any rule is exited.
 func (s *BasePipeListener) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 
-// EnterCommands is called when production commands is entered.
+// EnterCommands is called when production functions is entered.
 func (s *BasePipeListener) EnterCommands(ctx *CommandsContext) {}
 
-// ExitCommands is called when production commands is exited.
+// ExitCommands is called when production functions is exited.
 func (s *BasePipeListener) ExitCommands(ctx *CommandsContext) {}
 
 // EnterPattern is called when production pattern is entered.

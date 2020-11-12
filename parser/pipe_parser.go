@@ -58,7 +58,7 @@ var symbolicNames = []string{
 }
 
 var ruleNames = []string{
-	"commands", "pattern", "commandName", "commandArguments", "commandArgument",
+	"functions", "pattern", "commandName", "commandArguments", "commandArgument",
 	"commandArgumentLabel", "numberValue", "stringValue", "booleanValue",
 }
 var decisionToDFA = make([]*antlr.DFA, len(deserializedATN.DecisionToState))

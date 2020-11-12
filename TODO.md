@@ -1,5 +1,6 @@
 - more data type: list, dict
-- regexp
-- -h param
-- -s param
 - =json.get(),json.get(),json.get()=string.concat($0,$1,$2)=output
+- stream
+- highlight
+- filter
+- version

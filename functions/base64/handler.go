@@ -2,12 +2,13 @@ package base64
 
 import (
 	"encoding/base64"
-	"github.com/ToolPackage/pipe/commands"
+	"github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
 )
 
-func Encode(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
+// base64.encode()
+func Encode(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -19,7 +20,8 @@ func Encode(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
 	return err
 }
 
-func Decode(_ commands.CommandParameters, in io.Reader, out io.Writer) error {
+// base64.decode()
+func Decode(_ functions.FunctionParameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err

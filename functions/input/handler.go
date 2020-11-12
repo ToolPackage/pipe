@@ -1,14 +1,14 @@
 package input
 
 import (
-	"github.com/ToolPackage/pipe/commands"
+	"github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-// in(file|text|stdin, filename|value)
-func Input(params commands.CommandParameters, _ io.Reader, out io.Writer) error {
+// in(type: [file|text|stdin] string, filename|value: string)
+func Input(params functions.FunctionParameters, _ io.Reader, out io.Writer) error {
 	var input []byte
 	var err error
 
@@ -17,21 +17,21 @@ func Input(params commands.CommandParameters, _ io.Reader, out io.Writer) error 
 	var param2 string
 	v, ok := params.GetParameter("type", 0)
 	if ok {
-		opType = v.(string)
+		opType = v.GetValue().(string)
 		if opType == "file" {
 			v, ok = params.GetParameter("filename", 1)
 			if !ok {
-				return commands.NotEnoughParameterError
+				return functions.NotEnoughParameterError
 			}
-			param2 = v.(string)
+			param2 = v.GetValue().(string)
 		} else if opType == "text" {
 			v, ok = params.GetParameter("value", 1)
 			if !ok {
-				return commands.NotEnoughParameterError
+				return functions.NotEnoughParameterError
 			}
-			param2 = v.(string)
+			param2 = v.GetValue().(string)
 		} else if opType != "stdin" {
-			return commands.IllegalParameterError
+			return functions.IllegalParameterError
 		}
 	}
 
