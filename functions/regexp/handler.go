@@ -2,21 +2,29 @@ package regexp
 
 import (
 	"fmt"
-	"github.com/ToolPackage/pipe/functions"
+	f "github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
 	"regexp"
 	"strconv"
 )
 
-// regexp.test(pattern: string)
-func Test(params functions.Parameters, in io.Reader, out io.Writer) error {
+func Register() []*f.FunctionDefinition {
+	return f.DefFuncs(
+		f.DefFunc("regexp.test", test, f.DefParams(
+			f.DefParam(f.StringValue, "pattern", false),
+		)),
+	)
+}
+
+// regexp.test(pattern: string): test input with regexp pattern
+func test(params f.Parameters, in io.Reader, out io.Writer) error {
 	pattern, ok := params.GetParameter("pattern", 0)
 	if !ok {
-		return functions.NotEnoughParameterError
+		return f.NotEnoughParameterError
 	}
-	if pattern.Value.Type() != functions.StringValue {
-		return functions.InvalidTypeOfParameterError
+	if pattern.Value.Type() != f.StringValue {
+		return f.InvalidTypeOfParameterError
 	}
 
 	// read input

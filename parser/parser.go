@@ -21,21 +21,25 @@ func ParseScript(script string) []functions.Function {
 
 	for idx := range listener.functions {
 		f := &listener.functions[idx]
-		funcDef, err := registry.GetFunctionHandler(f.Name)
+		funcDefs, err := registry.GetFunction(f.Name)
 		if err != nil {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		if err := funcDef.ParamConstraint.Validate(f.Params); err != nil {
-			fmt.Printf("failed to parse function [%d:%s], error: %s",
-				idx, f.Name, err.Error())
-			os.Exit(1)
-
-		}
-		f.Handler = funcDef.Handler
+		f.Handler = lookupFunction(f, funcDefs)
 	}
 
 	return listener.functions
+}
+
+func lookupFunction(f *functions.Function, funcDefs []*functions.FunctionDefinition) functions.FunctionHandler {
+	// TODO:
+	funcDef := funcDefs[0]
+	if err := funcDef.ParamConstraint.Validate(f.Params); err != nil {
+		fmt.Printf("validation error %s: %s\n", f.Name, err.Error())
+		os.Exit(1)
+	}
+	return funcDefs[0].Handler
 }
 
 type ErrorListener struct {

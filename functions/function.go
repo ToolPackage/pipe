@@ -2,8 +2,10 @@ package functions
 
 import (
 	"fmt"
+	"github.com/ToolPackage/pipe/util"
 	"io"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -64,6 +66,10 @@ func (p Parameters) GetParameterByIndex(idx int) (*Parameter, bool) {
 type Parameter struct {
 	Label string
 	Value ParameterValue
+}
+
+func (p *Parameter) Labeled() bool {
+	return len(p.Label) > 0
 }
 
 type ParameterValue interface {
@@ -158,20 +164,81 @@ func (dpv *DictParameterValue) Get() interface{} {
 	return dpv.Value
 }
 
+// FunctionDefinition
+
 type FunctionDefinition struct {
 	Name            string
 	Handler         FunctionHandler
 	ParamConstraint FuncParamConstraint
 }
 
-type ParameterDefinition struct {
-	Type       ParameterType
-	Optional   bool
-	ConstValue []string
-}
-
-type ParamDefSequence []ParameterDefinition
-type FuncParamConstraint []ParamDefSequence
+type FuncParamConstraint []ParameterDefinition
 
 func (fpc FuncParamConstraint) Validate(params Parameters) error {
+	// 1.validate labeled params
+	idx := 0
+	// skip all non-labeled parameters
+	for ; idx < len(params) && !params[idx].Labeled(); idx++ {
+	}
+	// check all following parameters are labeled
+	for ; idx < len(params); idx++ {
+		if !params[idx].Labeled() {
+			return InvalidNonLabeledParameterError
+		}
+	}
+
+	paramSz := params.Size()
+	for idx, paramDef := range fpc {
+		// 2.validate parameters size
+		if idx == paramSz {
+			for ; idx < len(fpc); idx++ {
+				if !paramDef.Optional {
+					return NotEnoughParameterError
+				}
+			}
+			return nil
+		}
+		param, ok := params.GetParameter(paramDef.Label, idx)
+		if !ok {
+			return nil
+		}
+		// 3.validate parameter type
+		if param.Value.Type() != paramDef.Type {
+			return InvalidTypeOfParameterError
+		}
+		// 4.validate parameter value
+		if len(paramDef.ConstValue) > 0 && !util.SliceContains(paramDef.ConstValue, param.Value.Get()) {
+			return InvalidConstValueError
+		}
+	}
+	return nil
+}
+
+type ParameterDefinition struct {
+	Label      string
+	Type       ParameterType
+	Optional   bool
+	ConstValue []interface{}
+}
+
+// Define function utils
+
+func DefFuncs(funcDefList ...*FunctionDefinition) []*FunctionDefinition {
+	return funcDefList
+}
+
+func DefFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
+	return &FunctionDefinition{Name: name, Handler: handler, ParamConstraint: paramConstraint}
+}
+
+func DefParams(paramDefList ...ParameterDefinition) FuncParamConstraint {
+	return paramDefList
+}
+
+func DefParam(paramType ParameterType, label string, optional bool, constValue ...interface{}) ParameterDefinition {
+	label = strings.Trim(label, " \t\n\r")
+	if len(label) == 0 {
+		panic(InvalidFuncParamDefError)
+	}
+	return ParameterDefinition{Type: paramType, Label: label, Optional: optional, ConstValue: constValue}
 }

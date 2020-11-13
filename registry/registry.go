@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"github.com/ToolPackage/pipe/functions"
 	"github.com/ToolPackage/pipe/util"
-	"os"
 	"strings"
 )
 
 const commandPathSeparator = "."
 
 var commandHandlerTree = &TreeNode{children: make([]*TreeNode, 0)}
+
+func RegisterFunctions(funcList []*functions.FunctionDefinition) {
+	for _, function := range funcList {
+		RegisterFunction(function)
+	}
+}
 
 func RegisterFunction(function *functions.FunctionDefinition) {
 	patterns := strings.Split(function.Name, commandPathSeparator)
@@ -23,21 +28,22 @@ func RegisterFunction(function *functions.FunctionDefinition) {
 			patternIdx++
 		} else {
 			for ; patternIdx < len(patterns); patternIdx++ {
-				node := &TreeNode{value: patterns[patternIdx], children: make([]*TreeNode, 0)}
+				node := &TreeNode{
+					value:    patterns[patternIdx],
+					funcList: make([]*functions.FunctionDefinition, 0),
+					children: make([]*TreeNode, 0),
+				}
 				root.children = append(root.children, node)
 				root = node
 			}
-			root.function = function
+			root.funcList = append(root.funcList, function)
 			return
 		}
 	}
-
-	fmt.Printf("unable to register duplicate command: %s\n", function.Name)
-	os.Exit(1)
 }
 
-func GetFunctionHandler(commandName string) (*functions.FunctionDefinition, error) {
-	patterns := strings.Split(commandName, commandPathSeparator)
+func GetFunction(funcName string) ([]*functions.FunctionDefinition, error) {
+	patterns := strings.Split(funcName, commandPathSeparator)
 	patternIdx := 0
 
 	root := commandHandlerTree
@@ -46,11 +52,12 @@ func GetFunctionHandler(commandName string) (*functions.FunctionDefinition, erro
 			root = node
 			patternIdx++
 		} else {
-			return nil, fmt.Errorf("command not found: %s, failed to match subname: %s", commandName, patterns[patternIdx])
+			return nil, fmt.Errorf("function not found: %s, failed to match subname: %s",
+				funcName, patterns[patternIdx])
 		}
 	}
 
-	return root.function, nil
+	return root.funcList, nil
 }
 
 func PrintFunctionUsages() {
@@ -62,9 +69,11 @@ func PrintFunctionUsages() {
 
 func printFuncUsages(indent int, node *TreeNode) {
 	fmt.Print(strings.Repeat("  ", indent), node.value)
-	if node.function != nil {
-		usage := strings.Trim(util.FuncDescription(node.function.Handler), " \n")
-		fmt.Println(" ->", usage)
+	if len(node.funcList) > 0 {
+		for _, function := range node.funcList {
+			usage := strings.Trim(util.FuncDescription(function.Handler), " \n")
+			fmt.Println(" ->", usage)
+		}
 	} else {
 		fmt.Println()
 	}
@@ -75,7 +84,7 @@ func printFuncUsages(indent int, node *TreeNode) {
 
 type TreeNode struct {
 	value    string
-	function *functions.FunctionDefinition
+	funcList []*functions.FunctionDefinition
 	children []*TreeNode
 }
 

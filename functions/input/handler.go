@@ -1,63 +1,58 @@
 package input
 
 import (
-	"github.com/ToolPackage/pipe/functions"
+	f "github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-// in(type: [file|text|stdin] string, filename|value: string)
-func Input(params functions.Parameters, _ io.Reader, out io.Writer) error {
-	var input []byte
-	var err error
+func Register() []*f.FunctionDefinition {
+	return f.DefFuncs(
+		f.DefFunc("in", readFromStdin, f.DefParams(
+			f.DefParam(f.StringValue, "type", true, "stdin"),
+		)),
+		f.DefFunc("in.file", readFromFile, f.DefParams(
+			f.DefParam(f.StringValue, "name", false),
+		)),
+		f.DefFunc("in.text", readFromText, f.DefParams(
+			f.DefParam(f.StringValue, "value", false),
+		)),
+	)
+}
 
-	// validate parameters
-	var opType = "stdin"
-	var param2 string
-	v, ok := params.GetParameter("type", 0)
-	if ok {
-		if v.Value.Type() != functions.StringValue {
-			return functions.InvalidTypeOfParameterError
-		}
-		opType = v.Value.Get().(string)
-
-		if opType == "file" {
-			v, ok = params.GetParameter("filename", 1)
-			if !ok {
-				return functions.NotEnoughParameterError
-			}
-			if v.Value.Type() != functions.StringValue {
-				return functions.InvalidTypeOfParameterError
-			}
-			param2 = v.Value.Get().(string)
-		} else if opType == "text" {
-			v, ok = params.GetParameter("value", 1)
-			if !ok {
-				return functions.NotEnoughParameterError
-			}
-			if v.Value.Type() != functions.StringValue {
-				return functions.InvalidTypeOfParameterError
-			}
-			param2 = v.Value.Get().(string)
-		} else if opType != "stdin" {
-			return functions.IllegalParameterError
-		}
-	}
-
-	// input
-	if opType == "file" {
-		input, err = ioutil.ReadFile(param2)
-	} else if opType == "text" {
-		input = []byte(param2)
-	} else {
-		input, err = ioutil.ReadAll(os.Stdin)
-	}
-
+// in(): read input from stdin
+func readFromStdin(_ f.Parameters, _ io.Reader, out io.Writer) error {
+	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		return err
 	}
-
 	_, err = out.Write(input)
+	return err
+}
+
+// in.file(name: string): read input from file
+func readFromFile(params f.Parameters, _ io.Reader, out io.Writer) error {
+	v, ok := params.GetParameter("name", 0)
+	if !ok {
+		return f.NotEnoughParameterError
+	}
+	filename := v.Value.Get().(string)
+	input, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	_, err = out.Write(input)
+	return err
+}
+
+// in.text(value: string): use text value as input
+func readFromText(params f.Parameters, _ io.Reader, out io.Writer) error {
+	v, ok := params.GetParameter("value", 0)
+	if !ok {
+		return f.NotEnoughParameterError
+	}
+	value := v.Value.Get().(string)
+	_, err := out.Write([]byte(value))
 	return err
 }

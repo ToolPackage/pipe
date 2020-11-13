@@ -9,8 +9,19 @@ import (
 	"io/ioutil"
 )
 
-// json.pretty()
-func Pretty(_ functions.Parameters, in io.Reader, out io.Writer) error {
+import f "github.com/ToolPackage/pipe/functions"
+
+func Register() []*f.FunctionDefinition {
+	return f.DefFuncs(
+		f.DefFunc("json.pretty", pretty, f.DefParams()),
+		f.DefFunc("json.get", get, f.DefParams(
+			f.DefParam(f.StringValue, "path", false),
+		)),
+	)
+}
+
+// json.pretty(): pretty json input
+func pretty(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -25,8 +36,8 @@ func Pretty(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	return err
 }
 
-// json.get(path: string)
-func Get(params functions.Parameters, in io.Reader, out io.Writer) error {
+// json.get(path: string): get value from json input by path
+func get(params functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err

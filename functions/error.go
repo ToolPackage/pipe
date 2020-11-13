@@ -3,7 +3,11 @@ package functions
 import "errors"
 
 var (
-	NotEnoughParameterError     = errors.New("not enough parameter")
-	InvalidTypeOfParameterError = errors.New("invalid type of parameter error")
-	IllegalParameterError       = errors.New("illegal parameter")
+	InvalidFuncParamDefError = errors.New("invalid function parameter definition")
+
+	NotEnoughParameterError         = errors.New("not enough parameter")
+	InvalidTypeOfParameterError     = errors.New("invalid type of parameter")
+	InvalidConstValueError          = errors.New("invalid const value")
+	InvalidNonLabeledParameterError = errors.New("non-labeled parameter follows labeled parameter")
+	IllegalParameterError           = errors.New("illegal parameter")
 )

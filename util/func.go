@@ -51,3 +51,12 @@ func FuncDescription(f interface{}) string {
 	}
 	return ""
 }
+
+func SliceContains(slice []interface{}, data interface{}) bool {
+	for _, v := range slice {
+		if v == data {
+			return true
+		}
+	}
+	return false
+}
