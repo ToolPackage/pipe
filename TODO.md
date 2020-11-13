@@ -1,6 +1,6 @@
 - =json.get(),json.get(),json.get()=string.concat($0,$1,$2)=output
 - stream
-- highlight
+- color.json
 - filter
 - version
 - http

@@ -1,8 +1,32 @@
 # pipe
 
-A command util package. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
+A command util integerated with multiple functions. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
 
-## Commands
+## Usage
+
+```
+usages:
+  in -> in(): read input from stdin
+    file -> in.file(name: string): read input from file
+    text -> in.text(value: string): use text value as input
+  out -> out(): output pipe data to stdout
+    file -> out.file(name: string): output pipe data to file
+  base64
+    encode -> base64.encode()
+    decode -> base64.decode()
+  gzip
+    compress -> gzip.compress()
+    decompress -> gzip.decompress()
+  color
+    json -> color.json(): colorize input in json syntax
+  json
+    pretty -> json.pretty(): pretty json input
+    get -> json.get(path: string): get value from json input by path
+  regexp
+    test -> regexp.test(pattern: string): test input with regexp pattern
+```
+
+## Examples
 
 ### in & out
 
@@ -13,15 +37,15 @@ examples:
   ```
 - read from file and output to file:
   ```sh
-  pipe in('file', './test.txt')=out('file', './test1.txt')
+  pipe in.file('./test.txt')=out.file('./test1.txt')
   ```
 - use text as input:
   ```sh
-  pipe in('text', 'hello world')=out
+  pipe in.text('hello world')=out
   ```
 - use label parameters:
   ```sh
-  echo asd | pipe in=out(type:'file', filename:'./test1.txt')
+  echo asd | pipe in=out.file(name:'./test1.txt')
   ```
 
 ### base64
@@ -41,11 +65,11 @@ examples:
 examples:
 - compress:
   ```sh
-  echo asd | pipe in=gzip.compress=out('file', './test.gzip')
+  echo asd | pipe in=gzip.compress=out.file('./test.gzip')
   ```
 - decompress:
   ```sh
-  pipe in(type: 'file', './test.gzip')=gzip.decompress=out
+  pipe in.file('./test.gzip')=gzip.decompress=out
   ```
 
 ### json
@@ -53,7 +77,7 @@ examples:
 examples:
 - pretty:
   ```sh
-  pipe in('file', './test.json')=json.pretty=out
+  pipe in.file('./test.json')=json.pretty=out
   ```
 - get: need one parameter to indicate json path, more details see [gjson](https://github.com/tidwall/gjson)
   ```sh

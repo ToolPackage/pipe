@@ -4,9 +4,9 @@ import (
 	"fmt"
 	f "github.com/ToolPackage/pipe/functions"
 	"github.com/ToolPackage/pipe/functions/base64"
+	"github.com/ToolPackage/pipe/functions/color"
 	"github.com/ToolPackage/pipe/functions/filter"
 	"github.com/ToolPackage/pipe/functions/gzip"
-	"github.com/ToolPackage/pipe/functions/highlight"
 	"github.com/ToolPackage/pipe/functions/input"
 	"github.com/ToolPackage/pipe/functions/json"
 	"github.com/ToolPackage/pipe/functions/output"
@@ -24,7 +24,7 @@ func init() {
 	registry.RegisterFunctions(base64.Register())
 	registry.RegisterFunctions(filter.Register())
 	registry.RegisterFunctions(gzip.Register())
-	registry.RegisterFunctions(highlight.Register())
+	registry.RegisterFunctions(color.Register())
 	registry.RegisterFunctions(json.Register())
 	registry.RegisterFunctions(regexp.Register())
 }
