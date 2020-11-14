@@ -2,22 +2,22 @@ package text
 
 import (
 	"errors"
-	f "github.com/ToolPackage/pipe/functions"
+	"github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
 )
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("text.cut", cut, f.DefParams(
-			f.DefParam(f.IntegerValue, "start", false),
-			f.DefParam(f.IntegerValue, "end", true),
+func Register() []*functions.FunctionDefinition {
+	return functions.DefFuncs(
+		functions.DefFunc("text.cut", cut, functions.DefParams(
+			functions.DefParam(functions.IntegerValue, "start", false),
+			functions.DefParam(functions.IntegerValue, "end", true),
 		)),
 	)
 }
 
 // text.cut(start: int, end?: int): extract substring
-func cut(params f.Parameters, in io.Reader, out io.Writer) error {
+func cut(params functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/ToolPackage/pipe/util"
 	"io"
+	"io/ioutil"
 	"strconv"
 	"strings"
 )
@@ -16,13 +17,39 @@ const (
 	DictValue
 )
 
-type Function struct {
+type PipeScript struct {
+}
+
+type Pipe struct {
+	nodes []PipeNode
+}
+
+type PipeNode interface {
+	Exec(in io.Reader, out io.Writer) error
+}
+
+type VariableNode struct {
+	Name  string
+	Value []byte
+}
+
+func (v *VariableNode) Exec(in io.Reader, out io.Writer) error {
+	input, err := ioutil.ReadAll(in)
+	if err != nil {
+		return err
+	}
+	v.Value = input
+	_, err = out.Write(input)
+	return err
+}
+
+type FunctionNode struct {
 	Name    string
 	Params  Parameters
 	Handler FunctionHandler
 }
 
-func (c *Function) Exec(in io.Reader, out io.Writer) error {
+func (c *FunctionNode) Exec(in io.Reader, out io.Writer) error {
 	return c.Handler(c.Params, in, out)
 }
 

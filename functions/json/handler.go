@@ -9,13 +9,11 @@ import (
 	"io/ioutil"
 )
 
-import f "github.com/ToolPackage/pipe/functions"
-
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("json.pretty", pretty, f.DefParams()),
-		f.DefFunc("json.get", get, f.DefParams(
-			f.DefParam(f.StringValue, "path", false),
+func Register() []*functions.FunctionDefinition {
+	return functions.DefFuncs(
+		functions.DefFunc("json.pretty", pretty, functions.DefParams()),
+		functions.DefFunc("json.get", get, functions.DefParams(
+			functions.DefParam(functions.StringValue, "path", false),
 		)),
 	)
 }

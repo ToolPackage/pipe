@@ -59,6 +59,6 @@ func Execute(params []string, streamMode bool) {
 	}
 }
 
-func executeStreamPipe(pipe []f.Function) {
+func executeStreamPipe(pipe []f.FunctionNode) {
 
 }

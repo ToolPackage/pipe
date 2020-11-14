@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func ParseScript(script string) []functions.Function {
+func ParseScript(script string) []functions.FunctionNode {
 	input := antlr.NewInputStream(script)
 	lexer := NewPipeLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, 0)
@@ -32,7 +32,7 @@ func ParseScript(script string) []functions.Function {
 	return listener.functions
 }
 
-func lookupFunction(f *functions.Function, funcDefs []*functions.FunctionDefinition) functions.FunctionHandler {
+func lookupFunction(f *functions.FunctionNode, funcDefs []*functions.FunctionDefinition) functions.FunctionHandler {
 	// TODO:
 	funcDef := funcDefs[0]
 	if err := funcDef.ParamConstraint.Validate(f.Params); err != nil {
@@ -59,20 +59,20 @@ func (el *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbo
 type TreeShapeListener struct {
 	*BasePipeListener
 
-	functions []functions.Function
+	functions []functions.FunctionNode
 
-	function           *functions.Function
+	function           *functions.FunctionNode
 	param              *functions.Parameter
 	mapEntryLabel      string
 	enterMapEntryValue bool
 }
 
 func NewTreeShapeListener() *TreeShapeListener {
-	return &TreeShapeListener{functions: make([]functions.Function, 0)}
+	return &TreeShapeListener{functions: make([]functions.FunctionNode, 0)}
 }
 
 func (t *TreeShapeListener) EnterFunction(ctx *FunctionContext) {
-	t.function = new(functions.Function)
+	t.function = new(functions.FunctionNode)
 }
 
 func (t *TreeShapeListener) ExitFunction(ctx *FunctionContext) {

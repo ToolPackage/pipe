@@ -1,7 +1,9 @@
 package filter
 
-import f "github.com/ToolPackage/pipe/functions"
+import (
+	"github.com/ToolPackage/pipe/functions"
+)
 
-func Register() []*f.FunctionDefinition {
+func Register() []*functions.FunctionDefinition {
 	return nil
 }

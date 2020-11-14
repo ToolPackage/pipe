@@ -1,6 +1,10 @@
 grammar Pipe;
 
-script: function (Connect function)*;
+script: pipe (';' pipe)*;
+
+pipe: pipeNode (Connect pipeNode)*;
+
+pipeNode: function | variable;
 
 function: functionName functionParameters?;
 
@@ -8,9 +12,11 @@ functionName: Identifier ('.' Identifier)*;
 
 functionParameters: '(' (functionParameter (',' functionParameter)* ','?)? ')';
 
-functionParameter: functionParameterLabel? (dictValue | numberValue | stringValue | booleanValue);
+functionParameter: functionParameterLabel? (variable | dictValue | numberValue | stringValue | booleanValue);
 
 functionParameterLabel: Identifier ':';
+
+variable: '$' Identifier;
 
 Connect: [=];
 
