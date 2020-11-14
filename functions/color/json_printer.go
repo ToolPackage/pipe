@@ -251,9 +251,9 @@ func (j *JsonPrinter) printWithColor(color string, ch rune) {
 	}
 }
 
-type ColorFunc func(arg interface{}) aurora.Value
+type PrintFunc func(arg interface{}) aurora.Value
 
-var colorFuncMap = map[string]ColorFunc{
+var colorFuncMap = map[string]PrintFunc{
 	"black":        aurora.Black,
 	"red":          aurora.Red,
 	"green":        aurora.Green,

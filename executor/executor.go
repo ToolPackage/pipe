@@ -11,6 +11,7 @@ import (
 	"github.com/ToolPackage/pipe/functions/json"
 	"github.com/ToolPackage/pipe/functions/output"
 	"github.com/ToolPackage/pipe/functions/regexp"
+	"github.com/ToolPackage/pipe/functions/text"
 	"github.com/ToolPackage/pipe/parser"
 	"github.com/ToolPackage/pipe/registry"
 	"github.com/ToolPackage/pipe/util"
@@ -27,6 +28,7 @@ func init() {
 	registry.RegisterFunctions(color.Register())
 	registry.RegisterFunctions(json.Register())
 	registry.RegisterFunctions(regexp.Register())
+	registry.RegisterFunctions(text.Register())
 }
 
 func Execute(params []string, streamMode bool) {
