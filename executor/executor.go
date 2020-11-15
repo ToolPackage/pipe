@@ -32,7 +32,13 @@ func init() {
 }
 
 func Execute(params []string, streamMode bool) {
-	pipe := parser.ParseScript(strings.Join(params, ""))
+	cmd := strings.Trim(strings.Join(params, ""), " ")
+	if len(cmd) == 0 {
+		registry.PrintFunctionUsages()
+		return
+	}
+
+	pipe := parser.ParseMultiPipe(cmd)
 
 	if streamMode {
 		executeStreamPipe(pipe)

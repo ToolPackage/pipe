@@ -5,6 +5,7 @@ import (
 	"github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
+	"strings"
 )
 
 func Register() []*functions.FunctionDefinition {
@@ -12,6 +13,13 @@ func Register() []*functions.FunctionDefinition {
 		functions.DefFunc("text.cut", cut, functions.DefParams(
 			functions.DefParam(functions.IntegerValue, "start", false),
 			functions.DefParam(functions.IntegerValue, "end", true),
+		)),
+		functions.DefFunc("text.replace", replace, functions.DefParams(
+			functions.DefParam(functions.StringValue, "old", false),
+			functions.DefParam(functions.StringValue, "new", false),
+		)),
+		functions.DefFunc("text.repeat", repeat, functions.DefParams(
+			functions.DefParam(functions.IntegerValue, "n", false),
 		)),
 	)
 }
@@ -49,5 +57,36 @@ func cut(params functions.Parameters, in io.Reader, out io.Writer) error {
 	data := string(input)[start:end]
 
 	_, err = out.Write([]byte(data))
+	return err
+}
+
+// text.replace(old: string, new: string): replace substring
+func replace(params functions.Parameters, in io.Reader, out io.Writer) error {
+	input, err := ioutil.ReadAll(in)
+	if err != nil {
+		return err
+	}
+
+	oldS, _ := params.GetParameter("old", 0)
+	newS, _ := params.GetParameter("new", 1)
+	newString := strings.Replace(string(input),
+		oldS.Value.Get().(string), newS.Value.Get().(string), -1)
+
+	_, err = out.Write([]byte(newString))
+	return err
+}
+
+// text.repeat(n: int): repeat input n times
+func repeat(params functions.Parameters, in io.Reader, out io.Writer) error {
+	input, err := ioutil.ReadAll(in)
+	if err != nil {
+		return err
+	}
+
+	n, _ := params.GetParameter("n", 0)
+
+	newString := strings.Repeat(string(input), n.Value.Get().(int))
+
+	_, err = out.Write([]byte(newString))
 	return err
 }

@@ -17,9 +17,6 @@ const (
 	DictValue
 )
 
-type PipeScript struct {
-}
-
 type Pipe struct {
 	nodes []PipeNode
 }

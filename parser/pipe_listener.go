@@ -11,6 +11,39 @@ type PipeListener interface {
 	// EnterScript is called when entering the script production.
 	EnterScript(c *ScriptContext)
 
+	// EnterFuncDef is called when entering the funcDef production.
+	EnterFuncDef(c *FuncDefContext)
+
+	// EnterFuncParamsDef is called when entering the funcParamsDef production.
+	EnterFuncParamsDef(c *FuncParamsDefContext)
+
+	// EnterFuncParamDef is called when entering the funcParamDef production.
+	EnterFuncParamDef(c *FuncParamDefContext)
+
+	// EnterFuncParamName is called when entering the funcParamName production.
+	EnterFuncParamName(c *FuncParamNameContext)
+
+	// EnterOptionalParamFlag is called when entering the optionalParamFlag production.
+	EnterOptionalParamFlag(c *OptionalParamFlagContext)
+
+	// EnterFuncParamType is called when entering the funcParamType production.
+	EnterFuncParamType(c *FuncParamTypeContext)
+
+	// EnterFuncBody is called when entering the funcBody production.
+	EnterFuncBody(c *FuncBodyContext)
+
+	// EnterReturnStatement is called when entering the returnStatement production.
+	EnterReturnStatement(c *ReturnStatementContext)
+
+	// EnterMultiPipe is called when entering the multiPipe production.
+	EnterMultiPipe(c *MultiPipeContext)
+
+	// EnterPipe is called when entering the pipe production.
+	EnterPipe(c *PipeContext)
+
+	// EnterPipeNode is called when entering the pipeNode production.
+	EnterPipeNode(c *PipeNodeContext)
+
 	// EnterFunction is called when entering the function production.
 	EnterFunction(c *FunctionContext)
 
@@ -25,6 +58,9 @@ type PipeListener interface {
 
 	// EnterFunctionParameterLabel is called when entering the functionParameterLabel production.
 	EnterFunctionParameterLabel(c *FunctionParameterLabelContext)
+
+	// EnterVariable is called when entering the variable production.
+	EnterVariable(c *VariableContext)
 
 	// EnterDictValue is called when entering the dictValue production.
 	EnterDictValue(c *DictValueContext)
@@ -59,6 +95,39 @@ type PipeListener interface {
 	// ExitScript is called when exiting the script production.
 	ExitScript(c *ScriptContext)
 
+	// ExitFuncDef is called when exiting the funcDef production.
+	ExitFuncDef(c *FuncDefContext)
+
+	// ExitFuncParamsDef is called when exiting the funcParamsDef production.
+	ExitFuncParamsDef(c *FuncParamsDefContext)
+
+	// ExitFuncParamDef is called when exiting the funcParamDef production.
+	ExitFuncParamDef(c *FuncParamDefContext)
+
+	// ExitFuncParamName is called when exiting the funcParamName production.
+	ExitFuncParamName(c *FuncParamNameContext)
+
+	// ExitOptionalParamFlag is called when exiting the optionalParamFlag production.
+	ExitOptionalParamFlag(c *OptionalParamFlagContext)
+
+	// ExitFuncParamType is called when exiting the funcParamType production.
+	ExitFuncParamType(c *FuncParamTypeContext)
+
+	// ExitFuncBody is called when exiting the funcBody production.
+	ExitFuncBody(c *FuncBodyContext)
+
+	// ExitReturnStatement is called when exiting the returnStatement production.
+	ExitReturnStatement(c *ReturnStatementContext)
+
+	// ExitMultiPipe is called when exiting the multiPipe production.
+	ExitMultiPipe(c *MultiPipeContext)
+
+	// ExitPipe is called when exiting the pipe production.
+	ExitPipe(c *PipeContext)
+
+	// ExitPipeNode is called when exiting the pipeNode production.
+	ExitPipeNode(c *PipeNodeContext)
+
 	// ExitFunction is called when exiting the function production.
 	ExitFunction(c *FunctionContext)
 
@@ -73,6 +142,9 @@ type PipeListener interface {
 
 	// ExitFunctionParameterLabel is called when exiting the functionParameterLabel production.
 	ExitFunctionParameterLabel(c *FunctionParameterLabelContext)
+
+	// ExitVariable is called when exiting the variable production.
+	ExitVariable(c *VariableContext)
 
 	// ExitDictValue is called when exiting the dictValue production.
 	ExitDictValue(c *DictValueContext)
