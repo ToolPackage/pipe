@@ -24,5 +24,9 @@ func main() {
 		return
 	}
 
+	if opts.Version {
+
+	}
+
 	executor.Execute(params, opts.Stream)
 }

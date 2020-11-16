@@ -1,6 +1,6 @@
 # pipe
 
-A command util integerated with multiple functions. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
+A command util integrated with multiple functions. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
 
 ## Usage
 
@@ -24,6 +24,17 @@ usages:
     get -> json.get(path: string): get value from json input by path
   regexp
     test -> regexp.test(pattern: string): test input with regexp pattern
+  http
+    get -> http.get(url: string, headers?: dict, outputMode?: 'body' | 'raw'): create http get request
+  url
+    encode -> url.encode()
+    decode -> url.decode()
+  text
+    cut -> text.cut(start: int, end?: int): extract substring
+    replace -> text.replace(old: string, new: string): replace substring
+    repeat -> text.repeat(n: int): repeat input n times
+  html
+    pretty -> html.pretty()
 ```
 
 ## Examples
@@ -43,7 +54,7 @@ examples:
   ```sh
   pipe in.text('hello world')=out
   ```
-- use label parameters:
+- use labeled parameters:
   ```sh
   echo asd | pipe in=out.file(name:'./test1.txt')
   ```
