@@ -159,7 +159,7 @@ func (mpl *multiPipeListener) EnterBooleanValue(ctx *BooleanValueContext) {
 	mpl.updateParameterValue(NewBaseParameterValue(BoolValue, ctx.GetText()))
 }
 
-func (mpl *multiPipeListener) updateParameterValue(newItem ParameterValue) {
+func (mpl *multiPipeListener) updateParameterValue(newItem Value) {
 	param := mpl.lastFunctionNodeParameter()
 	if param.Value != nil {
 		v := param.Value.(*DictParameterValue)

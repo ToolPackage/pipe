@@ -21,6 +21,10 @@ func Register() []*FunctionDefinition {
 		DefFunc("text.repeat", repeat, DefParams(
 			DefParam(IntegerValue, "n", false),
 		)),
+		DefFunc("text.join", join, DefParams(
+			DefParam(DictValue, "s", false),
+			DefParam(StringValue, "sep", true),
+		)),
 	)
 }
 
@@ -88,5 +92,29 @@ func repeat(params Parameters, in io.Reader, out io.Writer) error {
 	newString := strings.Repeat(string(input), n.Value.Get().(int))
 
 	_, err = out.Write([]byte(newString))
+	return err
+}
+
+// text.join(elems: []string, sep: string)
+func join(params Parameters, _ io.Reader, out io.Writer) error {
+	elems, _ := params.GetParameter("elems", 0)
+	dict := elems.Value.(*DictParameterValue)
+	items := make([]string, 0)
+	for i := 0; i < dict.Size(); i++ {
+		v, _ := dict.GetValueByIndex(i)
+		if v.Type() != StringValue {
+			return InvalidTypeOfParameterError
+		}
+		items = append(items, v.Get().(string))
+	}
+
+	separator := ""
+	sep, ok := params.GetParameter("sep", 1)
+	if ok {
+		separator = sep.Value.Get().(string)
+	}
+	newS := strings.Join(items, separator)
+
+	_, err := out.Write([]byte(newS))
 	return err
 }

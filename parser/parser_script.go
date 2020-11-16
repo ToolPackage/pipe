@@ -148,7 +148,7 @@ func (psl *pipeScriptListener) EnterBooleanValue(ctx *BooleanValueContext) {
 	psl.updateParameterValue(NewBaseParameterValue(BoolValue, ctx.GetText()))
 }
 
-func (psl *pipeScriptListener) updateParameterValue(newItem ParameterValue) {
+func (psl *pipeScriptListener) updateParameterValue(newItem Value) {
 	param := psl.lastFunctionNodeParameter()
 	if param.Value != nil {
 		v := param.Value.(*DictParameterValue)

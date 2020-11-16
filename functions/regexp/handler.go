@@ -14,18 +14,16 @@ func Register() []*FunctionDefinition {
 		DefFunc("regexp.test", test, DefParams(
 			DefParam(StringValue, "pattern", false),
 		)),
+		DefFunc("regexp.replace", replace, DefParams(
+			DefParam(StringValue, "pattern", false),
+			DefParam(StringValue, "new", false),
+		)),
 	)
 }
 
 // regexp.test(pattern: string): test input with regexp pattern
 func test(params Parameters, in io.Reader, out io.Writer) error {
-	pattern, ok := params.GetParameter("pattern", 0)
-	if !ok {
-		return NotEnoughParameterError
-	}
-	if pattern.Value.Type() != StringValue {
-		return InvalidTypeOfParameterError
-	}
+	pattern, _ := params.GetParameter("pattern", 0)
 
 	// read input
 	input, err := ioutil.ReadAll(in)
@@ -33,11 +31,28 @@ func test(params Parameters, in io.Reader, out io.Writer) error {
 		return err
 	}
 
-	ok, err = regexp.Match(pattern.Value.Get().(string), input)
+	ok, err := regexp.Match(pattern.Value.Get().(string), input)
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprint(out, strconv.FormatBool(ok))
+	return err
+}
+
+// regexp.replace(pattern: string, new: string)
+func replace(params Parameters, in io.Reader, out io.Writer) error {
+	pattern, _ := params.GetParameter("pattern", 0)
+	newS, _ := params.GetParameter("new", 1)
+
+	// read input
+	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
 	}
 
-	_, err = fmt.Fprint(out, strconv.FormatBool(ok))
+	re := regexp.MustCompile(pattern.Value.Get().(string))
+	s := re.ReplaceAllString(string(input), newS.Value.Get().(string))
+
+	_, err = out.Write([]byte(s))
 	return err
 }

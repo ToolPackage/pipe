@@ -135,65 +135,27 @@ func (p Parameters) GetParameterByIndex(idx int) (*Parameter, bool) {
 
 type Parameter struct {
 	Label string
-	Value ParameterValue
+	Value Value
 }
 
 func (p *Parameter) Labeled() bool {
 	return len(p.Label) > 0
 }
 
-type ParameterValue interface {
+type Value interface {
 	Type() ValueType
 	// get converted value
 	Get() interface{}
-	GetInt() int
-	GetFloat() float64
-	GetString() string
-	GetBool() bool
-	GetDict() DictParameterValue
-}
-
-type AbstractParameterValue struct {
-	ParameterValue
-	ValueType ValueType
-}
-
-func (p *AbstractParameterValue) Type() ValueType {
-	return p.ValueType
-}
-
-func (p *AbstractParameterValue) Get() interface{} {
-	return nil
-}
-
-func (p *AbstractParameterValue) GetInt() int {
-	return p.Get().(int)
-}
-
-func (p *AbstractParameterValue) GetFloat() float64 {
-	return p.Get().(float64)
-}
-
-func (p *AbstractParameterValue) GetString() string {
-	return p.Get().(string)
-}
-
-func (p *AbstractParameterValue) GetBool() bool {
-	return p.Get().(bool)
-}
-
-func (p *AbstractParameterValue) GetDict() DictParameterValue {
-	return p.Get().(DictParameterValue)
 }
 
 // BaseParameterValue is the basic type set of parameters
 type BaseParameterValue struct {
-	*AbstractParameterValue
-	Value string
+	ValueType ValueType
+	Value     string
 }
 
-func NewBaseParameterValue(valueType ValueType, value string) *BaseParameterValue {
-	return &BaseParameterValue{AbstractParameterValue: &AbstractParameterValue{ValueType: valueType}, Value: value}
+func NewBaseParameterValue(valueType ValueType, value string) Value {
+	return &BaseParameterValue{ValueType: valueType, Value: value}
 }
 
 func (bpv *BaseParameterValue) Type() ValueType {
@@ -210,20 +172,23 @@ func (bpv *BaseParameterValue) Get() interface{} {
 
 // DictParameterValue
 type DictParameterValue struct {
-	*AbstractParameterValue
 	ValueOrderMap []string
-	Value         map[string]ParameterValue
+	Value         map[string]Value
 }
 
-func NewDictParameterValue() *DictParameterValue {
-	return &DictParameterValue{AbstractParameterValue: &AbstractParameterValue{ValueType: DictValue}, Value: make(map[string]ParameterValue)}
+func NewDictParameterValue() Value {
+	return &DictParameterValue{Value: make(map[string]Value)}
+}
+
+func (dpv *DictParameterValue) Type() ValueType {
+	return DictValue
 }
 
 func (dpv *DictParameterValue) Size() int {
 	return len(dpv.Value)
 }
 
-func (dpv *DictParameterValue) AddEntry(label string, value ParameterValue) {
+func (dpv *DictParameterValue) AddEntry(label string, value Value) {
 	if len(label) == 0 {
 		label = strconv.Itoa(len(dpv.Value))
 	}
@@ -231,7 +196,7 @@ func (dpv *DictParameterValue) AddEntry(label string, value ParameterValue) {
 	dpv.ValueOrderMap = append(dpv.ValueOrderMap, label)
 }
 
-func (dpv *DictParameterValue) GetValue(label string, idx int) (ParameterValue, bool) {
+func (dpv *DictParameterValue) GetValue(label string, idx int) (Value, bool) {
 	v, ok := dpv.Value[label]
 	if ok {
 		return v, true
@@ -239,12 +204,12 @@ func (dpv *DictParameterValue) GetValue(label string, idx int) (ParameterValue, 
 	return dpv.GetValueByIndex(idx)
 }
 
-func (dpv *DictParameterValue) GetValueByLabel(label string) (ParameterValue, bool) {
+func (dpv *DictParameterValue) GetValueByLabel(label string) (Value, bool) {
 	v, ok := dpv.Value[label]
 	return v, ok
 }
 
-func (dpv *DictParameterValue) GetValueByIndex(idx int) (ParameterValue, bool) {
+func (dpv *DictParameterValue) GetValueByIndex(idx int) (Value, bool) {
 	if idx < 0 || idx >= dpv.Size() {
 		return nil, false
 	}
@@ -258,14 +223,17 @@ func (dpv *DictParameterValue) Get() interface{} {
 
 // Reference
 type ReferenceParameterValue struct {
-	*AbstractParameterValue
 	Name    string
 	RefType ValueType
 	Value   *ImmutableValue
 }
 
-func NewReferenceParameterValue(name string, value *ImmutableValue) *ReferenceParameterValue {
-	return &ReferenceParameterValue{AbstractParameterValue: &AbstractParameterValue{ValueType: Reference}, Name: name, Value: value}
+func NewReferenceParameterValue(name string, value *ImmutableValue) Value {
+	return &ReferenceParameterValue{Name: name, Value: value}
+}
+
+func (rpv *ReferenceParameterValue) Type() ValueType {
+	return Reference
 }
 
 func (rpv *ReferenceParameterValue) Get() interface{} {
