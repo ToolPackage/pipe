@@ -27,6 +27,72 @@ func (s *BasePipeListener) EnterScript(ctx *ScriptContext) {}
 // ExitScript is called when production script is exited.
 func (s *BasePipeListener) ExitScript(ctx *ScriptContext) {}
 
+// EnterFuncDef is called when production funcDef is entered.
+func (s *BasePipeListener) EnterFuncDef(ctx *FuncDefContext) {}
+
+// ExitFuncDef is called when production funcDef is exited.
+func (s *BasePipeListener) ExitFuncDef(ctx *FuncDefContext) {}
+
+// EnterFuncParamsDef is called when production funcParamsDef is entered.
+func (s *BasePipeListener) EnterFuncParamsDef(ctx *FuncParamsDefContext) {}
+
+// ExitFuncParamsDef is called when production funcParamsDef is exited.
+func (s *BasePipeListener) ExitFuncParamsDef(ctx *FuncParamsDefContext) {}
+
+// EnterFuncParamDef is called when production funcParamDef is entered.
+func (s *BasePipeListener) EnterFuncParamDef(ctx *FuncParamDefContext) {}
+
+// ExitFuncParamDef is called when production funcParamDef is exited.
+func (s *BasePipeListener) ExitFuncParamDef(ctx *FuncParamDefContext) {}
+
+// EnterFuncParamName is called when production funcParamName is entered.
+func (s *BasePipeListener) EnterFuncParamName(ctx *FuncParamNameContext) {}
+
+// ExitFuncParamName is called when production funcParamName is exited.
+func (s *BasePipeListener) ExitFuncParamName(ctx *FuncParamNameContext) {}
+
+// EnterOptionalParamFlag is called when production optionalParamFlag is entered.
+func (s *BasePipeListener) EnterOptionalParamFlag(ctx *OptionalParamFlagContext) {}
+
+// ExitOptionalParamFlag is called when production optionalParamFlag is exited.
+func (s *BasePipeListener) ExitOptionalParamFlag(ctx *OptionalParamFlagContext) {}
+
+// EnterFuncParamType is called when production funcParamType is entered.
+func (s *BasePipeListener) EnterFuncParamType(ctx *FuncParamTypeContext) {}
+
+// ExitFuncParamType is called when production funcParamType is exited.
+func (s *BasePipeListener) ExitFuncParamType(ctx *FuncParamTypeContext) {}
+
+// EnterFuncBody is called when production funcBody is entered.
+func (s *BasePipeListener) EnterFuncBody(ctx *FuncBodyContext) {}
+
+// ExitFuncBody is called when production funcBody is exited.
+func (s *BasePipeListener) ExitFuncBody(ctx *FuncBodyContext) {}
+
+// EnterReturnStatement is called when production returnStatement is entered.
+func (s *BasePipeListener) EnterReturnStatement(ctx *ReturnStatementContext) {}
+
+// ExitReturnStatement is called when production returnStatement is exited.
+func (s *BasePipeListener) ExitReturnStatement(ctx *ReturnStatementContext) {}
+
+// EnterMultiPipe is called when production multiPipe is entered.
+func (s *BasePipeListener) EnterMultiPipe(ctx *MultiPipeContext) {}
+
+// ExitMultiPipe is called when production multiPipe is exited.
+func (s *BasePipeListener) ExitMultiPipe(ctx *MultiPipeContext) {}
+
+// EnterPipe is called when production pipe is entered.
+func (s *BasePipeListener) EnterPipe(ctx *PipeContext) {}
+
+// ExitPipe is called when production pipe is exited.
+func (s *BasePipeListener) ExitPipe(ctx *PipeContext) {}
+
+// EnterPipeNode is called when production pipeNode is entered.
+func (s *BasePipeListener) EnterPipeNode(ctx *PipeNodeContext) {}
+
+// ExitPipeNode is called when production pipeNode is exited.
+func (s *BasePipeListener) ExitPipeNode(ctx *PipeNodeContext) {}
+
 // EnterFunction is called when production function is entered.
 func (s *BasePipeListener) EnterFunction(ctx *FunctionContext) {}
 
@@ -56,6 +122,12 @@ func (s *BasePipeListener) EnterFunctionParameterLabel(ctx *FunctionParameterLab
 
 // ExitFunctionParameterLabel is called when production functionParameterLabel is exited.
 func (s *BasePipeListener) ExitFunctionParameterLabel(ctx *FunctionParameterLabelContext) {}
+
+// EnterVariable is called when production variable is entered.
+func (s *BasePipeListener) EnterVariable(ctx *VariableContext) {}
+
+// ExitVariable is called when production variable is exited.
+func (s *BasePipeListener) ExitVariable(ctx *VariableContext) {}
 
 // EnterDictValue is called when production dictValue is entered.
 func (s *BasePipeListener) EnterDictValue(ctx *DictValueContext) {}

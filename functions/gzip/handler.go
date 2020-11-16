@@ -3,20 +3,20 @@ package gzip
 import (
 	"bytes"
 	"compress/gzip"
-	f "github.com/ToolPackage/pipe/functions"
+	"github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
 )
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("gzip.compress", compress, f.DefParams()),
-		f.DefFunc("gzip.decompress", decompress, f.DefParams()),
+func Register() []*functions.FunctionDefinition {
+	return functions.DefFuncs(
+		functions.DefFunc("gzip.compress", compress, functions.DefParams()),
+		functions.DefFunc("gzip.decompress", decompress, functions.DefParams()),
 	)
 }
 
 // gzip.compress()
-func compress(_ f.Parameters, in io.Reader, out io.Writer) error {
+func compress(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func compress(_ f.Parameters, in io.Reader, out io.Writer) error {
 }
 
 // gzip.decompress()
-func decompress(_ f.Parameters, in io.Reader, out io.Writer) error {
+func decompress(_ functions.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err

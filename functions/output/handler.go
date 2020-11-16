@@ -6,13 +6,12 @@ import (
 	"io/ioutil"
 	"os"
 )
-import f "github.com/ToolPackage/pipe/functions"
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("out", outputToStdout, f.DefParams()),
-		f.DefFunc("out.file", outputToFile, f.DefParams(
-			f.DefParam(f.StringValue, "name", false),
+func Register() []*functions.FunctionDefinition {
+	return functions.DefFuncs(
+		functions.DefFunc("out", outputToStdout, functions.DefParams()),
+		functions.DefFunc("out.file", outputToFile, functions.DefParams(
+			functions.DefParam(functions.StringValue, "name", false),
 		)),
 	)
 }

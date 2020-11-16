@@ -12,6 +12,7 @@ import (
 	"github.com/ToolPackage/pipe/functions/json"
 	"github.com/ToolPackage/pipe/functions/output"
 	"github.com/ToolPackage/pipe/functions/regexp"
+	"github.com/ToolPackage/pipe/functions/text"
 	"github.com/ToolPackage/pipe/functions/url"
 	"github.com/ToolPackage/pipe/parser"
 	"github.com/ToolPackage/pipe/registry"
@@ -31,10 +32,17 @@ func init() {
 	registry.RegisterFunctions(regexp.Register())
 	registry.RegisterFunctions(http.Register())
 	registry.RegisterFunctions(url.Register())
+	registry.RegisterFunctions(text.Register())
 }
 
 func Execute(params []string, streamMode bool) {
-	pipe := parser.ParseScript(strings.Join(params, ""))
+	cmd := strings.Trim(strings.Join(params, ""), " ")
+	if len(cmd) == 0 {
+		registry.PrintFunctionUsages()
+		return
+	}
+
+	pipe := parser.ParseMultiPipe(cmd)
 
 	if streamMode {
 		executeStreamPipe(pipe)
@@ -61,6 +69,6 @@ func Execute(params []string, streamMode bool) {
 	}
 }
 
-func executeStreamPipe(pipe []f.Function) {
+func executeStreamPipe(pipe []f.FunctionNode) {
 
 }

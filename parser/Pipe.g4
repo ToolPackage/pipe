@@ -1,6 +1,32 @@
 grammar Pipe;
 
-script: function (Connect function)*;
+// script entry
+
+script: funcDef*;
+
+funcDef: 'def' functionName funcParamsDef funcBody;
+
+funcParamsDef: '(' (funcParamDef (',' funcParamDef)*)? ')';
+
+funcParamDef: funcParamName optionalParamFlag? ':' funcParamType;
+
+funcParamName: Identifier;
+
+optionalParamFlag: '?';
+
+funcParamType: ValueType;
+
+funcBody: '{' (multiPipe ';')? returnStatement '}';
+
+returnStatement: 'return' pipe;
+
+// comand line entry
+
+multiPipe: pipe (';' pipe)*;
+
+pipe: pipeNode (Connect pipeNode)*;
+
+pipeNode: function | variable;
 
 function: functionName functionParameters?;
 
@@ -8,11 +34,15 @@ functionName: Identifier ('.' Identifier)*;
 
 functionParameters: '(' (functionParameter (',' functionParameter)* ','?)? ')';
 
-functionParameter: functionParameterLabel? (dictValue | numberValue | stringValue | booleanValue);
+functionParameter: functionParameterLabel? (variable | dictValue | numberValue | stringValue | booleanValue);
 
 functionParameterLabel: Identifier ':';
 
+variable: '$' Identifier;
+
 Connect: [=];
+
+ValueType: 'string' | 'integer' | 'float' | 'boolean' | 'dict';
 
 // dict
 
