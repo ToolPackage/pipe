@@ -17,6 +17,7 @@ func Register() []*f.FunctionDefinition {
 	)
 }
 
+// http.get(url: string, headers?: dict, outputMode?: 'body' | 'raw'): create http get request
 func get(params f.Parameters, in io.Reader, out io.Writer) error {
 	url, _ := params.GetParameter("url", 0)
 	req, err := http.NewRequest("GET", url.Value.Get().(string), nil)

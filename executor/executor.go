@@ -7,6 +7,7 @@ import (
 	"github.com/ToolPackage/pipe/functions/color"
 	"github.com/ToolPackage/pipe/functions/filter"
 	"github.com/ToolPackage/pipe/functions/gzip"
+	"github.com/ToolPackage/pipe/functions/html"
 	"github.com/ToolPackage/pipe/functions/http"
 	"github.com/ToolPackage/pipe/functions/input"
 	"github.com/ToolPackage/pipe/functions/json"
@@ -33,6 +34,7 @@ func init() {
 	registry.RegisterFunctions(http.Register())
 	registry.RegisterFunctions(url.Register())
 	registry.RegisterFunctions(text.Register())
+	registry.RegisterFunctions(html.Register())
 }
 
 func Execute(params []string, streamMode bool) {

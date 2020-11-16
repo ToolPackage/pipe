@@ -2,30 +2,30 @@ package text
 
 import (
 	"errors"
-	"github.com/ToolPackage/pipe/functions"
+	f "github.com/ToolPackage/pipe/functions"
 	"io"
 	"io/ioutil"
 	"strings"
 )
 
-func Register() []*functions.FunctionDefinition {
-	return functions.DefFuncs(
-		functions.DefFunc("text.cut", cut, functions.DefParams(
-			functions.DefParam(functions.IntegerValue, "start", false),
-			functions.DefParam(functions.IntegerValue, "end", true),
+func Register() []*f.FunctionDefinition {
+	return f.DefFuncs(
+		f.DefFunc("text.cut", cut, f.DefParams(
+			f.DefParam(f.IntegerValue, "start", false),
+			f.DefParam(f.IntegerValue, "end", true),
 		)),
-		functions.DefFunc("text.replace", replace, functions.DefParams(
-			functions.DefParam(functions.StringValue, "old", false),
-			functions.DefParam(functions.StringValue, "new", false),
+		f.DefFunc("text.replace", replace, f.DefParams(
+			f.DefParam(f.StringValue, "old", false),
+			f.DefParam(f.StringValue, "new", false),
 		)),
-		functions.DefFunc("text.repeat", repeat, functions.DefParams(
-			functions.DefParam(functions.IntegerValue, "n", false),
+		f.DefFunc("text.repeat", repeat, f.DefParams(
+			f.DefParam(f.IntegerValue, "n", false),
 		)),
 	)
 }
 
 // text.cut(start: int, end?: int): extract substring
-func cut(params functions.Parameters, in io.Reader, out io.Writer) error {
+func cut(params f.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func cut(params functions.Parameters, in io.Reader, out io.Writer) error {
 }
 
 // text.replace(old: string, new: string): replace substring
-func replace(params functions.Parameters, in io.Reader, out io.Writer) error {
+func replace(params f.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func replace(params functions.Parameters, in io.Reader, out io.Writer) error {
 }
 
 // text.repeat(n: int): repeat input n times
-func repeat(params functions.Parameters, in io.Reader, out io.Writer) error {
+func repeat(params f.Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
