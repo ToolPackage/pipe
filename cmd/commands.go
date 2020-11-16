@@ -33,7 +33,7 @@ func (i *InstallSubCommands) Execute(args []string) error {
 	filename := strings.Trim(i.File, " ")
 	if len(filename) == 0 {
 		if len(args) == 0 {
-			return fmt.Errorf("extension filename was not specified")
+			return fmt.Errorf("script filename was not specified")
 		}
 		filename = args[0]
 	}
