@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // PipeScript
@@ -16,9 +17,10 @@ type PipeScript struct {
 
 // CompactFunction
 type CompactFunction struct {
-	Name     string
-	Params   []FuncParamDef
-	Callable CompactFunctionCallable
+	Name      string
+	Variables map[string]*ImmutableValue
+	Params    []FuncParamDef
+	Callable  CompactFunctionCallable
 }
 
 // FuncParamDef
@@ -30,6 +32,7 @@ type FuncParamDef struct {
 
 // ParameterType
 type ParameterType int
+type ValueType int
 
 const (
 	IntegerValue = iota
@@ -38,6 +41,7 @@ const (
 	BoolValue
 	DictValue
 	Reference
+	Unknown
 )
 
 var TypeMappings = map[string]ParameterType{
@@ -55,13 +59,13 @@ type CompactFunctionCallable struct {
 
 // MultiPipe
 type MultiPipe struct {
-	Pipes []Pipe
+	Variables map[string]*ImmutableValue
+	Pipes     []Pipe
 }
 
 // Pipe
 type Pipe struct {
-	Variables map[string]int
-	Nodes     []PipeNode
+	Nodes []PipeNode
 }
 
 // PipeNode
@@ -71,7 +75,7 @@ type PipeNode interface {
 
 type VariableNode struct {
 	Name  string
-	Value []byte
+	Value *ImmutableValue
 }
 
 func (vn *VariableNode) Exec(in io.Reader, out io.Writer) error {
@@ -79,7 +83,7 @@ func (vn *VariableNode) Exec(in io.Reader, out io.Writer) error {
 	if err != nil {
 		return err
 	}
-	vn.Value = input
+	vn.Value.Assign(string(input))
 	_, err = out.Write(input)
 	return err
 }
@@ -140,41 +144,65 @@ func (p *Parameter) Labeled() bool {
 }
 
 type ParameterValue interface {
-	Type() ParameterType
+	Type() ValueType
+	// get converted value
 	Get() interface{}
+	GetInt() int
+	GetFloat() float64
+	GetString() string
+	GetBool() bool
+	GetDict() DictParameterValue
+}
+
+type AbstractParameterValue struct {
+	ParameterValue
+	ValueType ValueType
+}
+
+func (p *AbstractParameterValue) Type() ValueType {
+	return p.ValueType
+}
+
+func (p *AbstractParameterValue) Get() interface{} {
+	return nil
+}
+
+func (p *AbstractParameterValue) GetInt() int {
+	return p.Get().(int)
+}
+
+func (p *AbstractParameterValue) GetFloat() float64 {
+	return p.Get().(float64)
+}
+
+func (p *AbstractParameterValue) GetString() string {
+	return p.Get().(string)
+}
+
+func (p *AbstractParameterValue) GetBool() bool {
+	return p.Get().(bool)
+}
+
+func (p *AbstractParameterValue) GetDict() DictParameterValue {
+	return p.Get().(DictParameterValue)
 }
 
 // BaseParameterValue is the basic type set of parameters
 type BaseParameterValue struct {
-	ValueType ParameterType
-	Value     string
+	*AbstractParameterValue
+	Value string
 }
 
-func NewBaseParameterValue(valueType ParameterType, value string) *BaseParameterValue {
-	return &BaseParameterValue{ValueType: valueType, Value: value}
+func NewBaseParameterValue(valueType ValueType, value string) *BaseParameterValue {
+	return &BaseParameterValue{AbstractParameterValue: &AbstractParameterValue{ValueType: valueType}, Value: value}
 }
 
-func (bpv *BaseParameterValue) Type() ParameterType {
+func (bpv *BaseParameterValue) Type() ValueType {
 	return bpv.ValueType
 }
 
 func (bpv *BaseParameterValue) Get() interface{} {
-	var v interface{}
-	var err error
-
-	switch bpv.ValueType {
-	case IntegerValue:
-		v, err = strconv.Atoi(bpv.Value)
-	case FloatValue:
-		v, err = strconv.ParseFloat(bpv.Value, 32)
-	case StringValue:
-		v = bpv.Value[1 : len(bpv.Value)-1]
-	case BoolValue:
-		v, err = strconv.ParseBool(bpv.Value)
-	default:
-		panic(fmt.Errorf("invalid function parameter type %s", bpv.Value))
-	}
-
+	v, err := parseStringToValue(bpv.Value, bpv.ValueType)
 	if err != nil {
 		panic(err)
 	}
@@ -183,13 +211,13 @@ func (bpv *BaseParameterValue) Get() interface{} {
 
 // DictParameterValue
 type DictParameterValue struct {
-	ValueType     ParameterType
+	*AbstractParameterValue
 	ValueOrderMap []string
 	Value         map[string]ParameterValue
 }
 
 func NewDictParameterValue() *DictParameterValue {
-	return &DictParameterValue{ValueType: DictValue, Value: make(map[string]ParameterValue)}
+	return &DictParameterValue{AbstractParameterValue: &AbstractParameterValue{ValueType: DictValue}, Value: make(map[string]ParameterValue)}
 }
 
 func (dpv *DictParameterValue) Size() int {
@@ -225,34 +253,87 @@ func (dpv *DictParameterValue) GetValueByIndex(idx int) (ParameterValue, bool) {
 	return dpv.GetValueByLabel(label)
 }
 
-func (dpv *DictParameterValue) Type() ParameterType {
-	return dpv.ValueType
-}
-
 func (dpv *DictParameterValue) Get() interface{} {
 	return dpv.Value
 }
 
 // Reference
 type ReferenceParameterValue struct {
-	Name  string
-	Value interface{}
-	Sync  chan interface{}
+	*AbstractParameterValue
+	Name    string
+	RefType ValueType
+	Value   *ImmutableValue
 }
 
-func NewReferenceParameterValue(name string) *ReferenceParameterValue {
-	return &ReferenceParameterValue{Name: name}
-}
-
-func (rpv *ReferenceParameterValue) Type() ParameterType {
-	return Reference
+func NewReferenceParameterValue(name string, value *ImmutableValue) *ReferenceParameterValue {
+	return &ReferenceParameterValue{AbstractParameterValue: &AbstractParameterValue{ValueType: Reference}, Name: name, Value: value}
 }
 
 func (rpv *ReferenceParameterValue) Get() interface{} {
-	if rpv.Value == nil {
-		rpv.Value = <-rpv.Sync
+	v, err := parseStringToValue(rpv.Value.SyncAndGet().(string), rpv.RefType)
+	if err != nil {
+		panic(err)
 	}
-	return rpv.Value
+	return v
+}
+
+// parseStringToValue is used to parse text value to typed value, including int, float, string and bool
+func parseStringToValue(text string, valueType ValueType) (v interface{}, err error) {
+	switch valueType {
+	case IntegerValue:
+		v, err = strconv.Atoi(text)
+	case FloatValue:
+		v, err = strconv.ParseFloat(text, 32)
+	case StringValue:
+		v = text
+	case BoolValue:
+		v, err = strconv.ParseBool(text)
+	default:
+		err = fmt.Errorf("invalid function parameter type %s", text)
+	}
+	return
+}
+
+// ImmutableValue
+type ImmutableValue struct {
+	Value    interface{}
+	mu       sync.Mutex
+	assigned bool
+	sync     chan bool
+}
+
+func NewImmutableValue() *ImmutableValue {
+	return &ImmutableValue{}
+}
+
+func (v *ImmutableValue) Assign(newValue interface{}) {
+	v.mu.Lock()
+	v.Value = newValue
+	v.assigned = true
+	v.mu.Unlock()
+	// notify
+	v.sync <- true
+}
+
+func (v *ImmutableValue) IsAssigned() bool {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	return v.assigned
+}
+
+func (v *ImmutableValue) Get() interface{} {
+	if !v.IsAssigned() {
+		panic("cannot access undefined value")
+	}
+	return v.Value
+}
+
+func (v *ImmutableValue) SyncAndGet() interface{} {
+	for !v.IsAssigned() {
+		// wait
+		<-v.sync
+	}
+	return v.Value
 }
 
 // FunctionDefinition
@@ -294,7 +375,15 @@ func (fpc FuncParamConstraint) Validate(params Parameters) error {
 			return nil
 		}
 		// 3.validate parameter type
-		if param.Value.Type() != paramDef.Type {
+		if param.Value.Type() == Reference {
+			// if parameter is a variable, check if function param type is dict
+			if paramDef.Type == DictValue {
+				return InvalidUsageOfVairableError
+			}
+			// set reference value's type which will be used to convert variable text value to typed value
+			refValue := param.Value.(*ReferenceParameterValue)
+			refValue.RefType = paramDef.Type
+		} else if param.Value.Type() != paramDef.Type {
 			return InvalidTypeOfParameterError
 		}
 		// 4.validate parameter value
@@ -307,7 +396,7 @@ func (fpc FuncParamConstraint) Validate(params Parameters) error {
 
 type ParameterDefinition struct {
 	Label      string
-	Type       ParameterType
+	Type       ValueType
 	Optional   bool
 	ConstValue []interface{}
 }
@@ -326,7 +415,7 @@ func DefParams(paramDefList ...ParameterDefinition) FuncParamConstraint {
 	return paramDefList
 }
 
-func DefParam(paramType ParameterType, label string, optional bool, constValue ...interface{}) ParameterDefinition {
+func DefParam(paramType ValueType, label string, optional bool, constValue ...interface{}) ParameterDefinition {
 	label = strings.Trim(label, " \t\n\r")
 	if len(label) == 0 {
 		panic(InvalidFuncParamDefError)

@@ -76,9 +76,11 @@ type multiPipeListener struct {
 // NewMultiPipeListener
 func newMultiPipeListener() *multiPipeListener {
 	return &multiPipeListener{
-		multiPipe: &MultiPipe{Pipes: make([]Pipe, 0)},
+		multiPipe: &MultiPipe{Variables: make(map[string]*ImmutableValue), Pipes: make([]Pipe, 0)},
 	}
 }
+
+// help function
 
 func (mpl *multiPipeListener) lastPipe() *Pipe {
 	return &mpl.multiPipe.Pipes[len(mpl.multiPipe.Pipes)-1]
@@ -99,8 +101,21 @@ func (mpl *multiPipeListener) lastFunctionNodeParameter() *Parameter {
 }
 
 func (mpl *multiPipeListener) EnterPipe(c *PipeContext) {
-	mpl.multiPipe.Pipes = append(mpl.multiPipe.Pipes,
-		Pipe{Variables: make(map[string]int), Nodes: make([]PipeNode, 0)})
+	mpl.multiPipe.Pipes = append(mpl.multiPipe.Pipes, Pipe{Nodes: make([]PipeNode, 0)})
+}
+
+// EnterVariableNode
+func (mpl *multiPipeListener) EnterVariableNode(c *VariableNodeContext) {
+	variableName := c.GetText()[1:]
+	// if variable has been defined, raise error
+	if _, ok := mpl.multiPipe.Variables[variableName]; ok {
+		panic(UpdateImmutableVariableError)
+	}
+	v := NewImmutableValue()
+	mpl.multiPipe.Variables[variableName] = v
+
+	pipe := mpl.lastPipe()
+	pipe.Nodes = append(pipe.Nodes, &VariableNode{Name: variableName, Value: v})
 }
 
 // EnterFunction
@@ -135,7 +150,9 @@ func (mpl *multiPipeListener) EnterDecimalValue(ctx *DecimalValueContext) {
 }
 
 func (mpl *multiPipeListener) EnterStringValue(ctx *StringValueContext) {
-	mpl.updateParameterValue(NewBaseParameterValue(StringValue, ctx.GetText()))
+	// remove single quote
+	v := ctx.GetText()
+	mpl.updateParameterValue(NewBaseParameterValue(StringValue, v[1:len(v)-1]))
 }
 
 func (mpl *multiPipeListener) EnterBooleanValue(ctx *BooleanValueContext) {
@@ -161,4 +178,16 @@ func (mpl *multiPipeListener) EnterDictValue(ctx *DictValueContext) {
 
 func (mpl *multiPipeListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
 	mpl.mapEntryLabel = c.GetText()
+}
+
+// handle reference value
+
+func (mpl *multiPipeListener) EnterVariableValue(c *VariableValueContext) {
+	variableName := c.GetText()[1:]
+	// if variable is undefined, raise error
+	if v, ok := mpl.multiPipe.Variables[variableName]; ok {
+		mpl.lastFunctionNodeParameter().Value = NewReferenceParameterValue(variableName, v)
+	} else {
+		panic(UndefinedVariableError)
+	}
 }

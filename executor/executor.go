@@ -49,28 +49,39 @@ func Execute(params []string, streamMode bool) error {
 		return executeStreamPipe(pipe)
 	}
 
-	in := NewDualChannel()
-	out := NewDualChannel()
-	for _, pipe := range pipe.Pipes {
-		for _, node := range pipe.Nodes {
-			if err := node.Exec(in, out); err != nil {
-				f, ok := node.(*FunctionNode)
-				if ok {
-					switch err {
-					case NotEnoughParameterError:
-						return fmt.Errorf("not enough parameters, function usage: %s", util.FuncDescription(f.Handler))
-					case InvalidTypeOfParameterError:
-						return fmt.Errorf("invalid type of parameter, function usage: %s", util.FuncDescription(f.Handler))
-					}
-				}
-				return err
-			}
-			in, out = out, in
-			out.Reset()
-		}
+	syncList := make([]chan error, len(pipe.Pipes))
+	for idx, pipe := range pipe.Pipes {
+		syncList[idx] = make(chan error, 0)
+		go runPipe(&pipe, syncList[idx])
+	}
+
+	for idx, sync := range syncList {
+
 	}
 
 	return nil
+}
+
+func runPipe(pipe *Pipe, sync chan error) {
+	in := NewDualChannel()
+	out := NewDualChannel()
+	for _, node := range pipe.Nodes {
+		if err := node.Exec(in, out); err != nil {
+			f, ok := node.(*FunctionNode)
+			if ok {
+				switch err {
+				case NotEnoughParameterError:
+					err = fmt.Errorf("not enough parameters, function usage: %s", util.FuncDescription(f.Handler))
+				case InvalidTypeOfParameterError:
+					err = fmt.Errorf("invalid type of parameter, function usage: %s", util.FuncDescription(f.Handler))
+				}
+			}
+			sync <- err
+			return
+		}
+		in, out = out, in
+		out.Reset()
+	}
 }
 
 func executeStreamPipe(pipe *MultiPipe) error {

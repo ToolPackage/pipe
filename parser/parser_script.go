@@ -67,8 +67,9 @@ func (psl *pipeScriptListener) lastFunctionNodeParameter() *Parameter {
 
 func (psl *pipeScriptListener) EnterFuncDef(ctx *FuncDefContext) {
 	psl.pipeScript.Funcs = append(psl.pipeScript.Funcs, CompactFunction{
-		Params:   make([]FuncParamDef, 0),
-		Callable: CompactFunctionCallable{Pipes: make([]Pipe, 0)},
+		Variables: make(map[string]*ImmutableValue),
+		Params:    make([]FuncParamDef, 0),
+		Callable:  CompactFunctionCallable{Pipes: make([]Pipe, 0)},
 	})
 }
 
@@ -96,12 +97,17 @@ func (psl *pipeScriptListener) EnterFuncParamType(c *FuncParamTypeContext) {
 
 func (psl *pipeScriptListener) EnterPipe(c *PipeContext) {
 	psl.lastFuncDef().Callable.Pipes = append(psl.lastFuncDef().Callable.Pipes,
-		Pipe{Variables: make(map[string]int), Nodes: make([]PipeNode, 0)})
+		Pipe{Nodes: make([]PipeNode, 0)})
 }
 
 func (psl *pipeScriptListener) EnterVariableNode(c *VariableNodeContext) {
-	dollarWithName := c.GetText()
-	psl.lastPipe().Nodes = append(psl.lastPipe().Nodes, &VariableNode{Name: dollarWithName[1:]})
+	variableName := c.GetText()[1:]
+	pipe := psl.lastPipe()
+	// if variable has been defined, raise error
+	if _, ok := psl.lastFuncDef().Variables[variableName]; ok {
+		panic(UpdateImmutableVariableError)
+	}
+	pipe.Nodes = append(pipe.Nodes, &VariableNode{Name: variableName, Value: NewImmutableValue()})
 }
 
 func (psl *pipeScriptListener) EnterFunctionNode(c *FunctionNodeContext) {
@@ -134,7 +140,8 @@ func (psl *pipeScriptListener) EnterDecimalValue(ctx *DecimalValueContext) {
 }
 
 func (psl *pipeScriptListener) EnterStringValue(ctx *StringValueContext) {
-	psl.updateParameterValue(NewBaseParameterValue(StringValue, ctx.GetText()))
+	v := ctx.GetText()
+	psl.updateParameterValue(NewBaseParameterValue(StringValue, v[1:len(v)-1]))
 }
 
 func (psl *pipeScriptListener) EnterBooleanValue(ctx *BooleanValueContext) {
@@ -165,6 +172,11 @@ func (psl *pipeScriptListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
 // handle reference value
 
 func (psl *pipeScriptListener) EnterVariableValue(c *VariableValueContext) {
-	dollarWithName := c.GetText()
-	psl.lastFunctionNodeParameter().Value = NewReferenceParameterValue(dollarWithName[1:])
+	variableName := c.GetText()[1:]
+	// check if variable has been defined
+	if v, ok := psl.lastFuncDef().Variables[variableName]; !ok {
+		psl.lastFunctionNodeParameter().Value = NewReferenceParameterValue(variableName, v)
+	} else {
+		panic(UpdateImmutableVariableError)
+	}
 }

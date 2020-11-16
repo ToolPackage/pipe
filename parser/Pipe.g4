@@ -18,13 +18,13 @@ optionalParamFlag: '?';
 
 funcParamType: ValueType;
 
-funcBody: '{' (multiPipe ';')? returnStatement '}';
+funcBody: '{' (multiPipe PipeSeparator)? returnStatement '}';
 
 returnStatement: 'return' pipe?;
 
 // comand line entry
 
-multiPipe: pipe (';' pipe)*;
+multiPipe: pipe (PipeSeparator pipe)*;
 
 pipe: pipeNode (Connect pipeNode)*;
 
@@ -47,6 +47,8 @@ functionParameterValue: variableValue | dictValue | numberValue | stringValue | 
 variableValue: '$' Identifier;
 
 Connect: [=];
+
+PipeSeparator: [=&];
 
 ValueType: 'string' | 'integer' | 'float' | 'bool' | 'dict';
 
