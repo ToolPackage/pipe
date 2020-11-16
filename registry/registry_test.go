@@ -1,16 +1,16 @@
 package registry
 
 import (
-	"github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"testing"
 )
 
 func TestRegistry(t *testing.T) {
-	RegisterFunction(functions.DefFunc("a.b.c.d",
-		func(args functions.Parameters, in io.Reader, out io.Writer) error { return nil },
-		functions.DefParams(),
+	RegisterFunction(DefFunc("a.b.c.d",
+		func(args Parameters, in io.Reader, out io.Writer) error { return nil },
+		DefParams(),
 	))
 
 	node := commandHandlerTree
