@@ -65,6 +65,7 @@ func PrintFunctionUsages() {
 	for _, child := range commandHandlerTree.children {
 		printFuncUsages(1, child)
 	}
+	fmt.Println("example: pipe run in.text('Hello, world!')=out")
 }
 
 func printFuncUsages(indent int, node *TreeNode) {
