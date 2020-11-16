@@ -18,11 +18,11 @@ type PipeCommands struct {
 }
 
 type RunSubCommands struct {
-	Stream bool `long:"stream" short:"s" description:"Run in stream mode"`
+	Parallel bool `long:"parallel" short:"p" description:"Run in parallel mode"`
 }
 
 func (r *RunSubCommands) Execute(args []string) error {
-	return executor.Execute(args, r.Stream)
+	return executor.Execute(args, r.Parallel)
 }
 
 type InstallSubCommands struct {

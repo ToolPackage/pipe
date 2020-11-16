@@ -41,7 +41,6 @@ const (
 	BoolValue
 	DictValue
 	Reference
-	Unknown
 )
 
 var TypeMappings = map[string]ParameterType{
@@ -303,7 +302,7 @@ type ImmutableValue struct {
 }
 
 func NewImmutableValue() *ImmutableValue {
-	return &ImmutableValue{}
+	return &ImmutableValue{sync: make(chan bool, 1)}
 }
 
 func (v *ImmutableValue) Assign(newValue interface{}) {

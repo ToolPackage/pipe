@@ -27,6 +27,7 @@ func RegisterFunction(function *FunctionDefinition) {
 			root = node
 			patternIdx++
 		} else {
+			// create empty nodes
 			for ; patternIdx < len(patterns); patternIdx++ {
 				node := &TreeNode{
 					value:    patterns[patternIdx],
@@ -36,10 +37,10 @@ func RegisterFunction(function *FunctionDefinition) {
 				root.children = append(root.children, node)
 				root = node
 			}
-			root.funcList = append(root.funcList, function)
-			return
+			break
 		}
 	}
+	root.funcList = append(root.funcList, function)
 }
 
 func GetFunction(funcName string) ([]*FunctionDefinition, error) {
@@ -69,11 +70,14 @@ func PrintFunctionUsages() {
 }
 
 func printFuncUsages(indent int, node *TreeNode) {
-	fmt.Print(strings.Repeat("  ", indent), node.value)
+	fmt.Print(strings.Repeat(" ", indent*2), node.value)
 	if len(node.funcList) > 0 {
+		prompt := " ->"
+		spacing := strings.Repeat(" ", indent*2+len(node.value)) + "  +"
 		for _, function := range node.funcList {
 			usage := strings.Trim(util.FuncDescription(function.Handler), " \n")
-			fmt.Println(" ->", usage)
+			fmt.Println(prompt, usage)
+			prompt = spacing
 		}
 	} else {
 		fmt.Println()
