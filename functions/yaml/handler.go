@@ -1,20 +1,20 @@
 package yaml
 
 import (
-	f "github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"io"
 )
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("yaml.get", get, f.DefParams(
-			f.DefParam(f.StringValue, "path", false),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("yaml.get", get, DefParams(
+			DefParam(StringValue, "path", false),
 		)),
 	)
 }
 
 // yaml.get()
-func get(params f.Parameters, in io.Reader, out io.Writer) error {
+func get(params Parameters, in io.Reader, out io.Writer) error {
 	// TODO
 	//path, _ := params.GetParameter("path", 0)
 	//input, err := ioutil.ReadAll(in)

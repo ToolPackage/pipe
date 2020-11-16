@@ -1,23 +1,23 @@
 package output
 
 import (
-	"github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-func Register() []*functions.FunctionDefinition {
-	return functions.DefFuncs(
-		functions.DefFunc("out", outputToStdout, functions.DefParams()),
-		functions.DefFunc("out.file", outputToFile, functions.DefParams(
-			functions.DefParam(functions.StringValue, "name", false),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("out", outputToStdout, DefParams()),
+		DefFunc("out.file", outputToFile, DefParams(
+			DefParam(StringValue, "name", false),
 		)),
 	)
 }
 
 // out(): output pipe data to stdout
-func outputToStdout(_ functions.Parameters, in io.Reader, _ io.Writer) error {
+func outputToStdout(_ Parameters, in io.Reader, _ io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -27,10 +27,10 @@ func outputToStdout(_ functions.Parameters, in io.Reader, _ io.Writer) error {
 }
 
 // out.file(name: string): output pipe data to file
-func outputToFile(params functions.Parameters, in io.Reader, _ io.Writer) error {
+func outputToFile(params Parameters, in io.Reader, _ io.Writer) error {
 	v, ok := params.GetParameter("type", 0)
 	if !ok {
-		return functions.NotEnoughParameterError
+		return NotEnoughParameterError
 	}
 	filename := v.Value.Get().(string)
 	input, err := ioutil.ReadAll(in)

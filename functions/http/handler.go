@@ -1,24 +1,24 @@
 package http
 
 import (
-	f "github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"io"
 	"io/ioutil"
 	"net/http"
 )
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("http.get", get, f.DefParams(
-			f.DefParam(f.StringValue, "url", false),
-			f.DefParam(f.DictValue, "headers", true),
-			f.DefParam(f.StringValue, "outputMode", true, "body", "raw"),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("http.get", get, DefParams(
+			DefParam(StringValue, "url", false),
+			DefParam(DictValue, "headers", true),
+			DefParam(StringValue, "outputMode", true, "body", "raw"),
 		)),
 	)
 }
 
 // http.get(url: string, headers?: dict, outputMode?: 'body' | 'raw'): create http get request
-func get(params f.Parameters, in io.Reader, out io.Writer) error {
+func get(params Parameters, in io.Reader, out io.Writer) error {
 	url, _ := params.GetParameter("url", 0)
 	req, err := http.NewRequest("GET", url.Value.Get().(string), nil)
 	if err != nil {
@@ -28,10 +28,10 @@ func get(params f.Parameters, in io.Reader, out io.Writer) error {
 	// add headers
 	v, ok := params.GetParameter("headers", 1)
 	if ok {
-		headers := v.Value.(*f.DictParameterValue)
+		headers := v.Value.(*DictParameterValue)
 		for key, value := range headers.Value {
-			if value.Type() != f.StringValue {
-				return f.InvalidTypeOfParameterError
+			if value.Type() != StringValue {
+				return InvalidTypeOfParameterError
 			}
 			req.Header.Add(key, value.Get().(string))
 		}

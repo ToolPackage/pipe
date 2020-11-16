@@ -1,4 +1,4 @@
-// Code generated from parser/Pipe.g4 by ANTLR 4.8. DO NOT EDIT.
+// Code generated from parser/Pipe.g4 by ANTLR 4.7.1. DO NOT EDIT.
 
 package parser // Pipe
 
@@ -13,6 +13,9 @@ type PipeListener interface {
 
 	// EnterFuncDef is called when entering the funcDef production.
 	EnterFuncDef(c *FuncDefContext)
+
+	// EnterFuncName is called when entering the funcName production.
+	EnterFuncName(c *FuncNameContext)
 
 	// EnterFuncParamsDef is called when entering the funcParamsDef production.
 	EnterFuncParamsDef(c *FuncParamsDefContext)
@@ -44,8 +47,11 @@ type PipeListener interface {
 	// EnterPipeNode is called when entering the pipeNode production.
 	EnterPipeNode(c *PipeNodeContext)
 
-	// EnterFunction is called when entering the function production.
-	EnterFunction(c *FunctionContext)
+	// EnterVariableNode is called when entering the variableNode production.
+	EnterVariableNode(c *VariableNodeContext)
+
+	// EnterFunctionNode is called when entering the functionNode production.
+	EnterFunctionNode(c *FunctionNodeContext)
 
 	// EnterFunctionName is called when entering the functionName production.
 	EnterFunctionName(c *FunctionNameContext)
@@ -59,8 +65,11 @@ type PipeListener interface {
 	// EnterFunctionParameterLabel is called when entering the functionParameterLabel production.
 	EnterFunctionParameterLabel(c *FunctionParameterLabelContext)
 
-	// EnterVariable is called when entering the variable production.
-	EnterVariable(c *VariableContext)
+	// EnterFunctionParameterValue is called when entering the functionParameterValue production.
+	EnterFunctionParameterValue(c *FunctionParameterValueContext)
+
+	// EnterVariableValue is called when entering the variableValue production.
+	EnterVariableValue(c *VariableValueContext)
 
 	// EnterDictValue is called when entering the dictValue production.
 	EnterDictValue(c *DictValueContext)
@@ -98,6 +107,9 @@ type PipeListener interface {
 	// ExitFuncDef is called when exiting the funcDef production.
 	ExitFuncDef(c *FuncDefContext)
 
+	// ExitFuncName is called when exiting the funcName production.
+	ExitFuncName(c *FuncNameContext)
+
 	// ExitFuncParamsDef is called when exiting the funcParamsDef production.
 	ExitFuncParamsDef(c *FuncParamsDefContext)
 
@@ -128,8 +140,11 @@ type PipeListener interface {
 	// ExitPipeNode is called when exiting the pipeNode production.
 	ExitPipeNode(c *PipeNodeContext)
 
-	// ExitFunction is called when exiting the function production.
-	ExitFunction(c *FunctionContext)
+	// ExitVariableNode is called when exiting the variableNode production.
+	ExitVariableNode(c *VariableNodeContext)
+
+	// ExitFunctionNode is called when exiting the functionNode production.
+	ExitFunctionNode(c *FunctionNodeContext)
 
 	// ExitFunctionName is called when exiting the functionName production.
 	ExitFunctionName(c *FunctionNameContext)
@@ -143,8 +158,11 @@ type PipeListener interface {
 	// ExitFunctionParameterLabel is called when exiting the functionParameterLabel production.
 	ExitFunctionParameterLabel(c *FunctionParameterLabelContext)
 
-	// ExitVariable is called when exiting the variable production.
-	ExitVariable(c *VariableContext)
+	// ExitFunctionParameterValue is called when exiting the functionParameterValue production.
+	ExitFunctionParameterValue(c *FunctionParameterValueContext)
+
+	// ExitVariableValue is called when exiting the variableValue production.
+	ExitVariableValue(c *VariableValueContext)
 
 	// ExitDictValue is called when exiting the dictValue production.
 	ExitDictValue(c *DictValueContext)

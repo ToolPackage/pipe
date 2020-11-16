@@ -3,23 +3,23 @@ package json
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
 )
 
-func Register() []*functions.FunctionDefinition {
-	return functions.DefFuncs(
-		functions.DefFunc("json.pretty", pretty, functions.DefParams()),
-		functions.DefFunc("json.get", get, functions.DefParams(
-			functions.DefParam(functions.StringValue, "path", false),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("json.pretty", pretty, DefParams()),
+		DefFunc("json.get", get, DefParams(
+			DefParam(StringValue, "path", false),
 		)),
 	)
 }
 
 // json.pretty(): pretty json input
-func pretty(_ functions.Parameters, in io.Reader, out io.Writer) error {
+func pretty(_ Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -35,7 +35,7 @@ func pretty(_ functions.Parameters, in io.Reader, out io.Writer) error {
 }
 
 // json.get(path: string): get value from json input by path
-func get(params functions.Parameters, in io.Reader, out io.Writer) error {
+func get(params Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func get(params functions.Parameters, in io.Reader, out io.Writer) error {
 
 	v, ok := params.GetParameter("path", 0)
 	if !ok {
-		return functions.NotEnoughParameterError
+		return NotEnoughParameterError
 	}
 	value := gjson.Get(string(input), v.Value.Get().(string))
 

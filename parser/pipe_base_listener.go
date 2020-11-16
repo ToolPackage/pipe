@@ -1,4 +1,4 @@
-// Code generated from parser/Pipe.g4 by ANTLR 4.8. DO NOT EDIT.
+// Code generated from parser/Pipe.g4 by ANTLR 4.7.1. DO NOT EDIT.
 
 package parser // Pipe
 
@@ -32,6 +32,12 @@ func (s *BasePipeListener) EnterFuncDef(ctx *FuncDefContext) {}
 
 // ExitFuncDef is called when production funcDef is exited.
 func (s *BasePipeListener) ExitFuncDef(ctx *FuncDefContext) {}
+
+// EnterFuncName is called when production funcName is entered.
+func (s *BasePipeListener) EnterFuncName(ctx *FuncNameContext) {}
+
+// ExitFuncName is called when production funcName is exited.
+func (s *BasePipeListener) ExitFuncName(ctx *FuncNameContext) {}
 
 // EnterFuncParamsDef is called when production funcParamsDef is entered.
 func (s *BasePipeListener) EnterFuncParamsDef(ctx *FuncParamsDefContext) {}
@@ -93,11 +99,17 @@ func (s *BasePipeListener) EnterPipeNode(ctx *PipeNodeContext) {}
 // ExitPipeNode is called when production pipeNode is exited.
 func (s *BasePipeListener) ExitPipeNode(ctx *PipeNodeContext) {}
 
-// EnterFunction is called when production function is entered.
-func (s *BasePipeListener) EnterFunction(ctx *FunctionContext) {}
+// EnterVariableNode is called when production variableNode is entered.
+func (s *BasePipeListener) EnterVariableNode(ctx *VariableNodeContext) {}
 
-// ExitFunction is called when production function is exited.
-func (s *BasePipeListener) ExitFunction(ctx *FunctionContext) {}
+// ExitVariableNode is called when production variableNode is exited.
+func (s *BasePipeListener) ExitVariableNode(ctx *VariableNodeContext) {}
+
+// EnterFunctionNode is called when production functionNode is entered.
+func (s *BasePipeListener) EnterFunctionNode(ctx *FunctionNodeContext) {}
+
+// ExitFunctionNode is called when production functionNode is exited.
+func (s *BasePipeListener) ExitFunctionNode(ctx *FunctionNodeContext) {}
 
 // EnterFunctionName is called when production functionName is entered.
 func (s *BasePipeListener) EnterFunctionName(ctx *FunctionNameContext) {}
@@ -123,11 +135,17 @@ func (s *BasePipeListener) EnterFunctionParameterLabel(ctx *FunctionParameterLab
 // ExitFunctionParameterLabel is called when production functionParameterLabel is exited.
 func (s *BasePipeListener) ExitFunctionParameterLabel(ctx *FunctionParameterLabelContext) {}
 
-// EnterVariable is called when production variable is entered.
-func (s *BasePipeListener) EnterVariable(ctx *VariableContext) {}
+// EnterFunctionParameterValue is called when production functionParameterValue is entered.
+func (s *BasePipeListener) EnterFunctionParameterValue(ctx *FunctionParameterValueContext) {}
 
-// ExitVariable is called when production variable is exited.
-func (s *BasePipeListener) ExitVariable(ctx *VariableContext) {}
+// ExitFunctionParameterValue is called when production functionParameterValue is exited.
+func (s *BasePipeListener) ExitFunctionParameterValue(ctx *FunctionParameterValueContext) {}
+
+// EnterVariableValue is called when production variableValue is entered.
+func (s *BasePipeListener) EnterVariableValue(ctx *VariableValueContext) {}
+
+// ExitVariableValue is called when production variableValue is exited.
+func (s *BasePipeListener) ExitVariableValue(ctx *VariableValueContext) {}
 
 // EnterDictValue is called when production dictValue is entered.
 func (s *BasePipeListener) EnterDictValue(ctx *DictValueContext) {}

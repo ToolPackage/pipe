@@ -2,7 +2,6 @@ package executor
 
 import (
 	"fmt"
-	f "github.com/ToolPackage/pipe/functions"
 	"github.com/ToolPackage/pipe/functions/base64"
 	"github.com/ToolPackage/pipe/functions/color"
 	"github.com/ToolPackage/pipe/functions/filter"
@@ -16,9 +15,9 @@ import (
 	"github.com/ToolPackage/pipe/functions/text"
 	"github.com/ToolPackage/pipe/functions/url"
 	"github.com/ToolPackage/pipe/parser"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"github.com/ToolPackage/pipe/registry"
 	"github.com/ToolPackage/pipe/util"
-	"os"
 	"strings"
 )
 
@@ -37,40 +36,43 @@ func init() {
 	registry.RegisterFunctions(html.Register())
 }
 
-func Execute(params []string, streamMode bool) {
+func Execute(params []string, streamMode bool) error {
 	cmd := strings.Trim(strings.Join(params, ""), " ")
 	if len(cmd) == 0 {
 		registry.PrintFunctionUsages()
-		return
+		return nil
 	}
 
 	pipe := parser.ParseMultiPipe(cmd)
 
 	if streamMode {
-		executeStreamPipe(pipe)
-		return
+		return executeStreamPipe(pipe)
 	}
 
 	in := NewDualChannel()
 	out := NewDualChannel()
-	for _, function := range pipe {
-		if err := function.Exec(in, out); err != nil {
-			switch err {
-			case f.NotEnoughParameterError:
-				fmt.Print("not enough parameters, function usage: ", util.FuncDescription(function.Handler))
-			case f.InvalidTypeOfParameterError:
-				fmt.Print("invalid type of parameter, function usage: ", util.FuncDescription(function.Handler))
-			default:
-				fmt.Println(err.Error())
+	for _, pipe := range pipe.Pipes {
+		for _, node := range pipe.Nodes {
+			if err := node.Exec(in, out); err != nil {
+				f, ok := node.(*FunctionNode)
+				if ok {
+					switch err {
+					case NotEnoughParameterError:
+						return fmt.Errorf("not enough parameters, function usage: %s", util.FuncDescription(f.Handler))
+					case InvalidTypeOfParameterError:
+						return fmt.Errorf("invalid type of parameter, function usage: %s", util.FuncDescription(f.Handler))
+					}
+				}
+				return err
 			}
-			os.Exit(1)
+			in, out = out, in
+			out.Reset()
 		}
-
-		in, out = out, in
-		out.Reset()
 	}
+
+	return nil
 }
 
-func executeStreamPipe(pipe []f.FunctionNode) {
-
+func executeStreamPipe(pipe *MultiPipe) error {
+	return nil
 }

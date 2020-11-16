@@ -2,30 +2,30 @@ package text
 
 import (
 	"errors"
-	f "github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"io"
 	"io/ioutil"
 	"strings"
 )
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("text.cut", cut, f.DefParams(
-			f.DefParam(f.IntegerValue, "start", false),
-			f.DefParam(f.IntegerValue, "end", true),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("text.cut", cut, DefParams(
+			DefParam(IntegerValue, "start", false),
+			DefParam(IntegerValue, "end", true),
 		)),
-		f.DefFunc("text.replace", replace, f.DefParams(
-			f.DefParam(f.StringValue, "old", false),
-			f.DefParam(f.StringValue, "new", false),
+		DefFunc("text.replace", replace, DefParams(
+			DefParam(StringValue, "old", false),
+			DefParam(StringValue, "new", false),
 		)),
-		f.DefFunc("text.repeat", repeat, f.DefParams(
-			f.DefParam(f.IntegerValue, "n", false),
+		DefFunc("text.repeat", repeat, DefParams(
+			DefParam(IntegerValue, "n", false),
 		)),
 	)
 }
 
 // text.cut(start: int, end?: int): extract substring
-func cut(params f.Parameters, in io.Reader, out io.Writer) error {
+func cut(params Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ func cut(params f.Parameters, in io.Reader, out io.Writer) error {
 }
 
 // text.replace(old: string, new: string): replace substring
-func replace(params f.Parameters, in io.Reader, out io.Writer) error {
+func replace(params Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func replace(params f.Parameters, in io.Reader, out io.Writer) error {
 }
 
 // text.repeat(n: int): repeat input n times
-func repeat(params f.Parameters, in io.Reader, out io.Writer) error {
+func repeat(params Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err

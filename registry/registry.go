@@ -2,7 +2,7 @@ package registry
 
 import (
 	"fmt"
-	"github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"github.com/ToolPackage/pipe/util"
 	"strings"
 )
@@ -11,13 +11,13 @@ const commandPathSeparator = "."
 
 var commandHandlerTree = &TreeNode{children: make([]*TreeNode, 0)}
 
-func RegisterFunctions(funcList []*functions.FunctionDefinition) {
+func RegisterFunctions(funcList []*FunctionDefinition) {
 	for _, function := range funcList {
 		RegisterFunction(function)
 	}
 }
 
-func RegisterFunction(function *functions.FunctionDefinition) {
+func RegisterFunction(function *FunctionDefinition) {
 	patterns := strings.Split(function.Name, commandPathSeparator)
 	patternIdx := 0
 
@@ -30,7 +30,7 @@ func RegisterFunction(function *functions.FunctionDefinition) {
 			for ; patternIdx < len(patterns); patternIdx++ {
 				node := &TreeNode{
 					value:    patterns[patternIdx],
-					funcList: make([]*functions.FunctionDefinition, 0),
+					funcList: make([]*FunctionDefinition, 0),
 					children: make([]*TreeNode, 0),
 				}
 				root.children = append(root.children, node)
@@ -42,7 +42,7 @@ func RegisterFunction(function *functions.FunctionDefinition) {
 	}
 }
 
-func GetFunction(funcName string) ([]*functions.FunctionDefinition, error) {
+func GetFunction(funcName string) ([]*FunctionDefinition, error) {
 	patterns := strings.Split(funcName, commandPathSeparator)
 	patternIdx := 0
 
@@ -84,7 +84,7 @@ func printFuncUsages(indent int, node *TreeNode) {
 
 type TreeNode struct {
 	value    string
-	funcList []*functions.FunctionDefinition
+	funcList []*FunctionDefinition
 	children []*TreeNode
 }
 

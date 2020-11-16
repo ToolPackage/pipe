@@ -2,18 +2,18 @@ package color
 
 import (
 	"bufio"
-	"github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"io"
 )
 
-func Register() []*functions.FunctionDefinition {
-	return functions.DefFuncs(
-		functions.DefFunc("color.json", json, functions.DefParams()),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("color.json", json, DefParams()),
 	)
 }
 
 // color.json(): colorize input in json syntax
-func json(params functions.Parameters, in io.Reader, out io.Writer) error {
+func json(_ Parameters, in io.Reader, out io.Writer) error {
 	config := map[string]string{
 		KeyBrace:   "brightBlack",
 		KeyQuote:   "green",

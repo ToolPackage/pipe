@@ -1,9 +1,9 @@
 package filter
 
 import (
-	"github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 )
 
-func Register() []*functions.FunctionDefinition {
+func Register() []*FunctionDefinition {
 	return nil
 }

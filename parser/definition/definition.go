@@ -1,4 +1,4 @@
-package functions
+package definition
 
 import (
 	"fmt"
@@ -9,18 +9,62 @@ import (
 	"strings"
 )
 
+// PipeScript
+type PipeScript struct {
+	Funcs []CompactFunction
+}
+
+// CompactFunction
+type CompactFunction struct {
+	Name     string
+	Params   []FuncParamDef
+	Callable CompactFunctionCallable
+}
+
+// FuncParamDef
+type FuncParamDef struct {
+	Name     string
+	Optional bool
+	Type     ParameterType
+}
+
+// ParameterType
+type ParameterType int
+
 const (
 	IntegerValue = iota
-	DecimalValue
+	FloatValue
 	StringValue
 	BoolValue
 	DictValue
+	Reference
 )
 
-type Pipe struct {
-	nodes []PipeNode
+var TypeMappings = map[string]ParameterType{
+	"integer": IntegerValue,
+	"float":   FloatValue,
+	"string":  StringValue,
+	"bool":    BoolValue,
+	"dict":    DictValue,
 }
 
+// CompactFunctionCallable
+type CompactFunctionCallable struct {
+	Pipes []Pipe
+}
+
+// MultiPipe
+type MultiPipe struct {
+	Pipes []Pipe
+}
+
+// Pipe
+type Pipe struct {
+	Variables map[string]int
+	Nodes     []PipeNode
+}
+
+// PipeNode
 type PipeNode interface {
 	Exec(in io.Reader, out io.Writer) error
 }
@@ -30,29 +74,28 @@ type VariableNode struct {
 	Value []byte
 }
 
-func (v *VariableNode) Exec(in io.Reader, out io.Writer) error {
+func (vn *VariableNode) Exec(in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
 	}
-	v.Value = input
+	vn.Value = input
 	_, err = out.Write(input)
 	return err
 }
 
+// FunctionNode
 type FunctionNode struct {
 	Name    string
 	Params  Parameters
 	Handler FunctionHandler
 }
 
-func (c *FunctionNode) Exec(in io.Reader, out io.Writer) error {
-	return c.Handler(c.Params, in, out)
-}
-
-type ParameterType int
-
 type FunctionHandler func(params Parameters, in io.Reader, out io.Writer) error
+
+func (fn *FunctionNode) Exec(in io.Reader, out io.Writer) error {
+	return fn.Handler(fn.Params, in, out)
+}
 
 type Parameters []Parameter
 
@@ -101,6 +144,7 @@ type ParameterValue interface {
 	Get() interface{}
 }
 
+// BaseParameterValue is the basic type set of parameters
 type BaseParameterValue struct {
 	ValueType ParameterType
 	Value     string
@@ -121,7 +165,7 @@ func (bpv *BaseParameterValue) Get() interface{} {
 	switch bpv.ValueType {
 	case IntegerValue:
 		v, err = strconv.Atoi(bpv.Value)
-	case DecimalValue:
+	case FloatValue:
 		v, err = strconv.ParseFloat(bpv.Value, 32)
 	case StringValue:
 		v = bpv.Value[1 : len(bpv.Value)-1]
@@ -137,6 +181,7 @@ func (bpv *BaseParameterValue) Get() interface{} {
 	return v
 }
 
+// DictParameterValue
 type DictParameterValue struct {
 	ValueType     ParameterType
 	ValueOrderMap []string
@@ -186,6 +231,28 @@ func (dpv *DictParameterValue) Type() ParameterType {
 
 func (dpv *DictParameterValue) Get() interface{} {
 	return dpv.Value
+}
+
+// Reference
+type ReferenceParameterValue struct {
+	Name  string
+	Value interface{}
+	Sync  chan interface{}
+}
+
+func NewReferenceParameterValue(name string) *ReferenceParameterValue {
+	return &ReferenceParameterValue{Name: name}
+}
+
+func (rpv *ReferenceParameterValue) Type() ParameterType {
+	return Reference
+}
+
+func (rpv *ReferenceParameterValue) Get() interface{} {
+	if rpv.Value == nil {
+		rpv.Value = <-rpv.Sync
+	}
+	return rpv.Value
 }
 
 // FunctionDefinition

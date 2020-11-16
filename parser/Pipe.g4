@@ -4,7 +4,9 @@ grammar Pipe;
 
 script: funcDef*;
 
-funcDef: 'def' functionName funcParamsDef funcBody;
+funcDef: 'def' funcName funcParamsDef funcBody;
+
+funcName: Identifier ('.' Identifier)*;
 
 funcParamsDef: '(' (funcParamDef (',' funcParamDef)*)? ')';
 
@@ -18,7 +20,7 @@ funcParamType: ValueType;
 
 funcBody: '{' (multiPipe ';')? returnStatement '}';
 
-returnStatement: 'return' pipe;
+returnStatement: 'return' pipe?;
 
 // comand line entry
 
@@ -26,23 +28,27 @@ multiPipe: pipe (';' pipe)*;
 
 pipe: pipeNode (Connect pipeNode)*;
 
-pipeNode: function | variable;
+pipeNode: variableNode | functionNode;
 
-function: functionName functionParameters?;
+variableNode: '$' Identifier;
+
+functionNode: functionName functionParameters?;
 
 functionName: Identifier ('.' Identifier)*;
 
 functionParameters: '(' (functionParameter (',' functionParameter)* ','?)? ')';
 
-functionParameter: functionParameterLabel? (variable | dictValue | numberValue | stringValue | booleanValue);
+functionParameter: functionParameterLabel? functionParameterValue;
 
 functionParameterLabel: Identifier ':';
 
-variable: '$' Identifier;
+functionParameterValue: variableValue | dictValue | numberValue | stringValue | booleanValue;
+
+variableValue: '$' Identifier;
 
 Connect: [=];
 
-ValueType: 'string' | 'integer' | 'float' | 'boolean' | 'dict';
+ValueType: 'string' | 'integer' | 'float' | 'bool' | 'dict';
 
 // dict
 

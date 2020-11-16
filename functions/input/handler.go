@@ -1,28 +1,28 @@
 package input
 
 import (
-	f "github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("in", readFromStdin, f.DefParams(
-			f.DefParam(f.StringValue, "type", true, "stdin"),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("in", readFromStdin, DefParams(
+			DefParam(StringValue, "type", true, "stdin"),
 		)),
-		f.DefFunc("in.file", readFromFile, f.DefParams(
-			f.DefParam(f.StringValue, "name", false),
+		DefFunc("in.file", readFromFile, DefParams(
+			DefParam(StringValue, "name", false),
 		)),
-		f.DefFunc("in.text", readFromText, f.DefParams(
-			f.DefParam(f.StringValue, "value", false),
+		DefFunc("in.text", readFromText, DefParams(
+			DefParam(StringValue, "value", false),
 		)),
 	)
 }
 
 // in(): read input from stdin
-func readFromStdin(_ f.Parameters, _ io.Reader, out io.Writer) error {
+func readFromStdin(_ Parameters, _ io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		return err
@@ -32,10 +32,10 @@ func readFromStdin(_ f.Parameters, _ io.Reader, out io.Writer) error {
 }
 
 // in.file(name: string): read input from file
-func readFromFile(params f.Parameters, _ io.Reader, out io.Writer) error {
+func readFromFile(params Parameters, _ io.Reader, out io.Writer) error {
 	v, ok := params.GetParameter("name", 0)
 	if !ok {
-		return f.NotEnoughParameterError
+		return NotEnoughParameterError
 	}
 	filename := v.Value.Get().(string)
 	input, err := ioutil.ReadFile(filename)
@@ -47,10 +47,10 @@ func readFromFile(params f.Parameters, _ io.Reader, out io.Writer) error {
 }
 
 // in.text(value: string): use text value as input
-func readFromText(params f.Parameters, _ io.Reader, out io.Writer) error {
+func readFromText(params Parameters, _ io.Reader, out io.Writer) error {
 	v, ok := params.GetParameter("value", 0)
 	if !ok {
-		return f.NotEnoughParameterError
+		return NotEnoughParameterError
 	}
 	value := v.Value.Get().(string)
 	_, err := out.Write([]byte(value))

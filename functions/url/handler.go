@@ -1,21 +1,21 @@
 package url
 
 import (
-	f "github.com/ToolPackage/pipe/functions"
+	. "github.com/ToolPackage/pipe/parser/definition"
 	"io"
 	"io/ioutil"
 	urlib "net/url"
 )
 
-func Register() []*f.FunctionDefinition {
-	return f.DefFuncs(
-		f.DefFunc("url.encode", encode, f.DefParams()),
-		f.DefFunc("url.decode", decode, f.DefParams()),
+func Register() []*FunctionDefinition {
+	return DefFuncs(
+		DefFunc("url.encode", encode, DefParams()),
+		DefFunc("url.decode", decode, DefParams()),
 	)
 }
 
 // url.encode()
-func encode(_ f.Parameters, in io.Reader, out io.Writer) error {
+func encode(_ Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func encode(_ f.Parameters, in io.Reader, out io.Writer) error {
 }
 
 // url.decode()
-func decode(_ f.Parameters, in io.Reader, out io.Writer) error {
+func decode(_ Parameters, in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
