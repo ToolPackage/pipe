@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// ParseMultiPipe
 func ParseMultiPipe(script string) []functions.FunctionNode {
 	input := antlr.NewInputStream(script)
 	lexer := NewPipeLexer(input)
@@ -42,20 +43,24 @@ func lookupFunction(f *functions.FunctionNode, funcDefs []*functions.FunctionDef
 	return funcDefs[0].Handler
 }
 
+// ErrorListener
 type ErrorListener struct {
 	*antlr.DiagnosticErrorListener
 }
 
+// NewErrorListener
 func NewErrorListener() *ErrorListener {
 	return &ErrorListener{antlr.NewDiagnosticErrorListener(true)}
 }
 
+// SyntaxError
 func (el *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbol interface{},
 	line, column int, msg string, e antlr.RecognitionException) {
 	el.DiagnosticErrorListener.SyntaxError(recognizer, offendingSymbol, line, column, msg, e)
 	os.Exit(1)
 }
 
+// MultiPipeListener
 type MultiPipeListener struct {
 	*BasePipeListener
 
@@ -67,19 +72,23 @@ type MultiPipeListener struct {
 	enterMapEntryValue bool
 }
 
+// NewMultiPipeListener
 func NewMultiPipeListener() *MultiPipeListener {
 	return &MultiPipeListener{functions: make([]functions.FunctionNode, 0)}
 }
 
+// EnterFunction
 func (mpl *MultiPipeListener) EnterFunction(ctx *FunctionContext) {
 	mpl.function = new(functions.FunctionNode)
 }
 
+// ExitFunction
 func (mpl *MultiPipeListener) ExitFunction(ctx *FunctionContext) {
 	mpl.functions = append(mpl.functions, *mpl.function)
 	mpl.function = nil
 }
 
+// EnterFunctionName
 func (mpl *MultiPipeListener) EnterFunctionName(ctx *FunctionNameContext) {
 	mpl.function.Name = ctx.GetText()
 }
