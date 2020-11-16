@@ -1,4 +1,4 @@
-// Code generated from parser/Pipe.g4 by ANTLR 4.7.1. DO NOT EDIT.
+// Code generated from parser/Pipe.g4 by ANTLR 4.8. DO NOT EDIT.
 
 package parser
 

@@ -60,7 +60,7 @@ func Execute(params []string, parallel bool) error {
 		for idx, sync := range syncList {
 			err := <-sync
 			if err != nil {
-				errMsg.WriteString(fmt.Sprintf("pipe [%d] error: %v\n", idx, err))
+				errMsg.WriteString(fmt.Sprintf("pipe [%d] error: %v\n", idx+1, err))
 			}
 		}
 		if errMsg.Len() > 0 {
@@ -69,7 +69,7 @@ func Execute(params []string, parallel bool) error {
 	} else {
 		for idx := range multiPipe.Pipes {
 			if err := runPipeSync(&multiPipe.Pipes[idx]); err != nil {
-				return fmt.Errorf("pipe [%d] error: %v\n", idx, err)
+				return fmt.Errorf("pipe [%d] error: %v\n", idx+1, err)
 			}
 		}
 	}

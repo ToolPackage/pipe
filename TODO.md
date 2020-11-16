@@ -2,8 +2,8 @@
 - stream
 - color.json
 - filter
-- version
 - http
 - tcp
 - udp
 - save script as function
+- install

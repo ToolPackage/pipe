@@ -50,6 +50,6 @@ func (u *UsageSubCommands) Execute(args []string) error {
 type VersionSubCommands struct{}
 
 func (v *VersionSubCommands) Execute(args []string) error {
-	// TODO:
+	fmt.Printf("pipe version %s-%s\n", version, buildId)
 	return nil
 }

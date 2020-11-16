@@ -1,2 +1,3 @@
-git describe --all --long | pipe run in=text.cut(-8)=regexp.replace('buildId=\w{8}', '')=$id;\
-    in.file('version.go')=regexp.replace("buildId=\w{8}", $id)=out.file('version.go')
+@echo off
+git describe --all --long | pipe run "in=text.cut(-8, -1)=$buildId&in.file('version.tmp')=text.replace('{buildId}', $buildId)=out.file('cmd/version.go')"
+go install

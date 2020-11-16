@@ -102,10 +102,17 @@ func join(params Parameters, _ io.Reader, out io.Writer) error {
 	items := make([]string, 0)
 	for i := 0; i < dict.Size(); i++ {
 		v, _ := dict.GetValueByIndex(i)
-		if v.Type() != StringValue {
+		if v.Type() == ReferenceValue {
+			tmp, err := v.(*ReferenceParameterValue).GetAs(StringValue)
+			if err != nil {
+				return InvalidTypeOfParameterError
+			}
+			items = append(items, tmp.(string))
+		} else if v.Type() != StringValue {
 			return InvalidTypeOfParameterError
+		} else {
+			items = append(items, v.Get().(string))
 		}
-		items = append(items, v.Get().(string))
 	}
 
 	separator := ""

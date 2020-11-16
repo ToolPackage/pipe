@@ -16,7 +16,7 @@ func Register() []*FunctionDefinition {
 		)),
 		DefFunc("regexp.replace", replace, DefParams(
 			DefParam(StringValue, "pattern", false),
-			DefParam(StringValue, "new", false),
+			DefParam(StringValue, "repl", false),
 		)),
 	)
 }
@@ -39,10 +39,10 @@ func test(params Parameters, in io.Reader, out io.Writer) error {
 	return err
 }
 
-// regexp.replace(pattern: string, new: string)
+// regexp.replace(pattern: string, repl: string)
 func replace(params Parameters, in io.Reader, out io.Writer) error {
 	pattern, _ := params.GetParameter("pattern", 0)
-	newS, _ := params.GetParameter("new", 1)
+	repl, _ := params.GetParameter("repl", 1)
 
 	// read input
 	input, err := ioutil.ReadAll(in)
@@ -50,8 +50,9 @@ func replace(params Parameters, in io.Reader, out io.Writer) error {
 		return err
 	}
 
+	// TODO: regexp cannot match newline
 	re := regexp.MustCompile(pattern.Value.Get().(string))
-	s := re.ReplaceAllString(string(input), newS.Value.Get().(string))
+	s := re.ReplaceAllString(string(input), repl.Value.Get().(string))
 
 	_, err = out.Write([]byte(s))
 	return err

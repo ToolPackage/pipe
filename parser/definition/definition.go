@@ -40,7 +40,8 @@ const (
 	StringValue
 	BoolValue
 	DictValue
-	Reference
+	ReferenceValue
+	Unknown
 )
 
 var TypeMappings = map[string]ParameterType{
@@ -221,7 +222,7 @@ func (dpv *DictParameterValue) Get() interface{} {
 	return dpv.Value
 }
 
-// Reference
+// ReferenceParameterValue
 type ReferenceParameterValue struct {
 	Name    string
 	RefType ValueType
@@ -229,11 +230,11 @@ type ReferenceParameterValue struct {
 }
 
 func NewReferenceParameterValue(name string, value *ImmutableValue) Value {
-	return &ReferenceParameterValue{Name: name, Value: value}
+	return &ReferenceParameterValue{Name: name, RefType: Unknown, Value: value}
 }
 
 func (rpv *ReferenceParameterValue) Type() ValueType {
-	return Reference
+	return ReferenceValue
 }
 
 func (rpv *ReferenceParameterValue) Get() interface{} {
@@ -242,6 +243,10 @@ func (rpv *ReferenceParameterValue) Get() interface{} {
 		panic(err)
 	}
 	return v
+}
+
+func (rpv *ReferenceParameterValue) GetAs(valueType ValueType) (interface{}, error) {
+	return parseStringToValue(rpv.Value.SyncAndGet().(string), valueType)
 }
 
 // parseStringToValue is used to parse text value to typed value, including int, float, string and bool
@@ -342,7 +347,7 @@ func (fpc FuncParamConstraint) Validate(params Parameters) error {
 			return nil
 		}
 		// 3.validate parameter type
-		if param.Value.Type() == Reference {
+		if param.Value.Type() == ReferenceValue {
 			// if parameter is a variable, check if function param type is dict
 			if paramDef.Type == DictValue {
 				return InvalidUsageOfVairableError

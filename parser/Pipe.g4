@@ -62,7 +62,7 @@ dictEntry: (dictEntryLabel ':')? dictEntryValue;
 
 dictEntryLabel: Identifier;
 
-dictEntryValue: numberValue | stringValue | booleanValue;
+dictEntryValue: numberValue | decimalValue | stringValue | booleanValue | variableValue;
 
 // number literal
 

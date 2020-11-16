@@ -159,8 +159,22 @@ func (mpl *multiPipeListener) EnterBooleanValue(ctx *BooleanValueContext) {
 	mpl.updateParameterValue(NewBaseParameterValue(BoolValue, ctx.GetText()))
 }
 
+// handle reference value
+
+func (mpl *multiPipeListener) EnterVariableValue(c *VariableValueContext) {
+	variableName := c.GetText()[1:]
+	// if variable is undefined, raise error
+	if v, ok := mpl.multiPipe.Variables[variableName]; !ok {
+		panic(UndefinedVariableError)
+	} else {
+		mpl.updateParameterValue(NewReferenceParameterValue(variableName, v))
+	}
+}
+
 func (mpl *multiPipeListener) updateParameterValue(newItem Value) {
 	param := mpl.lastFunctionNodeParameter()
+	// if param.Value is not nil and we are processing other type value like integer,
+	// that means we are building a map
 	if param.Value != nil {
 		v := param.Value.(*DictParameterValue)
 		v.AddEntry(mpl.mapEntryLabel, newItem)
@@ -178,16 +192,4 @@ func (mpl *multiPipeListener) EnterDictValue(ctx *DictValueContext) {
 
 func (mpl *multiPipeListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
 	mpl.mapEntryLabel = c.GetText()
-}
-
-// handle reference value
-
-func (mpl *multiPipeListener) EnterVariableValue(c *VariableValueContext) {
-	variableName := c.GetText()[1:]
-	// if variable is undefined, raise error
-	if v, ok := mpl.multiPipe.Variables[variableName]; ok {
-		mpl.lastFunctionNodeParameter().Value = NewReferenceParameterValue(variableName, v)
-	} else {
-		panic(UndefinedVariableError)
-	}
 }
