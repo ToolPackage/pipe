@@ -1,8 +1,8 @@
 # pipe
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/ToolPackage/pipe)](https://pkg.go.dev/github.com/ToolPackage/pipe)
-<!-- [![CircleCI](https://circleci.com/gh/goccy/go-yaml.svg?style=shield)](https://circleci.com/gh/goccy/go-yaml)
-[![codecov](https://codecov.io/gh/goccy/go-yaml/branch/master/graph/badge.svg)](https://codecov.io/gh/goccy/go-yaml) -->
+[![CircleCI](https://circleci.com/gh/ToolPackage/pipe.svg?style=shield)](https://circleci.com/gh/goccy/go-yaml)
+[![codecov](https://codecov.io/gh/ToolPackage/pipe/branch/master/graph/badge.svg)](https://codecov.io/gh/goccy/go-yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ToolPackage/pipe)](https://goreportcard.com/report/github.com/ToolPackage/pipe)
 
 A command util integrated with multiple functions. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
