@@ -5,9 +5,32 @@
 [![codecov](https://codecov.io/gh/ToolPackage/pipe/branch/master/graph/badge.svg)](https://codecov.io/gh/goccy/go-yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ToolPackage/pipe)](https://goreportcard.com/report/github.com/ToolPackage/pipe)
 
-A command util integrated with multiple functions. Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
+pipe is a command util which has a set of useful builtin functions, and you could use or combine these functions in the way using a unix pipe. For example, print "Hello, world!" in terminal: ```pipe run in.text('Hello, world!')=out```, in case of conflict with terminal special character, I use **=** instead of **|** or **>**.
 
-## Usage
+Maybe you are thinking it's much more complex to print "Hello, world!" using pipe than echo? That's ture, but pipe can do mush more that echo!
+
+Download here: [Pipe!](https://github.com/ToolPackage/pipe/releases/tag/v1.0).
+
+> This project will be maintained for a long time, and I am looking forward for your suggestions or pull-request about new functions or new features :P.
+
+## Commnds
+
+```
+Usage:
+  pipe [OPTIONS] <command>
+
+Help Options:
+  /?          Show this help message
+  /h, /help   Show this help message
+
+Available commands:
+  install  install pipe script as extension (no impl for now)
+  run      run pipe script in command line
+  usage    Display function usages
+  version  Display the version
+```
+
+## Function Usage
 
 ```
 usages:
@@ -19,6 +42,10 @@ usages:
   base64
     encode -> base64.encode()
     decode -> base64.decode()
+  filter
+    line
+      match -> filter.line.match(pattern: string): filter input lines those match provided regexp pattern
+      contains -> filter.line.contains(substr: string): filter input lines those contain provided string pattern
   gzip
     compress -> gzip.compress()
     decompress -> gzip.decompress()
@@ -29,6 +56,7 @@ usages:
     get -> json.get(path: string): get value from json input by path
   regexp
     test -> regexp.test(pattern: string): test input with regexp pattern
+    replace -> regexp.replace(pattern: string, repl: string)
   http
     get -> http.get(url: string, headers?: dict, outputMode?: 'body' | 'raw'): create http get request
   url
@@ -38,8 +66,11 @@ usages:
     cut -> text.cut(start: int, end?: int): extract substring
     replace -> text.replace(old: string, new: string): replace substring
     repeat -> text.repeat(n: int): repeat input n times
+    join -> text.join(elems: []string, sep: string)
   html
     pretty -> html.pretty()
+example: pipe run in.text('Hello, world!')=out
+or like: pipe run i.t('Hello, world!')=o
 ```
 
 ## Examples
