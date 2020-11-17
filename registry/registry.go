@@ -23,7 +23,7 @@ func RegisterFunction(function *FunctionDefinition) {
 
 	root := commandHandlerTree
 	for patternIdx < len(patterns) {
-		if node, ok := root.matchChildren(patterns[patternIdx]); ok {
+		if node, ok := root.matchChild(patterns[patternIdx]); ok {
 			root = node
 			patternIdx++
 		} else {
@@ -49,13 +49,17 @@ func GetFunction(funcName string) ([]*FunctionDefinition, error) {
 
 	root := commandHandlerTree
 	for patternIdx < len(patterns) {
-		if node, ok := root.matchChildren(patterns[patternIdx]); ok {
-			root = node
-			patternIdx++
-		} else {
+		nodes := root.matchChildren(patterns[patternIdx])
+		if len(nodes) > 1 {
+			return nil, fmt.Errorf("lookup function error: %s, multiple results found while matching subname: %s",
+				funcName, patterns[patternIdx])
+		}
+		if len(nodes) == 0 {
 			return nil, fmt.Errorf("function not found: %s, failed to match subname: %s",
 				funcName, patterns[patternIdx])
 		}
+		root = nodes[0]
+		patternIdx++
 	}
 
 	return root.funcList, nil
@@ -67,6 +71,7 @@ func PrintFunctionUsages() {
 		printFuncUsages(1, child)
 	}
 	fmt.Println("example: pipe run in.text('Hello, world!')=out")
+	fmt.Println("or like: pipe run i.t('Hello, world!')=o")
 }
 
 func printFuncUsages(indent int, node *TreeNode) {
@@ -93,11 +98,23 @@ type TreeNode struct {
 	children []*TreeNode
 }
 
-func (n *TreeNode) matchChildren(pattern string) (*TreeNode, bool) {
+func (n *TreeNode) matchChild(pattern string) (*TreeNode, bool) {
 	for _, node := range n.children {
 		if node.value == pattern {
 			return node, true
 		}
 	}
 	return nil, false
+}
+
+func (n *TreeNode) matchChildren(pattern string) []*TreeNode {
+	result := make([]*TreeNode, 0)
+	for _, node := range n.children {
+		if node.value == pattern {
+			result = append(result, node)
+		} else if strings.HasPrefix(node.value, pattern) {
+			result = append(result, node)
+		}
+	}
+	return result
 }
