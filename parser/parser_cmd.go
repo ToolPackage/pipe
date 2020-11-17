@@ -16,7 +16,7 @@ func ParseMultiPipe(script string) *MultiPipe {
 	p := NewPipeParser(stream)
 	p.AddErrorListener(NewErrorListener()) // default is console error listener
 	p.BuildParseTrees = true
-	tree := p.MultiPipe()
+	tree := p.Cmd()
 	listener := newMultiPipeListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 

@@ -2,7 +2,7 @@ grammar Pipe;
 
 // script entry
 
-script: funcDef*;
+script: funcDef* EOF;
 
 funcDef: 'def' funcName funcParamsDef funcBody;
 
@@ -23,6 +23,8 @@ funcBody: '{' (multiPipe PipeSeparator)? returnStatement '}';
 returnStatement: 'return' pipe?;
 
 // comand line entry
+
+cmd: multiPipe EOF;
 
 multiPipe: pipe (PipeSeparator pipe)*;
 

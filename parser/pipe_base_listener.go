@@ -1,4 +1,4 @@
-// Code generated from parser/Pipe.g4 by ANTLR 4.8. DO NOT EDIT.
+// Code generated from parser/Pipe.g4 by ANTLR 4.7.1. DO NOT EDIT.
 
 package parser // Pipe
 
@@ -80,6 +80,12 @@ func (s *BasePipeListener) EnterReturnStatement(ctx *ReturnStatementContext) {}
 
 // ExitReturnStatement is called when production returnStatement is exited.
 func (s *BasePipeListener) ExitReturnStatement(ctx *ReturnStatementContext) {}
+
+// EnterCmd is called when production cmd is entered.
+func (s *BasePipeListener) EnterCmd(ctx *CmdContext) {}
+
+// ExitCmd is called when production cmd is exited.
+func (s *BasePipeListener) ExitCmd(ctx *CmdContext) {}
 
 // EnterMultiPipe is called when production multiPipe is entered.
 func (s *BasePipeListener) EnterMultiPipe(ctx *MultiPipeContext) {}
