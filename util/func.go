@@ -23,6 +23,12 @@ func FuncName(f interface{}) string {
 	return splitFuncName[len(splitFuncName)-1]
 }
 
+func SimpleFuncDescription(f interface{}) string {
+	desc := FuncDescription(f)
+	tmp := strings.Split(desc, "\n")
+	return strings.Trim(tmp[0], " \n")
+}
+
 // Get description of a func
 func FuncDescription(f interface{}) string {
 	fileName, _ := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).FileLine(0)
@@ -46,17 +52,8 @@ func FuncDescription(f interface{}) string {
 	myDoc := doc.New(pkg, importPath, doc.AllDecls)
 	for _, theFunc := range myDoc.Funcs {
 		if theFunc.Name == funcName {
-			return theFunc.Doc
+			return strings.TrimRight(theFunc.Doc, "\n")
 		}
 	}
 	return ""
-}
-
-func SliceContains(slice []interface{}, data interface{}) bool {
-	for _, v := range slice {
-		if v == data {
-			return true
-		}
-	}
-	return false
 }

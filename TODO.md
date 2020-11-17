@@ -1,9 +1,12 @@
-- =json.get(),json.get(),json.get()=string.concat($0,$1,$2)=output
+- ??? =json.get(),json.get(),json.get()=string.concat($0,$1,$2)=output
+- ??? multiFunction: customize separator
 - stream
+- save script as function
+- install
 - color.json
-- filter
 - http
 - tcp
 - udp
-- save script as function
-- install
+
+- parser_script
+- stream: splitter & collector

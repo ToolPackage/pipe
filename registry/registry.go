@@ -23,7 +23,7 @@ func RegisterFunction(function *FunctionDefinition) {
 
 	root := commandHandlerTree
 	for patternIdx < len(patterns) {
-		if node, ok := root.matchChildren(patterns[patternIdx]); ok {
+		if node, ok := root.matchChild(patterns[patternIdx]); ok {
 			root = node
 			patternIdx++
 		} else {
@@ -49,24 +49,55 @@ func GetFunction(funcName string) ([]*FunctionDefinition, error) {
 
 	root := commandHandlerTree
 	for patternIdx < len(patterns) {
-		if node, ok := root.matchChildren(patterns[patternIdx]); ok {
-			root = node
-			patternIdx++
-		} else {
+		nodes := root.matchChildren(patterns[patternIdx])
+		if len(nodes) > 1 {
+			result := make([]string, len(nodes))
+			for idx, node := range nodes {
+				result[idx] = node.value
+			}
+			return nil, fmt.Errorf("lookup function error: multiple results found for [%s]\n"+
+				"target subname: %s(#%d), candidate: %v",
+				funcName, patterns[patternIdx], patternIdx+1, strings.Join(result, ", "))
+		}
+		if len(nodes) == 0 {
 			return nil, fmt.Errorf("function not found: %s, failed to match subname: %s",
 				funcName, patterns[patternIdx])
 		}
+		root = nodes[0]
+		patternIdx++
 	}
 
+	if len(root.funcList) == 0 {
+		return nil, fmt.Errorf("function not found: %s, incomplete function name", funcName)
+	}
 	return root.funcList, nil
 }
 
+func PrintFunctionUsage(funcName string) error {
+	funcDefs, err := GetFunction(funcName)
+	if err != nil {
+		return err
+	}
+
+	for _, funcDef := range funcDefs {
+		desc := util.FuncDescription(funcDef.Handler)
+		lines := strings.Split(desc, "\n")
+		fmt.Println("->", lines[0])
+		for i := 1; i < len(lines); i++ {
+			fmt.Println("  ", lines[i])
+		}
+	}
+
+	return nil
+}
+
 func PrintFunctionUsages() {
+	fmt.Println("example: pipe run in.text('Hello, world!')=out")
+	fmt.Println("or like: pipe run i.t('Hello, world!')=o")
 	fmt.Println("usages:")
 	for _, child := range commandHandlerTree.children {
 		printFuncUsages(1, child)
 	}
-	fmt.Println("example: pipe run in.text('Hello, world!')=out")
 }
 
 func printFuncUsages(indent int, node *TreeNode) {
@@ -75,8 +106,7 @@ func printFuncUsages(indent int, node *TreeNode) {
 		prompt := " ->"
 		spacing := strings.Repeat(" ", indent*2+len(node.value)) + "  +"
 		for _, function := range node.funcList {
-			usage := strings.Trim(util.FuncDescription(function.Handler), " \n")
-			fmt.Println(prompt, usage)
+			fmt.Println(prompt, util.SimpleFuncDescription(function.Handler))
 			prompt = spacing
 		}
 	} else {
@@ -93,11 +123,23 @@ type TreeNode struct {
 	children []*TreeNode
 }
 
-func (n *TreeNode) matchChildren(pattern string) (*TreeNode, bool) {
+func (n *TreeNode) matchChild(pattern string) (*TreeNode, bool) {
 	for _, node := range n.children {
 		if node.value == pattern {
 			return node, true
 		}
 	}
 	return nil, false
+}
+
+func (n *TreeNode) matchChildren(pattern string) []*TreeNode {
+	result := make([]*TreeNode, 0)
+	for _, node := range n.children {
+		if node.value == pattern {
+			result = append(result, node)
+		} else if strings.HasPrefix(node.value, pattern) {
+			result = append(result, node)
+		}
+	}
+	return result
 }

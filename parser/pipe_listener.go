@@ -1,4 +1,4 @@
-// Code generated from parser/Pipe.g4 by ANTLR 4.8. DO NOT EDIT.
+// Code generated from parser/Pipe.g4 by ANTLR 4.7.1. DO NOT EDIT.
 
 package parser // Pipe
 
@@ -38,6 +38,9 @@ type PipeListener interface {
 	// EnterReturnStatement is called when entering the returnStatement production.
 	EnterReturnStatement(c *ReturnStatementContext)
 
+	// EnterCmd is called when entering the cmd production.
+	EnterCmd(c *CmdContext)
+
 	// EnterMultiPipe is called when entering the multiPipe production.
 	EnterMultiPipe(c *MultiPipeContext)
 
@@ -49,6 +52,18 @@ type PipeListener interface {
 
 	// EnterVariableNode is called when entering the variableNode production.
 	EnterVariableNode(c *VariableNodeContext)
+
+	// EnterStreamNode is called when entering the streamNode production.
+	EnterStreamNode(c *StreamNodeContext)
+
+	// EnterStreamSplitter is called when entering the streamSplitter production.
+	EnterStreamSplitter(c *StreamSplitterContext)
+
+	// EnterStreamCollector is called when entering the streamCollector production.
+	EnterStreamCollector(c *StreamCollectorContext)
+
+	// EnterMultiFunctionNode is called when entering the multiFunctionNode production.
+	EnterMultiFunctionNode(c *MultiFunctionNodeContext)
 
 	// EnterFunctionNode is called when entering the functionNode production.
 	EnterFunctionNode(c *FunctionNodeContext)
@@ -131,6 +146,9 @@ type PipeListener interface {
 	// ExitReturnStatement is called when exiting the returnStatement production.
 	ExitReturnStatement(c *ReturnStatementContext)
 
+	// ExitCmd is called when exiting the cmd production.
+	ExitCmd(c *CmdContext)
+
 	// ExitMultiPipe is called when exiting the multiPipe production.
 	ExitMultiPipe(c *MultiPipeContext)
 
@@ -142,6 +160,18 @@ type PipeListener interface {
 
 	// ExitVariableNode is called when exiting the variableNode production.
 	ExitVariableNode(c *VariableNodeContext)
+
+	// ExitStreamNode is called when exiting the streamNode production.
+	ExitStreamNode(c *StreamNodeContext)
+
+	// ExitStreamSplitter is called when exiting the streamSplitter production.
+	ExitStreamSplitter(c *StreamSplitterContext)
+
+	// ExitStreamCollector is called when exiting the streamCollector production.
+	ExitStreamCollector(c *StreamCollectorContext)
+
+	// ExitMultiFunctionNode is called when exiting the multiFunctionNode production.
+	ExitMultiFunctionNode(c *MultiFunctionNodeContext)
 
 	// ExitFunctionNode is called when exiting the functionNode production.
 	ExitFunctionNode(c *FunctionNodeContext)

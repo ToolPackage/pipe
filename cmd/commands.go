@@ -43,7 +43,15 @@ func (i *InstallSubCommands) Execute(args []string) error {
 type UsageSubCommands struct{}
 
 func (u *UsageSubCommands) Execute(args []string) error {
-	registry.PrintFunctionUsages()
+	if len(args) > 0 {
+		for _, funcName := range args {
+			if err := registry.PrintFunctionUsage(funcName); err != nil {
+				return err
+			}
+		}
+	} else {
+		registry.PrintFunctionUsages()
+	}
 	return nil
 }
 

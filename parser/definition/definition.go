@@ -1,6 +1,7 @@
 package definition
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/ToolPackage/pipe/util"
 	"io"
@@ -9,6 +10,8 @@ import (
 	"strings"
 	"sync"
 )
+
+const indentSpacing = "  "
 
 // PipeScript
 type PipeScript struct {
@@ -34,6 +37,23 @@ type FuncParamDef struct {
 type ParameterType int
 type ValueType int
 
+func (v ValueType) String() string {
+	switch v {
+	case IntegerValue:
+		return "int"
+	case FloatValue:
+		return "float"
+	case StringValue:
+		return "string"
+	case BoolValue:
+		return "bool"
+	case DictValue:
+		return "dict"
+	default:
+		return "unknown"
+	}
+}
+
 const (
 	IntegerValue = iota
 	FloatValue
@@ -45,11 +65,11 @@ const (
 )
 
 var TypeMappings = map[string]ParameterType{
-	"integer": IntegerValue,
-	"float":   FloatValue,
-	"string":  StringValue,
-	"bool":    BoolValue,
-	"dict":    DictValue,
+	"int":    IntegerValue,
+	"float":  FloatValue,
+	"string": StringValue,
+	"bool":   BoolValue,
+	"dict":   DictValue,
 }
 
 // CompactFunctionCallable
@@ -63,14 +83,62 @@ type MultiPipe struct {
 	Pipes     []Pipe
 }
 
+func (m *MultiPipe) String(indent int) string {
+	indentStr := strings.Repeat(indentSpacing, indent)
+	builder := strings.Builder{}
+	builder.WriteString(indentStr)
+	builder.WriteString("MultiPipe [\n")
+	for _, pipe := range m.Pipes {
+		builder.WriteString(pipe.String(indent + 1))
+		builder.WriteRune('\n')
+	}
+	builder.WriteString(indentStr)
+	builder.WriteRune(']')
+	return builder.String()
+}
+
 // Pipe
 type Pipe struct {
 	Nodes []PipeNode
 }
 
+func (p *Pipe) Exec(in io.Reader, out io.Writer) error {
+	i := util.NewDualChannel()
+	if _, err := io.Copy(i, in); err != nil {
+		return err
+	}
+	o := util.NewDualChannel()
+
+	for _, node := range p.Nodes {
+		if err := node.Exec(i, o); err != nil {
+			return err
+		}
+		i, o = o, i
+		o.Reset()
+	}
+
+	_, err := io.Copy(out, o)
+	return err
+}
+
+func (p *Pipe) String(indent int) string {
+	indentStr := strings.Repeat(indentSpacing, indent)
+	builder := strings.Builder{}
+	builder.WriteString(indentStr)
+	builder.WriteString("Pipe [\n")
+	for _, node := range p.Nodes {
+		builder.WriteString(node.String(indent + 1))
+		builder.WriteRune('\n')
+	}
+	builder.WriteString(indentStr)
+	builder.WriteRune(']')
+	return builder.String()
+}
+
 // PipeNode
 type PipeNode interface {
 	Exec(in io.Reader, out io.Writer) error
+	String(indent int) string
 }
 
 type VariableNode struct {
@@ -78,14 +146,149 @@ type VariableNode struct {
 	Value *ImmutableValue
 }
 
-func (vn *VariableNode) Exec(in io.Reader, out io.Writer) error {
+func (v *VariableNode) Exec(in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
 	}
-	vn.Value.Assign(string(input))
+	v.Value.Assign(string(input))
 	_, err = out.Write(input)
 	return err
+}
+
+func (v *VariableNode) String(indent int) string {
+	indentStr := strings.Repeat(indentSpacing, indent)
+	builder := strings.Builder{}
+	builder.WriteString(indentStr)
+	builder.WriteString("VariableNode { Name: ")
+	builder.WriteString(v.Name)
+	builder.WriteString(", Value: ")
+	builder.WriteString(v.Value.String())
+	builder.WriteString(" }")
+	return builder.String()
+}
+
+// StreamNode
+type StreamNode struct {
+	Splitter  *FunctionNode
+	Processor Pipe
+	Collector *FunctionNode
+}
+
+func (s *StreamNode) Exec(in io.Reader, out io.Writer) error {
+	var err error
+	var frameSz uint32
+	var frameBuf []byte
+	frameSzBuf := make([]byte, 4)
+
+	frameIn := util.NewSyncDualChannel()
+	frameOut := util.NewSyncDualChannel()
+	defer frameIn.Close()
+	defer frameOut.Close()
+
+	go func() {
+		if err := s.Splitter.Exec(in, frameIn); err != nil {
+			// TODO:
+			fmt.Println(err)
+		}
+		frameIn.Close()
+	}()
+	go func() {
+		if err := s.Collector.Exec(frameOut, out); err != nil {
+			// TODO:
+			fmt.Println(err)
+		}
+		frameOut.Close()
+	}()
+
+	for {
+		// read frame
+		if _, err = frameIn.Read(frameSzBuf); err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+		frameSz = util.ConvertByteToUint32(frameSzBuf, 0)
+		frameBuf = make([]byte, frameSz)
+		if _, err = frameIn.Read(frameBuf); err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+		// process frame
+		if err = s.Processor.Exec(bytes.NewReader(frameBuf), frameOut); err != nil {
+			return err
+		}
+	}
+}
+
+func (s *StreamNode) String(indent int) string {
+	indentStr := strings.Repeat(indentSpacing, indent)
+	builder := strings.Builder{}
+	builder.WriteString(indentStr)
+	builder.WriteString("StreamNode {\n")
+
+	builder.WriteString(indentStr)
+	builder.WriteString("  Splitter: ")
+	builder.WriteString(s.Splitter.String(0))
+	builder.WriteRune('\n')
+
+	builder.WriteString(indentStr)
+	builder.WriteString("  Processor: ")
+	builder.WriteString(s.Processor.String(0))
+	builder.WriteRune('\n')
+
+	builder.WriteString(indentStr)
+	builder.WriteString("  Collector: ")
+	builder.WriteString(s.Collector.String(0))
+	builder.WriteRune('\n')
+
+	builder.WriteString(indentStr)
+	builder.WriteRune('}')
+
+	return builder.String()
+}
+
+// MultiFunctionNode
+type MultiFunctionNode struct {
+	Nodes []*FunctionNode
+}
+
+// Exec: exec each function node sequentially
+func (m *MultiFunctionNode) Exec(in io.Reader, out io.Writer) error {
+	input, err := ioutil.ReadAll(in)
+	if err != nil {
+		return err
+	}
+
+	sep := ""
+	for _, node := range m.Nodes {
+		if _, err = out.Write([]byte(sep)); err != nil {
+			return err
+		}
+		if err = node.Exec(bytes.NewReader(input), out); err != nil {
+			return err
+		}
+		sep = "\n"
+	}
+
+	return nil
+}
+
+func (m *MultiFunctionNode) String(indent int) string {
+	indentStr := strings.Repeat(indentSpacing, indent)
+	builder := strings.Builder{}
+	builder.WriteString(indentStr)
+	builder.WriteString("MultiFunctionNode [\n")
+	for _, node := range m.Nodes {
+		builder.WriteString(node.String(indent + 1))
+		builder.WriteRune('\n')
+	}
+	builder.WriteString(indentStr)
+	builder.WriteRune(']')
+	return builder.String()
 }
 
 // FunctionNode
@@ -97,8 +300,57 @@ type FunctionNode struct {
 
 type FunctionHandler func(params Parameters, in io.Reader, out io.Writer) error
 
-func (fn *FunctionNode) Exec(in io.Reader, out io.Writer) error {
-	return fn.Handler(fn.Params, in, out)
+func (f *FunctionNode) Exec(in io.Reader, out io.Writer) error {
+	if err := f.Handler(f.Params, in, out); err != nil {
+		switch err {
+		case NotEnoughParameterError:
+			return fmt.Errorf("not enough parameters, function usage: %s", util.FuncDescription(f.Handler))
+		case InvalidTypeOfParameterError:
+			return fmt.Errorf("invalid type of parameter, function usage: %s", util.FuncDescription(f.Handler))
+		default:
+			return err
+		}
+	}
+	return nil
+}
+
+func (f *FunctionNode) String(indent int) string {
+	indentStr := strings.Repeat(indentSpacing, indent)
+	builder := strings.Builder{}
+	builder.WriteString(indentStr)
+	builder.WriteString("FunctionNode {\n")
+
+	builder.WriteString(indentStr)
+	builder.WriteString(indentSpacing)
+	builder.WriteString("Name: ")
+	builder.WriteString(f.Name)
+	builder.WriteRune('\n')
+
+	builder.WriteString(indentStr)
+	builder.WriteString(indentSpacing)
+	builder.WriteString("Params: [")
+	if f.Params.Size() > 0 {
+		builder.WriteRune('\n')
+		for _, param := range f.Params {
+			builder.WriteString(indentStr)
+			builder.WriteString(indentSpacing)
+			builder.WriteString(indentSpacing)
+			builder.WriteString(param.String())
+			builder.WriteRune('\n')
+		}
+		builder.WriteString(indentStr)
+		builder.WriteString(indentSpacing)
+	}
+	builder.WriteString("]\n")
+
+	builder.WriteString(indentStr)
+	builder.WriteString(indentSpacing)
+	builder.WriteString("Handler: ")
+	builder.WriteString(fmt.Sprintf("%p\n", f.Handler))
+
+	builder.WriteString(indentStr)
+	builder.WriteString("}")
+	return builder.String()
 }
 
 type Parameters []Parameter
@@ -143,10 +395,15 @@ func (p *Parameter) Labeled() bool {
 	return len(p.Label) > 0
 }
 
+func (p *Parameter) String() string {
+	return "Parameter { Label: " + p.Label + ", Value: " + p.Value.String() + "}"
+}
+
 type Value interface {
 	Type() ValueType
 	// get converted value
 	Get() interface{}
+	String() string
 }
 
 // BaseParameterValue is the basic type set of parameters
@@ -159,16 +416,20 @@ func NewBaseParameterValue(valueType ValueType, value string) Value {
 	return &BaseParameterValue{ValueType: valueType, Value: value}
 }
 
-func (bpv *BaseParameterValue) Type() ValueType {
-	return bpv.ValueType
+func (b *BaseParameterValue) Type() ValueType {
+	return b.ValueType
 }
 
-func (bpv *BaseParameterValue) Get() interface{} {
-	v, err := parseStringToValue(bpv.Value, bpv.ValueType)
+func (b *BaseParameterValue) Get() interface{} {
+	v, err := parseStringToValue(b.Value, b.ValueType)
 	if err != nil {
 		panic(err)
 	}
 	return v
+}
+
+func (b *BaseParameterValue) String() string {
+	return "BaseParameterValue { Type: " + b.ValueType.String() + ", Value: " + b.Value + " }"
 }
 
 // DictParameterValue
@@ -181,45 +442,49 @@ func NewDictParameterValue() Value {
 	return &DictParameterValue{Value: make(map[string]Value)}
 }
 
-func (dpv *DictParameterValue) Type() ValueType {
+func (d *DictParameterValue) Type() ValueType {
 	return DictValue
 }
 
-func (dpv *DictParameterValue) Size() int {
-	return len(dpv.Value)
+func (d *DictParameterValue) Size() int {
+	return len(d.Value)
 }
 
-func (dpv *DictParameterValue) AddEntry(label string, value Value) {
+func (d *DictParameterValue) String() string {
+	return "DictParameterValue { Type: dict, Value: " + fmt.Sprintf("%v", d.Value) + " }"
+}
+
+func (d *DictParameterValue) AddEntry(label string, value Value) {
 	if len(label) == 0 {
-		label = strconv.Itoa(len(dpv.Value))
+		label = strconv.Itoa(len(d.Value))
 	}
-	dpv.Value[label] = value
-	dpv.ValueOrderMap = append(dpv.ValueOrderMap, label)
+	d.Value[label] = value
+	d.ValueOrderMap = append(d.ValueOrderMap, label)
 }
 
-func (dpv *DictParameterValue) GetValue(label string, idx int) (Value, bool) {
-	v, ok := dpv.Value[label]
+func (d *DictParameterValue) GetValue(label string, idx int) (Value, bool) {
+	v, ok := d.Value[label]
 	if ok {
 		return v, true
 	}
-	return dpv.GetValueByIndex(idx)
+	return d.GetValueByIndex(idx)
 }
 
-func (dpv *DictParameterValue) GetValueByLabel(label string) (Value, bool) {
-	v, ok := dpv.Value[label]
+func (d *DictParameterValue) GetValueByLabel(label string) (Value, bool) {
+	v, ok := d.Value[label]
 	return v, ok
 }
 
-func (dpv *DictParameterValue) GetValueByIndex(idx int) (Value, bool) {
-	if idx < 0 || idx >= dpv.Size() {
+func (d *DictParameterValue) GetValueByIndex(idx int) (Value, bool) {
+	if idx < 0 || idx >= d.Size() {
 		return nil, false
 	}
-	label := dpv.ValueOrderMap[idx]
-	return dpv.GetValueByLabel(label)
+	label := d.ValueOrderMap[idx]
+	return d.GetValueByLabel(label)
 }
 
-func (dpv *DictParameterValue) Get() interface{} {
-	return dpv.Value
+func (d *DictParameterValue) Get() interface{} {
+	return d.Value
 }
 
 // ReferenceParameterValue
@@ -233,20 +498,24 @@ func NewReferenceParameterValue(name string, value *ImmutableValue) Value {
 	return &ReferenceParameterValue{Name: name, RefType: Unknown, Value: value}
 }
 
-func (rpv *ReferenceParameterValue) Type() ValueType {
+func (r *ReferenceParameterValue) Type() ValueType {
 	return ReferenceValue
 }
 
-func (rpv *ReferenceParameterValue) Get() interface{} {
-	v, err := parseStringToValue(rpv.Value.SyncAndGet().(string), rpv.RefType)
+func (r *ReferenceParameterValue) Get() interface{} {
+	v, err := parseStringToValue(r.Value.SyncAndGet().(string), r.RefType)
 	if err != nil {
 		panic(err)
 	}
 	return v
 }
 
-func (rpv *ReferenceParameterValue) GetAs(valueType ValueType) (interface{}, error) {
-	return parseStringToValue(rpv.Value.SyncAndGet().(string), valueType)
+func (r *ReferenceParameterValue) String() string {
+	return "ReferenceParameterValue { Type: reference, Value: " + r.Value.String() + " }"
+}
+
+func (r *ReferenceParameterValue) GetAs(valueType ValueType) (interface{}, error) {
+	return parseStringToValue(r.Value.SyncAndGet().(string), valueType)
 }
 
 // parseStringToValue is used to parse text value to typed value, including int, float, string and bool
@@ -276,6 +545,11 @@ type ImmutableValue struct {
 
 func NewImmutableValue() *ImmutableValue {
 	return &ImmutableValue{sync: make(chan bool, 1)}
+}
+
+func (v *ImmutableValue) String() string {
+	return fmt.Sprintf("ImmutableValue { Value: %v, assigned: %v }",
+		v.Value, v.assigned)
 }
 
 func (v *ImmutableValue) Assign(newValue interface{}) {

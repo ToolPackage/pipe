@@ -14,6 +14,7 @@ import (
 	"github.com/ToolPackage/pipe/functions/output"
 	"github.com/ToolPackage/pipe/functions/regexp"
 	"github.com/ToolPackage/pipe/functions/text"
+	"github.com/ToolPackage/pipe/functions/unix"
 	"github.com/ToolPackage/pipe/functions/url"
 	"github.com/ToolPackage/pipe/parser"
 	. "github.com/ToolPackage/pipe/parser/definition"
@@ -36,6 +37,7 @@ func init() {
 	registry.RegisterFunctions(url.Register())
 	registry.RegisterFunctions(text.Register())
 	registry.RegisterFunctions(html.Register())
+	registry.RegisterFunctions(unix.Register())
 }
 
 func Execute(params []string, parallel bool) error {
@@ -94,23 +96,7 @@ func runPipe(pipe *Pipe, sync chan error) {
 }
 
 func runPipeSync(pipe *Pipe) error {
-	in := NewDualChannel()
-	out := NewDualChannel()
-	for _, node := range pipe.Nodes {
-		if err := node.Exec(in, out); err != nil {
-			f, ok := node.(*FunctionNode)
-			if ok {
-				switch err {
-				case NotEnoughParameterError:
-					return fmt.Errorf("not enough parameters, function usage: %s", util.FuncDescription(f.Handler))
-				case InvalidTypeOfParameterError:
-					return fmt.Errorf("invalid type of parameter, function usage: %s", util.FuncDescription(f.Handler))
-				}
-			}
-			return err
-		}
-		in, out = out, in
-		out.Reset()
-	}
-	return nil
+	in := util.NewDualChannel()
+	out := util.NewDualChannel()
+	return pipe.Exec(in, out)
 }

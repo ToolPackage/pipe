@@ -2,7 +2,7 @@ grammar Pipe;
 
 // script entry
 
-script: funcDef*;
+script: funcDef* EOF;
 
 funcDef: 'def' funcName funcParamsDef funcBody;
 
@@ -24,13 +24,23 @@ returnStatement: 'return' pipe?;
 
 // comand line entry
 
+cmd: multiPipe EOF;
+
 multiPipe: pipe (PipeSeparator pipe)*;
 
 pipe: pipeNode (Connect pipeNode)*;
 
-pipeNode: variableNode | functionNode;
+pipeNode: variableNode | streamNode | multiFunctionNode;
 
 variableNode: '$' Identifier;
+
+streamNode: '/' streamSplitter ',' pipe (',' streamCollector)? '/';
+
+streamSplitter: functionNode;
+
+streamCollector: functionNode;
+
+multiFunctionNode: functionNode (',' functionNode)*;
 
 functionNode: functionName functionParameters?;
 
@@ -48,9 +58,9 @@ variableValue: '$' Identifier;
 
 Connect: [=];
 
-PipeSeparator: [=&];
+PipeSeparator: [;&];
 
-ValueType: 'string' | 'integer' | 'float' | 'bool' | 'dict';
+ValueType: 'int' | 'float' | 'string' | 'bool' | 'dict';
 
 // dict
 
