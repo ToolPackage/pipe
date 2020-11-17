@@ -1,5 +1,7 @@
 # pipe
 
+![logo](./doc/pipe-logo.png)
+
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/ToolPackage/pipe)](https://pkg.go.dev/github.com/ToolPackage/pipe)
 [![CircleCI](https://circleci.com/gh/ToolPackage/pipe.svg?style=shield)](https://circleci.com/gh/goccy/go-yaml)
 [![codecov](https://codecov.io/gh/ToolPackage/pipe/branch/master/graph/badge.svg)](https://codecov.io/gh/goccy/go-yaml)
