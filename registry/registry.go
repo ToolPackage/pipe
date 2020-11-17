@@ -62,7 +62,28 @@ func GetFunction(funcName string) ([]*FunctionDefinition, error) {
 		patternIdx++
 	}
 
+	if len(root.funcList) == 0 {
+		return nil, fmt.Errorf("function not found: %s, incomplete function name", funcName)
+	}
 	return root.funcList, nil
+}
+
+func PrintFunctionUsage(funcName string) error {
+	funcDefs, err := GetFunction(funcName)
+	if err != nil {
+		return err
+	}
+
+	for _, funcDef := range funcDefs {
+		desc := util.FuncDescription(funcDef.Handler)
+		lines := strings.Split(desc, "\n")
+		fmt.Println("->", lines[0])
+		for i := 1; i < len(lines); i++ {
+			fmt.Println("  ", lines[i])
+		}
+	}
+
+	return nil
 }
 
 func PrintFunctionUsages() {
@@ -80,8 +101,7 @@ func printFuncUsages(indent int, node *TreeNode) {
 		prompt := " ->"
 		spacing := strings.Repeat(" ", indent*2+len(node.value)) + "  +"
 		for _, function := range node.funcList {
-			usage := strings.Trim(util.FuncDescription(function.Handler), " \n")
-			fmt.Println(prompt, usage)
+			fmt.Println(prompt, util.SimpleFuncDescription(function.Handler))
 			prompt = spacing
 		}
 	} else {

@@ -14,6 +14,7 @@ import (
 	"github.com/ToolPackage/pipe/functions/output"
 	"github.com/ToolPackage/pipe/functions/regexp"
 	"github.com/ToolPackage/pipe/functions/text"
+	"github.com/ToolPackage/pipe/functions/unix"
 	"github.com/ToolPackage/pipe/functions/url"
 	"github.com/ToolPackage/pipe/parser"
 	. "github.com/ToolPackage/pipe/parser/definition"
@@ -36,6 +37,7 @@ func init() {
 	registry.RegisterFunctions(url.Register())
 	registry.RegisterFunctions(text.Register())
 	registry.RegisterFunctions(html.Register())
+	registry.RegisterFunctions(unix.Register())
 }
 
 func Execute(params []string, parallel bool) error {
