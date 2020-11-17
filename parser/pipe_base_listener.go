@@ -111,6 +111,30 @@ func (s *BasePipeListener) EnterVariableNode(ctx *VariableNodeContext) {}
 // ExitVariableNode is called when production variableNode is exited.
 func (s *BasePipeListener) ExitVariableNode(ctx *VariableNodeContext) {}
 
+// EnterStreamNode is called when production streamNode is entered.
+func (s *BasePipeListener) EnterStreamNode(ctx *StreamNodeContext) {}
+
+// ExitStreamNode is called when production streamNode is exited.
+func (s *BasePipeListener) ExitStreamNode(ctx *StreamNodeContext) {}
+
+// EnterStreamSplitter is called when production streamSplitter is entered.
+func (s *BasePipeListener) EnterStreamSplitter(ctx *StreamSplitterContext) {}
+
+// ExitStreamSplitter is called when production streamSplitter is exited.
+func (s *BasePipeListener) ExitStreamSplitter(ctx *StreamSplitterContext) {}
+
+// EnterStreamCollector is called when production streamCollector is entered.
+func (s *BasePipeListener) EnterStreamCollector(ctx *StreamCollectorContext) {}
+
+// ExitStreamCollector is called when production streamCollector is exited.
+func (s *BasePipeListener) ExitStreamCollector(ctx *StreamCollectorContext) {}
+
+// EnterMultiFunctionNode is called when production multiFunctionNode is entered.
+func (s *BasePipeListener) EnterMultiFunctionNode(ctx *MultiFunctionNodeContext) {}
+
+// ExitMultiFunctionNode is called when production multiFunctionNode is exited.
+func (s *BasePipeListener) ExitMultiFunctionNode(ctx *MultiFunctionNodeContext) {}
+
 // EnterFunctionNode is called when production functionNode is entered.
 func (s *BasePipeListener) EnterFunctionNode(ctx *FunctionNodeContext) {}
 

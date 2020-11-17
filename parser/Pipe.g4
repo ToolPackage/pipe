@@ -30,9 +30,17 @@ multiPipe: pipe (PipeSeparator pipe)*;
 
 pipe: pipeNode (Connect pipeNode)*;
 
-pipeNode: variableNode | functionNode;
+pipeNode: variableNode | streamNode | multiFunctionNode;
 
 variableNode: '$' Identifier;
+
+streamNode: '/' streamSplitter ',' pipe (',' streamCollector)? '/';
+
+streamSplitter: functionNode;
+
+streamCollector: functionNode;
+
+multiFunctionNode: functionNode (',' functionNode)*;
 
 functionNode: functionName functionParameters?;
 
@@ -50,7 +58,7 @@ variableValue: '$' Identifier;
 
 Connect: [=];
 
-PipeSeparator: [=&];
+PipeSeparator: [;&];
 
 ValueType: 'string' | 'integer' | 'float' | 'bool' | 'dict';
 
