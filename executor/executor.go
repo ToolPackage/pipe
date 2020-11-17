@@ -96,23 +96,7 @@ func runPipe(pipe *Pipe, sync chan error) {
 }
 
 func runPipeSync(pipe *Pipe) error {
-	in := NewDualChannel()
-	out := NewDualChannel()
-	for _, node := range pipe.Nodes {
-		if err := node.Exec(in, out); err != nil {
-			f, ok := node.(*FunctionNode)
-			if ok {
-				switch err {
-				case NotEnoughParameterError:
-					return fmt.Errorf("not enough parameters, function usage: %s", util.FuncDescription(f.Handler))
-				case InvalidTypeOfParameterError:
-					return fmt.Errorf("invalid type of parameter, function usage: %s", util.FuncDescription(f.Handler))
-				}
-			}
-			return err
-		}
-		in, out = out, in
-		out.Reset()
-	}
-	return nil
+	in := util.NewDualChannel()
+	out := util.NewDualChannel()
+	return pipe.Exec(in, out)
 }

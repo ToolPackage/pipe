@@ -3,6 +3,10 @@
 - save script as function
 - install
 
+- definition
+- stream and multi func
+- dual channel test
+
 - color.json
 - http
 - tcp

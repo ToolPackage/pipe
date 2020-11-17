@@ -87,12 +87,12 @@ func PrintFunctionUsage(funcName string) error {
 }
 
 func PrintFunctionUsages() {
+	fmt.Println("example: pipe run in.text('Hello, world!')=out")
+	fmt.Println("or like: pipe run i.t('Hello, world!')=o")
 	fmt.Println("usages:")
 	for _, child := range commandHandlerTree.children {
 		printFuncUsages(1, child)
 	}
-	fmt.Println("example: pipe run in.text('Hello, world!')=out")
-	fmt.Println("or like: pipe run i.t('Hello, world!')=o")
 }
 
 func printFuncUsages(indent int, node *TreeNode) {

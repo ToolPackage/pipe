@@ -1,6 +1,7 @@
 package definition
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/ToolPackage/pipe/util"
 	"io"
@@ -68,6 +69,34 @@ type Pipe struct {
 	Nodes []PipeNode
 }
 
+func (p *Pipe) Exec(in io.Reader, out io.Writer) error {
+	i := util.NewDualChannel()
+	if _, err := io.Copy(i, in); err != nil {
+		return err
+	}
+	o := util.NewDualChannel()
+
+	for _, node := range p.Nodes {
+		if err := node.Exec(i, o); err != nil {
+			f, ok := node.(*FunctionNode)
+			if ok {
+				switch err {
+				case NotEnoughParameterError:
+					return fmt.Errorf("not enough parameters, function usage: %s", util.FuncDescription(f.Handler))
+				case InvalidTypeOfParameterError:
+					return fmt.Errorf("invalid type of parameter, function usage: %s", util.FuncDescription(f.Handler))
+				}
+			}
+			return err
+		}
+		i, o = o, i
+		o.Reset()
+	}
+
+	_, err := io.Copy(out, o)
+	return err
+}
+
 // PipeNode
 type PipeNode interface {
 	Exec(in io.Reader, out io.Writer) error
@@ -86,6 +115,73 @@ func (vn *VariableNode) Exec(in io.Reader, out io.Writer) error {
 	vn.Value.Assign(string(input))
 	_, err = out.Write(input)
 	return err
+}
+
+// StreamNode
+type StreamNode struct {
+	Splitter  FunctionNode
+	Processor Pipe
+	Collector FunctionNode
+}
+
+func (sn *StreamNode) Exec(in io.Reader, out io.Writer) error {
+	var err error
+	var frameSz uint32
+	var frameBuf []byte
+	frameSzBuf := make([]byte, 4)
+
+	frameIn := util.NewSyncDualChannel()
+	frameOut := util.NewSyncDualChannel()
+	defer frameIn.Close()
+	defer frameOut.Close()
+
+	go func() {
+		if err := sn.Splitter.Exec(in, frameIn); err != nil {
+			// TODO:
+		}
+	}()
+	go func() {
+		if err := sn.Collector.Exec(frameOut, out); err != nil {
+			// TODO:
+		}
+	}()
+
+	for {
+		// read frame
+		if _, err = frameIn.Read(frameSzBuf); err != nil {
+			return err
+		}
+		frameSz = util.ConvertByteToUint32(frameSzBuf, 0)
+		frameBuf = make([]byte, frameSz)
+		if _, err = frameIn.Read(frameBuf); err != nil {
+			return err
+		}
+		// process frame
+		if err = sn.Processor.Exec(bytes.NewReader(frameBuf), frameOut); err != nil {
+			return err
+		}
+	}
+}
+
+// MultiFunctionNode
+type MultiFunctionNode struct {
+	Nodes []FunctionNode
+}
+
+// Exec: exec each function node sequentially
+func (mfn *MultiFunctionNode) Exec(in io.Reader, out io.Writer) error {
+	input, err := ioutil.ReadAll(in)
+	if err != nil {
+		return err
+	}
+
+	for _, node := range mfn.Nodes {
+		if err = node.Exec(bytes.NewReader(input), out); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // FunctionNode
