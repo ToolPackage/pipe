@@ -60,7 +60,7 @@ Connect: [=];
 
 PipeSeparator: [;&];
 
-ValueType: 'string' | 'integer' | 'float' | 'bool' | 'dict';
+ValueType: 'int' | 'float' | 'string' | 'bool' | 'dict';
 
 // dict
 

@@ -51,8 +51,13 @@ func GetFunction(funcName string) ([]*FunctionDefinition, error) {
 	for patternIdx < len(patterns) {
 		nodes := root.matchChildren(patterns[patternIdx])
 		if len(nodes) > 1 {
-			return nil, fmt.Errorf("lookup function error: %s, multiple results found while matching subname: %s",
-				funcName, patterns[patternIdx])
+			result := make([]string, len(nodes))
+			for idx, node := range nodes {
+				result[idx] = node.value
+			}
+			return nil, fmt.Errorf("lookup function error: multiple results found for [%s]\n"+
+				"target subname: %s(#%d), candidate: %v",
+				funcName, patterns[patternIdx], patternIdx+1, strings.Join(result, ", "))
 		}
 		if len(nodes) == 0 {
 			return nil, fmt.Errorf("function not found: %s, failed to match subname: %s",

@@ -20,31 +20,23 @@ func ParseMultiPipe(script string) *MultiPipe {
 	listener := newMultiPipeListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
-	for _, pipe := range listener.multiPipe.Pipes {
-		for _, node := range pipe.Nodes {
-			funcNode, ok := node.(*FunctionNode)
-			if ok {
-				funcDefs, err := registry.GetFunction(funcNode.Name)
-				if err != nil {
-					fmt.Println(err.Error())
-					os.Exit(1)
-				}
-				funcNode.Handler = lookupFunction(funcNode, funcDefs)
-			}
-		}
-	}
-
 	return listener.multiPipe
 }
 
-func lookupFunction(f *FunctionNode, funcDefs []*FunctionDefinition) FunctionHandler {
-	// TODO:
-	funcDef := funcDefs[0]
-	if err := funcDef.ParamConstraint.Validate(f.Params); err != nil {
-		fmt.Printf("validation error %s: %s\n", f.Name, err.Error())
+func lookupFunction(funcNode *FunctionNode) {
+	funcDefs, err := registry.GetFunction(funcNode.Name)
+	if err != nil {
+		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-	return funcDef.Handler
+	// TODO:
+	funcDef := funcDefs[0]
+	if err := funcDef.ParamConstraint.Validate(funcNode.Params); err != nil {
+		fmt.Printf("validation error %s: %s\n", funcNode.Name, err.Error())
+		fmt.Printf("enter command \"pipe usage [funcName]\" to check function usage")
+		os.Exit(1)
+	}
+	funcNode.Handler = funcDef.Handler
 }
 
 // ErrorListener
@@ -68,7 +60,8 @@ func (el *ErrorListener) SyntaxError(recognizer antlr.Recognizer, offendingSymbo
 type multiPipeListener struct {
 	*BasePipeListener
 
-	multiPipe *MultiPipe
+	multiPipe  *MultiPipe
+	scopeStack ScopeStack
 
 	mapEntryLabel string
 }
@@ -82,103 +75,187 @@ func newMultiPipeListener() *multiPipeListener {
 
 // help function
 
-func (mpl *multiPipeListener) lastPipe() *Pipe {
-	return &mpl.multiPipe.Pipes[len(mpl.multiPipe.Pipes)-1]
+func (m *multiPipeListener) lastPipe() *Pipe {
+	return &m.multiPipe.Pipes[len(m.multiPipe.Pipes)-1]
 }
 
-func (mpl *multiPipeListener) lastPipeNode() PipeNode {
-	lastPipe := mpl.lastPipe()
+func (m *multiPipeListener) lastPipeNode() PipeNode {
+	lastPipe := m.lastPipe()
 	return lastPipe.Nodes[len(lastPipe.Nodes)-1]
 }
 
-func (mpl *multiPipeListener) lastFunctionNode() *FunctionNode {
-	return mpl.lastPipeNode().(*FunctionNode)
+func (m *multiPipeListener) lastFunctionNode() *FunctionNode {
+	switch m.currentScope() {
+	case ScopeStreamSplitter:
+		node := m.lastPipeNode().(*StreamNode)
+		return node.Splitter
+	case ScopeStreamCollector:
+		node := m.lastPipeNode().(*StreamNode)
+		return node.Collector
+	case ScopeMultiFunctionNode:
+		node := m.lastPipeNode().(*MultiFunctionNode)
+		return node.Nodes[len(node.Nodes)-1]
+	}
+	return nil
 }
 
-func (mpl *multiPipeListener) lastFunctionNodeParameter() *Parameter {
-	param := mpl.lastFunctionNode().Params
+func (m *multiPipeListener) lastFunctionNodeParameter() *Parameter {
+	param := m.lastFunctionNode().Params
 	return &param[len(param)-1]
 }
 
-func (mpl *multiPipeListener) EnterPipe(c *PipeContext) {
-	mpl.multiPipe.Pipes = append(mpl.multiPipe.Pipes, Pipe{Nodes: make([]PipeNode, 0)})
+func (m *multiPipeListener) enterScope(scope Scope) {
+	m.scopeStack.Push(scope)
+}
+
+func (m *multiPipeListener) currentScope() Scope {
+	return m.scopeStack.Peek()
+}
+
+func (m *multiPipeListener) exitScope() {
+	m.scopeStack.Pop()
+}
+
+func (m *multiPipeListener) EnterPipe(c *PipeContext) {
+	m.enterScope(ScopePipe)
+	m.multiPipe.Pipes = append(m.multiPipe.Pipes, Pipe{Nodes: make([]PipeNode, 0)})
+}
+
+func (m *multiPipeListener) ExitPipe(c *PipeContext) {
+	m.exitScope()
 }
 
 // EnterVariableNode
-func (mpl *multiPipeListener) EnterVariableNode(c *VariableNodeContext) {
+func (m *multiPipeListener) EnterVariableNode(c *VariableNodeContext) {
+	m.enterScope(ScopeVariableNode)
+
 	variableName := c.GetText()[1:]
 	// if variable has been defined, raise error
-	if _, ok := mpl.multiPipe.Variables[variableName]; ok {
+	if _, ok := m.multiPipe.Variables[variableName]; ok {
 		panic(UpdateImmutableVariableError)
 	}
 	v := NewImmutableValue()
-	mpl.multiPipe.Variables[variableName] = v
+	m.multiPipe.Variables[variableName] = v
 
-	pipe := mpl.lastPipe()
+	pipe := m.lastPipe()
 	pipe.Nodes = append(pipe.Nodes, &VariableNode{Name: variableName, Value: v})
 }
 
+func (m *multiPipeListener) ExitVariableNode(c *VariableNodeContext) {
+	m.exitScope()
+}
+
+func (m *multiPipeListener) EnterStreamNode(c *StreamNodeContext) {
+	m.enterScope(ScopeStreamNode)
+	pipe := m.lastPipe()
+	pipe.Nodes = append(pipe.Nodes, &StreamNode{})
+}
+
+func (m *multiPipeListener) ExitStreamNode(c *StreamNodeContext) {
+	m.exitScope()
+}
+
+func (m *multiPipeListener) EnterStreamSplitter(c *StreamSplitterContext) {
+	m.enterScope(ScopeStreamSplitter)
+}
+
+func (m *multiPipeListener) ExitStreamSplitter(c *StreamSplitterContext) {
+	m.exitScope()
+}
+
+func (m *multiPipeListener) EnterStreamCollector(c *StreamCollectorContext) {
+	m.enterScope(ScopeStreamCollector)
+}
+
+func (m *multiPipeListener) ExitStreamCollector(c *StreamCollectorContext) {
+	m.exitScope()
+}
+
+func (m *multiPipeListener) EnterMultiFunctionNode(c *MultiFunctionNodeContext) {
+	m.enterScope(ScopeMultiFunctionNode)
+	pipe := m.lastPipe()
+	pipe.Nodes = append(pipe.Nodes, &MultiFunctionNode{Nodes: make([]*FunctionNode, 0)})
+}
+
+func (m *multiPipeListener) ExitMultiFunctionNode(c *MultiFunctionNodeContext) {
+	m.exitScope()
+}
+
 // EnterFunction
-func (mpl *multiPipeListener) EnterFunctionNode(c *FunctionNodeContext) {
-	pipe := mpl.lastPipe()
-	pipe.Nodes = append(pipe.Nodes, &FunctionNode{Params: make([]Parameter, 0)})
+func (m *multiPipeListener) EnterFunctionNode(c *FunctionNodeContext) {
+	newNode := &FunctionNode{Params: make([]Parameter, 0)}
+	switch m.currentScope() {
+	case ScopeStreamSplitter:
+		node := m.lastPipeNode().(*StreamNode)
+		node.Splitter = newNode
+	case ScopeStreamCollector:
+		node := m.lastPipeNode().(*StreamNode)
+		node.Collector = newNode
+	case ScopeMultiFunctionNode:
+		node := m.lastPipeNode().(*MultiFunctionNode)
+		node.Nodes = append(node.Nodes, newNode)
+	}
+}
+
+func (m *multiPipeListener) ExitFunctionNode(c *FunctionNodeContext) {
+	lookupFunction(m.lastFunctionNode())
 }
 
 // EnterFunctionName
-func (mpl *multiPipeListener) EnterFunctionName(c *FunctionNameContext) {
-	mpl.lastFunctionNode().Name = c.GetText()
+func (m *multiPipeListener) EnterFunctionName(c *FunctionNameContext) {
+	m.lastFunctionNode().Name = c.GetText()
 }
 
-func (mpl *multiPipeListener) EnterFunctionParameter(c *FunctionParameterContext) {
-	node := mpl.lastFunctionNode()
+func (m *multiPipeListener) EnterFunctionParameter(c *FunctionParameterContext) {
+	node := m.lastFunctionNode()
 	node.Params = append(node.Params, Parameter{})
 }
 
-func (mpl *multiPipeListener) EnterFunctionParameterLabel(c *FunctionParameterLabelContext) {
+func (m *multiPipeListener) EnterFunctionParameterLabel(c *FunctionParameterLabelContext) {
 	labelWithColon := c.GetText()
-	mpl.lastFunctionNodeParameter().Label = labelWithColon[:len(labelWithColon)-1]
+	m.lastFunctionNodeParameter().Label = labelWithColon[:len(labelWithColon)-1]
 }
 
 // handle basic type
 
-func (mpl *multiPipeListener) EnterIntegerValue(ctx *IntegerValueContext) {
-	mpl.updateParameterValue(NewBaseParameterValue(IntegerValue, ctx.GetText()))
+func (m *multiPipeListener) EnterIntegerValue(ctx *IntegerValueContext) {
+	m.updateParameterValue(NewBaseParameterValue(IntegerValue, ctx.GetText()))
 }
 
-func (mpl *multiPipeListener) EnterDecimalValue(ctx *DecimalValueContext) {
-	mpl.updateParameterValue(NewBaseParameterValue(FloatValue, ctx.GetText()))
+func (m *multiPipeListener) EnterDecimalValue(ctx *DecimalValueContext) {
+	m.updateParameterValue(NewBaseParameterValue(FloatValue, ctx.GetText()))
 }
 
-func (mpl *multiPipeListener) EnterStringValue(ctx *StringValueContext) {
+func (m *multiPipeListener) EnterStringValue(ctx *StringValueContext) {
 	// remove single quote
 	v := ctx.GetText()
-	mpl.updateParameterValue(NewBaseParameterValue(StringValue, v[1:len(v)-1]))
+	m.updateParameterValue(NewBaseParameterValue(StringValue, v[1:len(v)-1]))
 }
 
-func (mpl *multiPipeListener) EnterBooleanValue(ctx *BooleanValueContext) {
-	mpl.updateParameterValue(NewBaseParameterValue(BoolValue, ctx.GetText()))
+func (m *multiPipeListener) EnterBooleanValue(ctx *BooleanValueContext) {
+	m.updateParameterValue(NewBaseParameterValue(BoolValue, ctx.GetText()))
 }
 
 // handle reference value
 
-func (mpl *multiPipeListener) EnterVariableValue(c *VariableValueContext) {
+func (m *multiPipeListener) EnterVariableValue(c *VariableValueContext) {
 	variableName := c.GetText()[1:]
 	// if variable is undefined, raise error
-	if v, ok := mpl.multiPipe.Variables[variableName]; !ok {
+	if v, ok := m.multiPipe.Variables[variableName]; !ok {
 		panic(UndefinedVariableError)
 	} else {
-		mpl.updateParameterValue(NewReferenceParameterValue(variableName, v))
+		m.updateParameterValue(NewReferenceParameterValue(variableName, v))
 	}
 }
 
-func (mpl *multiPipeListener) updateParameterValue(newItem Value) {
-	param := mpl.lastFunctionNodeParameter()
+func (m *multiPipeListener) updateParameterValue(newItem Value) {
+	param := m.lastFunctionNodeParameter()
 	// if param.Value is not nil and we are processing other type value like integer,
 	// that means we are building a map
 	if param.Value != nil {
 		v := param.Value.(*DictParameterValue)
-		v.AddEntry(mpl.mapEntryLabel, newItem)
-		mpl.mapEntryLabel = ""
+		v.AddEntry(m.mapEntryLabel, newItem)
+		m.mapEntryLabel = ""
 	} else {
 		param.Value = newItem
 	}
@@ -186,10 +263,10 @@ func (mpl *multiPipeListener) updateParameterValue(newItem Value) {
 
 // handle dict
 
-func (mpl *multiPipeListener) EnterDictValue(ctx *DictValueContext) {
-	mpl.lastFunctionNodeParameter().Value = NewDictParameterValue()
+func (m *multiPipeListener) EnterDictValue(ctx *DictValueContext) {
+	m.lastFunctionNodeParameter().Value = NewDictParameterValue()
 }
 
-func (mpl *multiPipeListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
-	mpl.mapEntryLabel = c.GetText()
+func (m *multiPipeListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
+	m.mapEntryLabel = c.GetText()
 }
