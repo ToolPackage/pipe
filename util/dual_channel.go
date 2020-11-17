@@ -38,7 +38,7 @@ func (c *DualChannel) Reset() {
 	c.readOffset = 0
 }
 
-const syncDualChannelBufLimit = 128 * 1024 // 128kb
+const syncDualChannelBufLimit = 16 * 1024 // 16kb
 
 type SyncDualChannel struct {
 	buf        []byte
@@ -59,6 +59,7 @@ func NewSyncDualChannel() *SyncDualChannel {
 func (c *SyncDualChannel) Write(data []byte) (int, error) {
 	c.mu.Lock()
 	if c.closed {
+		c.mu.Unlock()
 		return 0, errors.New("channel has been closed")
 	}
 	c.buf = append(c.buf, data...)
@@ -87,13 +88,14 @@ func (c *SyncDualChannel) Read(buf []byte) (int, error) {
 		c.mu.Lock()
 		readable = len(c.buf) - c.readOffset
 	}
+	c.mu.Unlock()
 
 	for i := 0; i < bufSz; i++ {
 		buf[i] = c.buf[c.readOffset+i]
 	}
 	c.readOffset += bufSz
 
-	if c.readOffset > syncDualChannelBufLimit {
+	if c.readOffset >= syncDualChannelBufLimit {
 		// cut down buffer
 		c.mu.Lock()
 		c.buf = c.buf[c.readOffset:]
