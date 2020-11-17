@@ -10,6 +10,7 @@ import (
 type DualChannel struct {
 	buf        []byte
 	readOffset int
+	closed     bool
 }
 
 func NewDualChannel() *DualChannel {
@@ -17,6 +18,9 @@ func NewDualChannel() *DualChannel {
 }
 
 func (c *DualChannel) Write(data []byte) (int, error) {
+	if c.closed {
+		return 0, errors.New("channel has been closed")
+	}
 	c.buf = append(c.buf, data...)
 	return len(data), nil
 }
@@ -30,7 +34,17 @@ func (c *DualChannel) Read(buf []byte) (int, error) {
 		buf[i] = c.buf[c.readOffset+i]
 	}
 	c.readOffset += n
+
+	if c.readOffset >= syncDualChannelBufLimit {
+		// cut down buffer
+		c.buf = c.buf[c.readOffset:]
+		c.readOffset = 0
+	}
 	return n, nil
+}
+
+func (c *DualChannel) Close() {
+	c.closed = true
 }
 
 func (c *DualChannel) Reset() {

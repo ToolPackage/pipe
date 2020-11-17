@@ -15,3 +15,12 @@ func ConvertByteToUint32(buf []byte, offset int) uint32 {
 	v += uint32(buf[offset+3])
 	return v
 }
+
+func SliceContains(slice []interface{}, data interface{}) bool {
+	for _, v := range slice {
+		if v == data {
+			return true
+		}
+	}
+	return false
+}
