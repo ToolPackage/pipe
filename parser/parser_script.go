@@ -1,13 +1,14 @@
 package parser
 
 import (
+	"crypto/md5"
 	"fmt"
 	. "github.com/ToolPackage/pipe/parser/definition"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"os"
 )
 
-func ParseScript(filename string) error {
+func ParseScript(filename string) *PipeScript {
 	defer func() {
 		if err, ok := recover().(error); ok {
 			fmt.Println(err)
@@ -16,7 +17,7 @@ func ParseScript(filename string) error {
 	}()
 	input, err := antlr.NewFileStream(filename)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	lexer := NewPipeLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, 0)
@@ -27,9 +28,9 @@ func ParseScript(filename string) error {
 	listener := newPipeScriptListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
-	fmt.Println(listener.pipeScript.String())
+	// fmt.Println(listener.pipeScript.String())
 
-	return nil
+	return listener.pipeScript
 }
 
 type pipeScriptListener struct {
@@ -48,7 +49,7 @@ func (p *pipeScriptListener) lastFuncDef() *CompactFunction {
 	return &p.pipeScript.Funcs[len(p.pipeScript.Funcs)-1]
 }
 
-func (p *pipeScriptListener) lastFuncParamDef() *FuncParamDef {
+func (p *pipeScriptListener) lastFuncParamDef() *ParameterDefinition {
 	funcDef := p.lastFuncDef()
 	return &funcDef.Params[len(funcDef.Params)-1]
 }
@@ -57,7 +58,8 @@ func (p *pipeScriptListener) lastFuncParamDef() *FuncParamDef {
 
 func (p *pipeScriptListener) EnterFuncDef(ctx *FuncDefContext) {
 	p.pipeScript.Funcs = append(p.pipeScript.Funcs, CompactFunction{
-		Params: make([]FuncParamDef, 0),
+		Params: make([]ParameterDefinition, 0),
+		Md5:    fmt.Sprintf("%x", md5.Sum([]byte(ctx.GetText()))),
 	})
 }
 
@@ -66,7 +68,7 @@ func (p *pipeScriptListener) EnterFuncName(c *FuncNameContext) {
 }
 
 func (p *pipeScriptListener) EnterFuncParamDef(c *FuncParamDefContext) {
-	p.lastFuncDef().Params = append(p.lastFuncDef().Params, FuncParamDef{})
+	p.lastFuncDef().Params = append(p.lastFuncDef().Params, ParameterDefinition{})
 }
 
 func (p *pipeScriptListener) EnterFuncParamName(c *FuncParamNameContext) {

@@ -11,10 +11,10 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("regexp.test", test, DefParams(
+		DefBuiltinFunc("regexp.test", test, DefParams(
 			DefParam(StringValue, "pattern", false),
 		)),
-		DefFunc("regexp.replace", replace, DefParams(
+		DefBuiltinFunc("regexp.replace", replace, DefParams(
 			DefParam(StringValue, "pattern", false),
 			DefParam(StringValue, "repl", false),
 		)),

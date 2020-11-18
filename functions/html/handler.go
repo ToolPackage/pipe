@@ -9,7 +9,7 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("html.pretty", pretty, DefParams()),
+		DefBuiltinFunc("html.pretty", pretty, DefParams()),
 	)
 }
 

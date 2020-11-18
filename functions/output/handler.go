@@ -9,8 +9,8 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("out", outputToStdout, DefParams()),
-		DefFunc("out.file", outputToFile, DefParams(
+		DefBuiltinFunc("out", outputToStdout, DefParams()),
+		DefBuiltinFunc("out.file", outputToFile, DefParams(
 			DefParam(StringValue, "name", false),
 		)),
 	)

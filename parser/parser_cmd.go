@@ -26,24 +26,7 @@ func ParseMultiPipe(script string) *MultiPipe {
 	listener := newMultiPipeListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
-	//fmt.Println(listener.multiPipe.String(0))
 	return listener.multiPipe
-}
-
-func lookupFunction(funcNode *FunctionNode) {
-	funcDefs, err := registry.GetFunction(funcNode.Name)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-	// TODO:
-	funcDef := funcDefs[0]
-	if err := funcDef.ParamConstraint.Validate(funcNode.Params); err != nil {
-		fmt.Printf("validation error %s: %s\n", funcNode.Name, err.Error())
-		fmt.Printf("enter command \"pipe usage [funcName]\" to check function usage")
-		os.Exit(1)
-	}
-	funcNode.Handler = funcDef.Handler
 }
 
 // ErrorListener
@@ -223,7 +206,7 @@ func (m *multiPipeListener) EnterFunctionNode(c *FunctionNodeContext) {
 }
 
 func (m *multiPipeListener) ExitFunctionNode(c *FunctionNodeContext) {
-	lookupFunction(m.lastFunctionNode())
+	registry.LookupFunctionHandler(m.lastFunctionNode())
 }
 
 // EnterFunctionName
@@ -238,7 +221,7 @@ func (m *multiPipeListener) EnterFunctionParameter(c *FunctionParameterContext) 
 
 func (m *multiPipeListener) EnterFunctionParameterLabel(c *FunctionParameterLabelContext) {
 	labelWithColon := c.GetText()
-	m.lastFunctionNodeParameter().Label = labelWithColon[:len(labelWithColon)-1]
+	m.lastFunctionNodeParameter().Name = labelWithColon[:len(labelWithColon)-1]
 }
 
 // handle basic type

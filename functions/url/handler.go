@@ -9,8 +9,8 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("url.encode", encode, DefParams()),
-		DefFunc("url.decode", decode, DefParams()),
+		DefBuiltinFunc("url.encode", encode, DefParams()),
+		DefBuiltinFunc("url.decode", decode, DefParams()),
 	)
 }
 

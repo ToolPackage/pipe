@@ -10,8 +10,8 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("gzip.compress", compress, DefParams()),
-		DefFunc("gzip.decompress", decompress, DefParams()),
+		DefBuiltinFunc("gzip.compress", compress, DefParams()),
+		DefBuiltinFunc("gzip.decompress", decompress, DefParams()),
 	)
 }
 

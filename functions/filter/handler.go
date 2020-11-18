@@ -10,10 +10,10 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("filter.line.match", lineMatch, DefParams(
+		DefBuiltinFunc("filter.line.match", lineMatch, DefParams(
 			DefParam(StringValue, "pattern", false),
 		)),
-		DefFunc("filter.line.contains", lineContains, DefParams(
+		DefBuiltinFunc("filter.line.contains", lineContains, DefParams(
 			DefParam(StringValue, "substr", false),
 		)),
 	)

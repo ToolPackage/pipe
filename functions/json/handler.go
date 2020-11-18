@@ -11,8 +11,8 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("json.pretty", pretty, DefParams()),
-		DefFunc("json.get", get, DefParams(
+		DefBuiltinFunc("json.pretty", pretty, DefParams()),
+		DefBuiltinFunc("json.get", get, DefParams(
 			DefParam(StringValue, "path", false),
 		)),
 	)

@@ -8,7 +8,7 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("color.json", json, DefParams()),
+		DefBuiltinFunc("color.json", json, DefParams()),
 	)
 }
 

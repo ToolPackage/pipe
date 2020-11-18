@@ -9,13 +9,13 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("in", readFromStdin, DefParams(
+		DefBuiltinFunc("in", readFromStdin, DefParams(
 			DefParam(StringValue, "type", true, "stdin"),
 		)),
-		DefFunc("in.file", readFromFile, DefParams(
+		DefBuiltinFunc("in.file", readFromFile, DefParams(
 			DefParam(StringValue, "name", false),
 		)),
-		DefFunc("in.text", readFromText, DefParams(
+		DefBuiltinFunc("in.text", readFromText, DefParams(
 			DefParam(StringValue, "value", false),
 		)),
 	)

@@ -10,18 +10,18 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("text.cut", cut, DefParams(
+		DefBuiltinFunc("text.cut", cut, DefParams(
 			DefParam(IntegerValue, "start", false),
 			DefParam(IntegerValue, "end", true),
 		)),
-		DefFunc("text.replace", replace, DefParams(
+		DefBuiltinFunc("text.replace", replace, DefParams(
 			DefParam(StringValue, "old", false),
 			DefParam(StringValue, "new", false),
 		)),
-		DefFunc("text.repeat", repeat, DefParams(
+		DefBuiltinFunc("text.repeat", repeat, DefParams(
 			DefParam(IntegerValue, "n", false),
 		)),
-		DefFunc("text.join", join, DefParams(
+		DefBuiltinFunc("text.join", join, DefParams(
 			DefParam(DictValue, "s", false),
 			DefParam(StringValue, "sep", true),
 		)),

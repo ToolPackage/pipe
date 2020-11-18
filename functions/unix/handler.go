@@ -7,7 +7,7 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("unix.cat", cat, DefParams()),
+		DefBuiltinFunc("unix.cat", cat, DefParams()),
 	)
 }
 

@@ -9,7 +9,7 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("http.get", get, DefParams(
+		DefBuiltinFunc("http.get", get, DefParams(
 			DefParam(StringValue, "url", false),
 			DefParam(DictValue, "headers", true),
 			DefParam(StringValue, "outputMode", true, "body", "raw"),

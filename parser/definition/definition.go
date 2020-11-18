@@ -36,7 +36,8 @@ func (p *PipeScript) String() string {
 // CompactFunction
 type CompactFunction struct {
 	Name     string
-	Params   []FuncParamDef
+	Params   []ParameterDefinition
+	Md5      string
 	Callable *CompactFunctionCallable
 }
 
@@ -65,24 +66,22 @@ func (c *CompactFunction) String() string {
 	return builder.String()
 }
 
-// FuncParamDef
-type FuncParamDef struct {
-	Name     string
-	Optional bool
-	Type     ParameterType
+type ParameterDefinition struct {
+	Name       string
+	Type       ValueType
+	Optional   bool
+	ConstValue []interface{}
 }
 
-func (f *FuncParamDef) String() string {
+func (p *ParameterDefinition) String() string {
 	builder := util.NewStringBuilder(indentSpacing)
-	builder.WriteWithIndent("FuncParamDef { Name: ", f.Name,
-		", Optional: ", strconv.FormatBool(f.Optional),
-		", Type: ", ValueType(f.Type).String(),
+	builder.WriteWithIndent("FuncParamDef { Name: ", p.Name,
+		", Optional: ", strconv.FormatBool(p.Optional),
+		", Type: ", ValueType(p.Type).String(),
 		" }")
 	return builder.String()
 }
 
-// ParameterType
-type ParameterType int
 type ValueType int
 
 func (v ValueType) String() string {
@@ -112,7 +111,7 @@ const (
 	Unknown
 )
 
-var TypeMappings = map[string]ParameterType{
+var TypeMappings = map[string]ValueType{
 	"int":    IntegerValue,
 	"float":  FloatValue,
 	"string": StringValue,
@@ -123,6 +122,10 @@ var TypeMappings = map[string]ParameterType{
 // CompactFunctionCallable
 type CompactFunctionCallable struct {
 	Pipes *MultiPipe
+}
+
+func (c *CompactFunctionCallable) Exec(params Parameters, in io.Reader, out io.Writer) error {
+	return nil
 }
 
 func (c *CompactFunctionCallable) String() string {
@@ -395,7 +398,7 @@ func (p Parameters) GetParameter(label string, idx int) (*Parameter, bool) {
 	var param *Parameter
 
 	for i := range p {
-		if p[i].Label == label {
+		if p[i].Name == label {
 			return &p[i], true
 		}
 		if i == idx {
@@ -419,12 +422,12 @@ func (p Parameters) GetParameterByIndex(idx int) (*Parameter, bool) {
 }
 
 type Parameter struct {
-	Label string
+	Name  string
 	Value Value
 }
 
 func (p *Parameter) Labeled() bool {
-	return len(p.Label) > 0
+	return len(p.Name) > 0
 }
 
 func (p *Parameter) String() string {
@@ -432,7 +435,7 @@ func (p *Parameter) String() string {
 	builder.WriteLine("Parameter: {")
 	builder.IncIndent()
 
-	builder.WriteLine("Label: ", p.Label)
+	builder.WriteLine("Name: ", p.Name)
 	builder.WriteLine("Value: ", p.Value.String())
 
 	builder.DecIndent()
@@ -628,6 +631,7 @@ func (v *ImmutableValue) SyncAndGet() interface{} {
 
 type FunctionDefinition struct {
 	Name            string
+	Builtin         bool
 	Handler         FunctionHandler
 	ParamConstraint FuncParamConstraint
 }
@@ -658,7 +662,7 @@ func (fpc FuncParamConstraint) Validate(params Parameters) error {
 			}
 			return nil
 		}
-		param, ok := params.GetParameter(paramDef.Label, idx)
+		param, ok := params.GetParameter(paramDef.Name, idx)
 		if !ok {
 			return nil
 		}
@@ -682,21 +686,18 @@ func (fpc FuncParamConstraint) Validate(params Parameters) error {
 	return nil
 }
 
-type ParameterDefinition struct {
-	Label      string
-	Type       ValueType
-	Optional   bool
-	ConstValue []interface{}
-}
-
 // Define function utils
 
 func DefFuncs(funcDefList ...*FunctionDefinition) []*FunctionDefinition {
 	return funcDefList
 }
 
-func DefFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
-	return &FunctionDefinition{Name: name, Handler: handler, ParamConstraint: paramConstraint}
+func DefLibFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
+	return &FunctionDefinition{Name: name, Builtin: false, Handler: handler, ParamConstraint: paramConstraint}
+}
+
+func DefBuiltinFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
+	return &FunctionDefinition{Name: name, Builtin: true, Handler: handler, ParamConstraint: paramConstraint}
 }
 
 func DefParams(paramDefList ...ParameterDefinition) FuncParamConstraint {
@@ -708,5 +709,5 @@ func DefParam(paramType ValueType, label string, optional bool, constValue ...in
 	if len(label) == 0 {
 		panic(InvalidFuncParamDefError)
 	}
-	return ParameterDefinition{Type: paramType, Label: label, Optional: optional, ConstValue: constValue}
+	return ParameterDefinition{Type: paramType, Name: label, Optional: optional, ConstValue: constValue}
 }

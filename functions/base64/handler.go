@@ -9,8 +9,8 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("base64.encode", encode, DefParams()),
-		DefFunc("base64.decode", decode, DefParams()),
+		DefBuiltinFunc("base64.encode", encode, DefParams()),
+		DefBuiltinFunc("base64.decode", decode, DefParams()),
 	)
 }
 

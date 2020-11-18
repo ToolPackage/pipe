@@ -7,7 +7,7 @@ import (
 
 func Register() []*FunctionDefinition {
 	return DefFuncs(
-		DefFunc("yaml.get", get, DefParams(
+		DefBuiltinFunc("yaml.get", get, DefParams(
 			DefParam(StringValue, "path", false),
 		)),
 	)

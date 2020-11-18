@@ -8,7 +8,7 @@ import (
 )
 
 func TestRegistry(t *testing.T) {
-	RegisterFunction(DefFunc("a1.b2.c3.d4",
+	RegisterFunction(DefBuiltinFunc("a1.b2.c3.d4",
 		func(args Parameters, in io.Reader, out io.Writer) error { return nil },
 		DefParams(),
 	))
@@ -27,7 +27,7 @@ func TestRegistry(t *testing.T) {
 	assert.Equal(t, "d4", node.children[0].value)
 	node = node.children[0]
 
-	assert.NotNil(t, node.funcList[0].Handler)
+	assert.NotNil(t, node.funcDef.Handler)
 
 	handler, err := GetFunction("a.b.c.d")
 	assert.Nil(t, err)
