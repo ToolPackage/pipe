@@ -10,6 +10,12 @@ import (
 
 // ParseMultiPipe
 func ParseMultiPipe(script string) *MultiPipe {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}()
 	input := antlr.NewInputStream(script)
 	lexer := NewPipeLexer(input)
 	stream := antlr.NewCommonTokenStream(lexer, 0)

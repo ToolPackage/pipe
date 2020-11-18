@@ -18,6 +18,21 @@ type PipeScript struct {
 	Funcs []CompactFunction
 }
 
+func (p *PipeScript) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("PipeScript [")
+	builder.IncIndent()
+
+	for _, funcDef := range p.Funcs {
+		builder.WriteMultiLine(funcDef.String(), true)
+	}
+
+	builder.DecIndent()
+	builder.WriteWithIndent("]")
+
+	return builder.String()
+}
+
 // CompactFunction
 type CompactFunction struct {
 	Name     string
@@ -25,11 +40,45 @@ type CompactFunction struct {
 	Callable *CompactFunctionCallable
 }
 
+func (c *CompactFunction) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("CompactFunction {")
+
+	builder.IncIndent()
+	builder.WriteLine("Name: ", c.Name)
+
+	builder.WriteLine("Params: [")
+	builder.IncIndent()
+	for _, paramDef := range c.Params {
+		builder.WriteMultiLine(paramDef.String(), true)
+	}
+	builder.DecIndent()
+	builder.WriteLine("]")
+
+	builder.WriteIndent()
+	builder.WriteString("Callable: ")
+	builder.WriteMultiLine(c.Callable.String(), false)
+
+	builder.DecIndent()
+	builder.WriteWithIndent("}")
+
+	return builder.String()
+}
+
 // FuncParamDef
 type FuncParamDef struct {
 	Name     string
 	Optional bool
 	Type     ParameterType
+}
+
+func (f *FuncParamDef) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteWithIndent("FuncParamDef { Name: ", f.Name,
+		", Optional: ", strconv.FormatBool(f.Optional),
+		", Type: ", ValueType(f.Type).String(),
+		" }")
+	return builder.String()
 }
 
 // ParameterType
@@ -76,23 +125,35 @@ type CompactFunctionCallable struct {
 	Pipes *MultiPipe
 }
 
+func (c *CompactFunctionCallable) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("CompactFunctionCallable {")
+	builder.IncIndent()
+
+	builder.WriteMultiLine(c.Pipes.String(), true)
+
+	builder.DecIndent()
+	builder.WriteWithIndent("}")
+	return builder.String()
+}
+
 // MultiPipe
 type MultiPipe struct {
 	Variables map[string]*ImmutableValue
 	Pipes     []Pipe
 }
 
-func (m *MultiPipe) String(indent int) string {
-	indentStr := strings.Repeat(indentSpacing, indent)
-	builder := strings.Builder{}
-	builder.WriteString(indentStr)
-	builder.WriteString("MultiPipe [\n")
+func (m *MultiPipe) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("MultiPipe [")
+	builder.IncIndent()
+
 	for _, pipe := range m.Pipes {
-		builder.WriteString(pipe.String(indent + 1))
-		builder.WriteRune('\n')
+		builder.WriteMultiLine(pipe.String(), true)
 	}
-	builder.WriteString(indentStr)
-	builder.WriteRune(']')
+
+	builder.DecIndent()
+	builder.WriteWithIndent("]")
 	return builder.String()
 }
 
@@ -120,24 +181,24 @@ func (p *Pipe) Exec(in io.Reader, out io.Writer) error {
 	return err
 }
 
-func (p *Pipe) String(indent int) string {
-	indentStr := strings.Repeat(indentSpacing, indent)
-	builder := strings.Builder{}
-	builder.WriteString(indentStr)
-	builder.WriteString("Pipe [\n")
+func (p *Pipe) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("Pipe [")
+	builder.IncIndent()
+
 	for _, node := range p.Nodes {
-		builder.WriteString(node.String(indent + 1))
-		builder.WriteRune('\n')
+		builder.WriteMultiLine(node.String(), true)
 	}
-	builder.WriteString(indentStr)
-	builder.WriteRune(']')
+
+	builder.DecIndent()
+	builder.WriteWithIndent("]")
 	return builder.String()
 }
 
 // PipeNode
 type PipeNode interface {
 	Exec(in io.Reader, out io.Writer) error
-	String(indent int) string
+	String() string
 }
 
 type VariableNode struct {
@@ -155,16 +216,9 @@ func (v *VariableNode) Exec(in io.Reader, out io.Writer) error {
 	return err
 }
 
-func (v *VariableNode) String(indent int) string {
-	indentStr := strings.Repeat(indentSpacing, indent)
-	builder := strings.Builder{}
-	builder.WriteString(indentStr)
-	builder.WriteString("VariableNode { Name: ")
-	builder.WriteString(v.Name)
-	builder.WriteString(", Value: ")
-	builder.WriteString(v.Value.String())
-	builder.WriteString(" }")
-	return builder.String()
+func (v *VariableNode) String() string {
+	return fmt.Sprintf("VariableNode { Name: %s, Value: %s }",
+		v.Name, v.Value.String())
 }
 
 // StreamNode
@@ -223,30 +277,22 @@ func (s *StreamNode) Exec(in io.Reader, out io.Writer) error {
 	}
 }
 
-func (s *StreamNode) String(indent int) string {
-	indentStr := strings.Repeat(indentSpacing, indent)
-	builder := strings.Builder{}
-	builder.WriteString(indentStr)
-	builder.WriteString("StreamNode {\n")
+func (s *StreamNode) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("StreamNode {")
+	builder.IncIndent()
 
-	builder.WriteString(indentStr)
-	builder.WriteString("  Splitter: ")
-	builder.WriteString(s.Splitter.String(0))
-	builder.WriteRune('\n')
+	builder.WriteWithIndent("Splitter: ")
+	builder.WriteMultiLine(s.Splitter.String(), false)
 
-	builder.WriteString(indentStr)
-	builder.WriteString("  Processor: ")
-	builder.WriteString(s.Processor.String(0))
-	builder.WriteRune('\n')
+	builder.WriteWithIndent("Processor: ")
+	builder.WriteMultiLine(s.Processor.String(), false)
 
-	builder.WriteString(indentStr)
-	builder.WriteString("  Collector: ")
-	builder.WriteString(s.Collector.String(0))
-	builder.WriteRune('\n')
+	builder.WriteWithIndent("Collector: ")
+	builder.WriteMultiLine(s.Collector.String(), false)
 
-	builder.WriteString(indentStr)
-	builder.WriteRune('}')
-
+	builder.DecIndent()
+	builder.WriteWithIndent("}")
 	return builder.String()
 }
 
@@ -276,17 +322,17 @@ func (m *PipeNodeArray) Exec(in io.Reader, out io.Writer) error {
 	return nil
 }
 
-func (m *PipeNodeArray) String(indent int) string {
-	indentStr := strings.Repeat(indentSpacing, indent)
-	builder := strings.Builder{}
-	builder.WriteString(indentStr)
-	builder.WriteString("PipeNodeArray [\n")
+func (m *PipeNodeArray) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("PipeNodeArray [")
+	builder.IncIndent()
+
 	for _, node := range m.Nodes {
-		builder.WriteString(node.String(indent + 1))
-		builder.WriteRune('\n')
+		builder.WriteMultiLine(node.String(), true)
 	}
-	builder.WriteString(indentStr)
-	builder.WriteRune(']')
+
+	builder.DecIndent()
+	builder.WriteWithIndent("]")
 	return builder.String()
 }
 
@@ -313,42 +359,29 @@ func (f *FunctionNode) Exec(in io.Reader, out io.Writer) error {
 	return nil
 }
 
-func (f *FunctionNode) String(indent int) string {
-	indentStr := strings.Repeat(indentSpacing, indent)
-	builder := strings.Builder{}
-	builder.WriteString(indentStr)
-	builder.WriteString("FunctionNode {\n")
+func (f *FunctionNode) String() string {
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("FunctionNode {")
+	builder.IncIndent()
 
-	builder.WriteString(indentStr)
-	builder.WriteString(indentSpacing)
-	builder.WriteString("Name: ")
-	builder.WriteString(f.Name)
-	builder.WriteRune('\n')
+	builder.WriteLine("Name: ", f.Name)
 
-	builder.WriteString(indentStr)
-	builder.WriteString(indentSpacing)
-	builder.WriteString("Params: [")
 	if f.Params.Size() > 0 {
-		builder.WriteRune('\n')
+		builder.WriteLine("Params: [")
+		builder.IncIndent()
 		for _, param := range f.Params {
-			builder.WriteString(indentStr)
-			builder.WriteString(indentSpacing)
-			builder.WriteString(indentSpacing)
-			builder.WriteString(param.String())
-			builder.WriteRune('\n')
+			builder.WriteMultiLine(param.String(), true)
 		}
-		builder.WriteString(indentStr)
-		builder.WriteString(indentSpacing)
+		builder.DecIndent()
+		builder.WriteLine("]")
+	} else {
+		builder.WriteLine("Params: []")
 	}
-	builder.WriteString("]\n")
 
-	builder.WriteString(indentStr)
-	builder.WriteString(indentSpacing)
-	builder.WriteString("Handler: ")
-	builder.WriteString(fmt.Sprintf("%p\n", f.Handler))
+	builder.WriteLine("Handler: ", fmt.Sprintf("%p", f.Handler))
 
-	builder.WriteString(indentStr)
-	builder.WriteString("}")
+	builder.DecIndent()
+	builder.WriteWithIndent("}")
 	return builder.String()
 }
 
@@ -395,7 +428,17 @@ func (p *Parameter) Labeled() bool {
 }
 
 func (p *Parameter) String() string {
-	return "Parameter { Label: " + p.Label + ", Value: " + p.Value.String() + "}"
+	builder := util.NewStringBuilder(indentSpacing)
+	builder.WriteLine("Parameter: {")
+	builder.IncIndent()
+
+	builder.WriteLine("Label: ", p.Label)
+	builder.WriteLine("Value: ", p.Value.String())
+
+	builder.DecIndent()
+	builder.WriteWithIndent("}")
+
+	return builder.String()
 }
 
 type Value interface {

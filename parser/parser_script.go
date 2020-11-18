@@ -4,9 +4,16 @@ import (
 	"fmt"
 	. "github.com/ToolPackage/pipe/parser/definition"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"os"
 )
 
 func ParseScript(filename string) error {
+	defer func() {
+		if err, ok := recover().(error); ok {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}()
 	input, err := antlr.NewFileStream(filename)
 	if err != nil {
 		return err
@@ -20,7 +27,7 @@ func ParseScript(filename string) error {
 	listener := newPipeScriptListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
-	fmt.Println(listener.pipeScript)
+	fmt.Println(listener.pipeScript.String())
 
 	return nil
 }
