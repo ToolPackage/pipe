@@ -105,12 +105,6 @@ func (s *BasePipeListener) EnterPipeNode(ctx *PipeNodeContext) {}
 // ExitPipeNode is called when production pipeNode is exited.
 func (s *BasePipeListener) ExitPipeNode(ctx *PipeNodeContext) {}
 
-// EnterVariableNode is called when production variableNode is entered.
-func (s *BasePipeListener) EnterVariableNode(ctx *VariableNodeContext) {}
-
-// ExitVariableNode is called when production variableNode is exited.
-func (s *BasePipeListener) ExitVariableNode(ctx *VariableNodeContext) {}
-
 // EnterStreamNode is called when production streamNode is entered.
 func (s *BasePipeListener) EnterStreamNode(ctx *StreamNodeContext) {}
 
@@ -140,6 +134,12 @@ func (s *BasePipeListener) EnterPipeNodeElement(ctx *PipeNodeElementContext) {}
 
 // ExitPipeNodeElement is called when production pipeNodeElement is exited.
 func (s *BasePipeListener) ExitPipeNodeElement(ctx *PipeNodeElementContext) {}
+
+// EnterVariableNode is called when production variableNode is entered.
+func (s *BasePipeListener) EnterVariableNode(ctx *VariableNodeContext) {}
+
+// ExitVariableNode is called when production variableNode is exited.
+func (s *BasePipeListener) ExitVariableNode(ctx *VariableNodeContext) {}
 
 // EnterFunctionNode is called when production functionNode is entered.
 func (s *BasePipeListener) EnterFunctionNode(ctx *FunctionNodeContext) {}

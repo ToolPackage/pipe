@@ -26,11 +26,9 @@ func ParseScript(filename string) error {
 }
 
 type pipeScriptListener struct {
-	*BasePipeListener
+	multiPipeListener
 
 	pipeScript *PipeScript
-
-	mapEntryLabel string
 }
 
 func newPipeScriptListener() *pipeScriptListener {
@@ -39,144 +37,58 @@ func newPipeScriptListener() *pipeScriptListener {
 	}
 }
 
-func (psl *pipeScriptListener) lastFuncDef() *CompactFunction {
-	return &psl.pipeScript.Funcs[len(psl.pipeScript.Funcs)-1]
+func (p *pipeScriptListener) lastFuncDef() *CompactFunction {
+	return &p.pipeScript.Funcs[len(p.pipeScript.Funcs)-1]
 }
 
-func (psl *pipeScriptListener) lastFuncParamDef() *FuncParamDef {
-	return &psl.lastFuncDef().Params[len(psl.lastFuncDef().Params)-1]
-}
-
-func (psl *pipeScriptListener) lastPipe() *Pipe {
-	return &psl.lastFuncDef().Callable.Pipes[len(psl.lastFuncDef().Callable.Pipes)-1]
-}
-
-func (psl *pipeScriptListener) lastPipeNode() PipeNode {
-	return psl.lastPipe().Nodes[len(psl.lastPipe().Nodes)-1]
-}
-
-func (psl *pipeScriptListener) lastFunctionNode() *FunctionNode {
-	return psl.lastPipeNode().(*FunctionNode)
-}
-
-func (psl *pipeScriptListener) lastFunctionNodeParameter() *Parameter {
-	return &psl.lastFunctionNode().Params[len(psl.lastFunctionNode().Params)-1]
+func (p *pipeScriptListener) lastFuncParamDef() *FuncParamDef {
+	funcDef := p.lastFuncDef()
+	return &funcDef.Params[len(funcDef.Params)-1]
 }
 
 // create function signature
 
-func (psl *pipeScriptListener) EnterFuncDef(ctx *FuncDefContext) {
-	psl.pipeScript.Funcs = append(psl.pipeScript.Funcs, CompactFunction{
-		Variables: make(map[string]*ImmutableValue),
-		Params:    make([]FuncParamDef, 0),
-		Callable:  CompactFunctionCallable{Pipes: make([]Pipe, 0)},
+func (p *pipeScriptListener) EnterFuncDef(ctx *FuncDefContext) {
+	p.pipeScript.Funcs = append(p.pipeScript.Funcs, CompactFunction{
+		Params: make([]FuncParamDef, 0),
 	})
 }
 
-func (psl *pipeScriptListener) EnterFuncName(c *FuncNameContext) {
-	psl.lastFuncDef().Name = c.GetText()
+func (p *pipeScriptListener) EnterFuncName(c *FuncNameContext) {
+	p.lastFuncDef().Name = c.GetText()
 }
 
-func (psl *pipeScriptListener) EnterFuncParamDef(c *FuncParamDefContext) {
-	psl.lastFuncDef().Params = append(psl.lastFuncDef().Params, FuncParamDef{})
+func (p *pipeScriptListener) EnterFuncParamDef(c *FuncParamDefContext) {
+	p.lastFuncDef().Params = append(p.lastFuncDef().Params, FuncParamDef{})
 }
 
-func (psl *pipeScriptListener) EnterFuncParamName(c *FuncParamNameContext) {
-	psl.lastFuncParamDef().Name = c.GetText()
+func (p *pipeScriptListener) EnterFuncParamName(c *FuncParamNameContext) {
+	p.lastFuncParamDef().Name = c.GetText()
 }
 
-func (psl *pipeScriptListener) EnterOptionalParamFlag(c *OptionalParamFlagContext) {
-	psl.lastFuncParamDef().Optional = true
+func (p *pipeScriptListener) EnterOptionalParamFlag(c *OptionalParamFlagContext) {
+	p.lastFuncParamDef().Optional = true
 }
 
-func (psl *pipeScriptListener) EnterFuncParamType(c *FuncParamTypeContext) {
-	psl.lastFuncParamDef().Type = TypeMappings[c.GetText()]
+func (p *pipeScriptListener) EnterFuncParamType(c *FuncParamTypeContext) {
+	p.lastFuncParamDef().Type = TypeMappings[c.GetText()]
 }
 
-// handle multiPipe
-
-func (psl *pipeScriptListener) EnterPipe(c *PipeContext) {
-	psl.lastFuncDef().Callable.Pipes = append(psl.lastFuncDef().Callable.Pipes,
-		Pipe{Nodes: make([]PipeNode, 0)})
-}
-
-func (psl *pipeScriptListener) EnterVariableNode(c *VariableNodeContext) {
-	variableName := c.GetText()[1:]
-	pipe := psl.lastPipe()
-	// if variable has been defined, raise error
-	if _, ok := psl.lastFuncDef().Variables[variableName]; ok {
-		panic(UpdateImmutableVariableError)
+func (p *pipeScriptListener) EnterFuncBody(c *FuncBodyContext) {
+	// create local variables for function params
+	funcDef := p.lastFuncDef()
+	localVars := make(map[string]*ImmutableValue)
+	for _, paramDef := range funcDef.Params {
+		if _, ok := localVars[paramDef.Name]; ok {
+			panic(DuplicateFuncParamNameError)
+		}
+		localVars[paramDef.Name] = NewImmutableValue()
 	}
-	pipe.Nodes = append(pipe.Nodes, &VariableNode{Name: variableName, Value: NewImmutableValue()})
+
+	p.multiPipeListener.multiPipe = &MultiPipe{Variables: localVars, Pipes: make([]Pipe, 0)}
 }
 
-func (psl *pipeScriptListener) EnterFunctionNode(c *FunctionNodeContext) {
-	pipe := psl.lastPipe()
-	pipe.Nodes = append(pipe.Nodes, &FunctionNode{Params: make([]Parameter, 0)})
-}
-
-func (psl *pipeScriptListener) EnterFunctionName(c *FunctionNameContext) {
-	psl.lastFunctionNode().Name = c.GetText()
-}
-
-func (psl *pipeScriptListener) EnterFunctionParameter(c *FunctionParameterContext) {
-	node := psl.lastFunctionNode()
-	node.Params = append(node.Params, Parameter{})
-}
-
-func (psl *pipeScriptListener) EnterFunctionParameterLabel(c *FunctionParameterLabelContext) {
-	labelWithColon := c.GetText()
-	psl.lastFunctionNodeParameter().Label = labelWithColon[:len(labelWithColon)-1]
-}
-
-// handle basic type
-
-func (psl *pipeScriptListener) EnterIntegerValue(ctx *IntegerValueContext) {
-	psl.updateParameterValue(NewBaseParameterValue(IntegerValue, ctx.GetText()))
-}
-
-func (psl *pipeScriptListener) EnterDecimalValue(ctx *DecimalValueContext) {
-	psl.updateParameterValue(NewBaseParameterValue(FloatValue, ctx.GetText()))
-}
-
-func (psl *pipeScriptListener) EnterStringValue(ctx *StringValueContext) {
-	v := ctx.GetText()
-	psl.updateParameterValue(NewBaseParameterValue(StringValue, v[1:len(v)-1]))
-}
-
-func (psl *pipeScriptListener) EnterBooleanValue(ctx *BooleanValueContext) {
-	psl.updateParameterValue(NewBaseParameterValue(BoolValue, ctx.GetText()))
-}
-
-func (psl *pipeScriptListener) updateParameterValue(newItem Value) {
-	param := psl.lastFunctionNodeParameter()
-	if param.Value != nil {
-		v := param.Value.(*DictParameterValue)
-		v.AddEntry(psl.mapEntryLabel, newItem)
-		psl.mapEntryLabel = ""
-	} else {
-		param.Value = newItem
-	}
-}
-
-// handle dict
-
-func (psl *pipeScriptListener) EnterDictValue(ctx *DictValueContext) {
-	psl.lastFunctionNodeParameter().Value = NewDictParameterValue()
-}
-
-func (psl *pipeScriptListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
-	psl.mapEntryLabel = c.GetText()
-}
-
-// handle reference value
-
-func (psl *pipeScriptListener) EnterVariableValue(c *VariableValueContext) {
-	variableName := c.GetText()[1:]
-	// check if variable has been defined
-	if v, ok := psl.lastFuncDef().Variables[variableName]; !ok {
-		psl.lastFunctionNodeParameter().Value = NewReferenceParameterValue(variableName, v)
-	} else {
-		panic(UpdateImmutableVariableError)
-	}
+func (p *pipeScriptListener) ExitFuncBody(c *FuncBodyContext) {
+	p.lastFuncDef().Callable = &CompactFunctionCallable{Pipes: p.multiPipeListener.multiPipe}
+	p.multiPipeListener.multiPipe = nil
 }

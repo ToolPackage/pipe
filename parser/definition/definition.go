@@ -20,10 +20,9 @@ type PipeScript struct {
 
 // CompactFunction
 type CompactFunction struct {
-	Name      string
-	Variables map[string]*ImmutableValue
-	Params    []FuncParamDef
-	Callable  CompactFunctionCallable
+	Name     string
+	Params   []FuncParamDef
+	Callable *CompactFunctionCallable
 }
 
 // FuncParamDef
@@ -74,7 +73,7 @@ var TypeMappings = map[string]ParameterType{
 
 // CompactFunctionCallable
 type CompactFunctionCallable struct {
-	Pipes []Pipe
+	Pipes *MultiPipe
 }
 
 // MultiPipe
@@ -263,10 +262,15 @@ func (m *PipeNodeArray) Exec(in io.Reader, out io.Writer) error {
 		return err
 	}
 
+	sep := ""
 	for _, node := range m.Nodes {
+		if _, err = out.Write([]byte(sep)); err != nil {
+			return err
+		}
 		if err = node.Exec(bytes.NewReader(input), out); err != nil {
 			return err
 		}
+		sep = "\n"
 	}
 
 	return nil
@@ -619,7 +623,7 @@ func (fpc FuncParamConstraint) Validate(params Parameters) error {
 		if param.Value.Type() == ReferenceValue {
 			// if parameter is a variable, check if function param type is dict
 			if paramDef.Type == DictValue {
-				return InvalidUsageOfVairableError
+				return InvalidUsageOfVariableError
 			}
 			// set reference value's type which will be used to convert variable text value to typed value
 			refValue := param.Value.(*ReferenceParameterValue)

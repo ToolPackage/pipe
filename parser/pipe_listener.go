@@ -50,9 +50,6 @@ type PipeListener interface {
 	// EnterPipeNode is called when entering the pipeNode production.
 	EnterPipeNode(c *PipeNodeContext)
 
-	// EnterVariableNode is called when entering the variableNode production.
-	EnterVariableNode(c *VariableNodeContext)
-
 	// EnterStreamNode is called when entering the streamNode production.
 	EnterStreamNode(c *StreamNodeContext)
 
@@ -67,6 +64,9 @@ type PipeListener interface {
 
 	// EnterPipeNodeElement is called when entering the pipeNodeElement production.
 	EnterPipeNodeElement(c *PipeNodeElementContext)
+
+	// EnterVariableNode is called when entering the variableNode production.
+	EnterVariableNode(c *VariableNodeContext)
 
 	// EnterFunctionNode is called when entering the functionNode production.
 	EnterFunctionNode(c *FunctionNodeContext)
@@ -161,9 +161,6 @@ type PipeListener interface {
 	// ExitPipeNode is called when exiting the pipeNode production.
 	ExitPipeNode(c *PipeNodeContext)
 
-	// ExitVariableNode is called when exiting the variableNode production.
-	ExitVariableNode(c *VariableNodeContext)
-
 	// ExitStreamNode is called when exiting the streamNode production.
 	ExitStreamNode(c *StreamNodeContext)
 
@@ -178,6 +175,9 @@ type PipeListener interface {
 
 	// ExitPipeNodeElement is called when exiting the pipeNodeElement production.
 	ExitPipeNodeElement(c *PipeNodeElementContext)
+
+	// ExitVariableNode is called when exiting the variableNode production.
+	ExitVariableNode(c *VariableNodeContext)
 
 	// ExitFunctionNode is called when exiting the functionNode production.
 	ExitFunctionNode(c *FunctionNodeContext)

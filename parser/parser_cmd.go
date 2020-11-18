@@ -85,6 +85,10 @@ func (m *multiPipeListener) lastPipeNode() PipeNode {
 	return lastPipe.Nodes[len(lastPipe.Nodes)-1]
 }
 
+func (m *multiPipeListener) lastPipeNodeArray() *PipeNodeArray {
+	return m.lastPipeNode().(*PipeNodeArray)
+}
+
 func (m *multiPipeListener) lastFunctionNode() *FunctionNode {
 	switch m.currentScope() {
 	case ScopeStreamSplitter:
@@ -94,7 +98,7 @@ func (m *multiPipeListener) lastFunctionNode() *FunctionNode {
 		node := m.lastPipeNode().(*StreamNode)
 		return node.Collector
 	case ScopePipeNodeArray:
-		node := m.lastPipeNode().(*PipeNodeArray)
+		node := m.lastPipeNodeArray()
 		return node.Nodes[len(node.Nodes)-1].(*FunctionNode)
 	}
 	return nil
@@ -123,36 +127,6 @@ func (m *multiPipeListener) EnterPipe(c *PipeContext) {
 }
 
 func (m *multiPipeListener) ExitPipe(c *PipeContext) {
-	m.exitScope()
-}
-
-// EnterVariableNode
-func (m *multiPipeListener) EnterVariableNode(c *VariableNodeContext) {
-	parentScope := m.currentScope()
-	m.enterScope(ScopeVariableNode)
-
-	variableName := c.GetText()[1:]
-	// if variable has been defined, raise error
-	if _, ok := m.multiPipe.Variables[variableName]; ok {
-		panic(UpdateImmutableVariableError)
-	}
-	v := NewImmutableValue()
-	m.multiPipe.Variables[variableName] = v
-	newNode := &VariableNode{Name: variableName, Value: v}
-
-	switch parentScope {
-	case ScopePipe:
-		pipe := m.lastPipe()
-		pipe.Nodes = append(pipe.Nodes, newNode)
-	case ScopePipeNodeArray:
-		arr := m.lastPipeNode().(*PipeNodeArray)
-		arr.Nodes = append(arr.Nodes, newNode)
-	default:
-		panic(fmt.Sprintf("unexpected scope: %d", parentScope))
-	}
-}
-
-func (m *multiPipeListener) ExitVariableNode(c *VariableNodeContext) {
 	m.exitScope()
 }
 
@@ -192,7 +166,39 @@ func (m *multiPipeListener) ExitPipeNodeArray(c *PipeNodeArrayContext) {
 	m.exitScope()
 }
 
-// EnterFunction
+// EnterVariableNode
+func (m *multiPipeListener) EnterVariableNode(c *VariableNodeContext) {
+	m.enterScope(ScopeVariableNode)
+
+	variableName := c.GetText()[1:]
+
+	pipe := m.lastPipe()
+	// check if current pipe has only 1 node (pipeNodeArray)
+	if len(pipe.Nodes) == 1 {
+		// read from variable, check if variable is defined
+		if _, ok := m.multiPipe.Variables[variableName]; !ok {
+			raise(c, UndefinedVariableError(variableName))
+		}
+	} else {
+		// update and read value, if variable has been defined, raise error
+		if _, ok := m.multiPipe.Variables[variableName]; ok {
+			raise(c, UpdateImmutableVariableError(variableName))
+		}
+	}
+
+	v := NewImmutableValue()
+	m.multiPipe.Variables[variableName] = v
+	newNode := &VariableNode{Name: variableName, Value: v}
+
+	arr := m.lastPipeNodeArray()
+	arr.Nodes = append(arr.Nodes, newNode)
+}
+
+func (m *multiPipeListener) ExitVariableNode(c *VariableNodeContext) {
+	m.exitScope()
+}
+
+// EnterFunctionNode
 func (m *multiPipeListener) EnterFunctionNode(c *FunctionNodeContext) {
 	newNode := &FunctionNode{Params: make([]Parameter, 0)}
 	switch m.currentScope() {
@@ -255,7 +261,7 @@ func (m *multiPipeListener) EnterVariableValue(c *VariableValueContext) {
 	variableName := c.GetText()[1:]
 	// if variable is undefined, raise error
 	if v, ok := m.multiPipe.Variables[variableName]; !ok {
-		panic(UndefinedVariableError)
+		panic(UndefinedVariableError(variableName))
 	} else {
 		m.updateParameterValue(NewReferenceParameterValue(variableName, v))
 	}
@@ -282,4 +288,13 @@ func (m *multiPipeListener) EnterDictValue(ctx *DictValueContext) {
 
 func (m *multiPipeListener) EnterDictEntryLabel(c *DictEntryLabelContext) {
 	m.mapEntryLabel = c.GetText()
+}
+
+type AstContext interface {
+	GetStart() antlr.Token
+}
+
+func raise(ctx AstContext, err error) {
+	start := ctx.GetStart()
+	panic(fmt.Errorf("[%d:%d] %s", start.GetLine(), start.GetColumn(), err))
 }

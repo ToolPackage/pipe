@@ -16,7 +16,7 @@ var _ = reflect.Copy
 var _ = strconv.Itoa
 
 var parserATN = []uint16{
-	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 27, 278,
+	3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 27, 277,
 	4, 2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 4, 5, 9, 5, 4, 6, 9, 6, 4, 7, 9, 7,
 	4, 8, 9, 8, 4, 9, 9, 9, 4, 10, 9, 10, 4, 11, 9, 11, 4, 12, 9, 12, 4, 13,
 	9, 13, 4, 14, 9, 14, 4, 15, 9, 15, 4, 16, 9, 16, 4, 17, 9, 17, 4, 18, 9,
@@ -32,113 +32,112 @@ var parserATN = []uint16{
 	128, 10, 10, 3, 10, 3, 10, 3, 10, 3, 11, 3, 11, 5, 11, 135, 10, 11, 3,
 	12, 3, 12, 3, 12, 3, 13, 3, 13, 3, 13, 7, 13, 143, 10, 13, 12, 13, 14,
 	13, 146, 11, 13, 3, 14, 3, 14, 3, 14, 7, 14, 151, 10, 14, 12, 14, 14, 14,
-	154, 11, 14, 3, 15, 3, 15, 3, 15, 5, 15, 159, 10, 15, 3, 16, 3, 16, 3,
-	16, 3, 17, 3, 17, 3, 17, 3, 17, 3, 17, 3, 17, 5, 17, 170, 10, 17, 3, 17,
-	3, 17, 3, 18, 3, 18, 3, 19, 3, 19, 3, 20, 3, 20, 3, 20, 7, 20, 181, 10,
-	20, 12, 20, 14, 20, 184, 11, 20, 3, 21, 3, 21, 5, 21, 188, 10, 21, 3, 22,
-	3, 22, 5, 22, 192, 10, 22, 3, 23, 3, 23, 3, 23, 7, 23, 197, 10, 23, 12,
-	23, 14, 23, 200, 11, 23, 3, 24, 3, 24, 3, 24, 3, 24, 7, 24, 206, 10, 24,
-	12, 24, 14, 24, 209, 11, 24, 3, 24, 5, 24, 212, 10, 24, 5, 24, 214, 10,
-	24, 3, 24, 3, 24, 3, 25, 5, 25, 219, 10, 25, 3, 25, 3, 25, 3, 26, 3, 26,
-	3, 26, 3, 27, 3, 27, 3, 27, 3, 27, 3, 27, 5, 27, 231, 10, 27, 3, 28, 3,
-	28, 3, 28, 3, 29, 3, 29, 5, 29, 238, 10, 29, 3, 29, 3, 29, 3, 30, 3, 30,
-	3, 30, 7, 30, 245, 10, 30, 12, 30, 14, 30, 248, 11, 30, 3, 31, 3, 31, 3,
-	31, 5, 31, 253, 10, 31, 3, 31, 3, 31, 3, 32, 3, 32, 3, 33, 3, 33, 3, 33,
-	3, 33, 3, 33, 5, 33, 264, 10, 33, 3, 34, 3, 34, 5, 34, 268, 10, 34, 3,
-	35, 3, 35, 3, 36, 3, 36, 3, 37, 3, 37, 3, 38, 3, 38, 3, 38, 2, 2, 39, 2,
-	4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
-	42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 2,
-	2, 2, 272, 2, 79, 3, 2, 2, 2, 4, 84, 3, 2, 2, 2, 6, 89, 3, 2, 2, 2, 8,
-	97, 3, 2, 2, 2, 10, 110, 3, 2, 2, 2, 12, 117, 3, 2, 2, 2, 14, 119, 3, 2,
-	2, 2, 16, 121, 3, 2, 2, 2, 18, 123, 3, 2, 2, 2, 20, 132, 3, 2, 2, 2, 22,
-	136, 3, 2, 2, 2, 24, 139, 3, 2, 2, 2, 26, 147, 3, 2, 2, 2, 28, 158, 3,
-	2, 2, 2, 30, 160, 3, 2, 2, 2, 32, 163, 3, 2, 2, 2, 34, 173, 3, 2, 2, 2,
-	36, 175, 3, 2, 2, 2, 38, 177, 3, 2, 2, 2, 40, 187, 3, 2, 2, 2, 42, 189,
-	3, 2, 2, 2, 44, 193, 3, 2, 2, 2, 46, 201, 3, 2, 2, 2, 48, 218, 3, 2, 2,
-	2, 50, 222, 3, 2, 2, 2, 52, 230, 3, 2, 2, 2, 54, 232, 3, 2, 2, 2, 56, 235,
-	3, 2, 2, 2, 58, 241, 3, 2, 2, 2, 60, 252, 3, 2, 2, 2, 62, 256, 3, 2, 2,
-	2, 64, 263, 3, 2, 2, 2, 66, 267, 3, 2, 2, 2, 68, 269, 3, 2, 2, 2, 70, 271,
-	3, 2, 2, 2, 72, 273, 3, 2, 2, 2, 74, 275, 3, 2, 2, 2, 76, 78, 5, 4, 3,
-	2, 77, 76, 3, 2, 2, 2, 78, 81, 3, 2, 2, 2, 79, 77, 3, 2, 2, 2, 79, 80,
-	3, 2, 2, 2, 80, 82, 3, 2, 2, 2, 81, 79, 3, 2, 2, 2, 82, 83, 7, 2, 2, 3,
-	83, 3, 3, 2, 2, 2, 84, 85, 7, 3, 2, 2, 85, 86, 5, 6, 4, 2, 86, 87, 5, 8,
-	5, 2, 87, 88, 5, 18, 10, 2, 88, 5, 3, 2, 2, 2, 89, 94, 7, 26, 2, 2, 90,
-	91, 7, 4, 2, 2, 91, 93, 7, 26, 2, 2, 92, 90, 3, 2, 2, 2, 93, 96, 3, 2,
-	2, 2, 94, 92, 3, 2, 2, 2, 94, 95, 3, 2, 2, 2, 95, 7, 3, 2, 2, 2, 96, 94,
-	3, 2, 2, 2, 97, 106, 7, 5, 2, 2, 98, 103, 5, 10, 6, 2, 99, 100, 7, 6, 2,
-	2, 100, 102, 5, 10, 6, 2, 101, 99, 3, 2, 2, 2, 102, 105, 3, 2, 2, 2, 103,
-	101, 3, 2, 2, 2, 103, 104, 3, 2, 2, 2, 104, 107, 3, 2, 2, 2, 105, 103,
-	3, 2, 2, 2, 106, 98, 3, 2, 2, 2, 106, 107, 3, 2, 2, 2, 107, 108, 3, 2,
-	2, 2, 108, 109, 7, 7, 2, 2, 109, 9, 3, 2, 2, 2, 110, 112, 5, 12, 7, 2,
-	111, 113, 5, 14, 8, 2, 112, 111, 3, 2, 2, 2, 112, 113, 3, 2, 2, 2, 113,
-	114, 3, 2, 2, 2, 114, 115, 7, 8, 2, 2, 115, 116, 5, 16, 9, 2, 116, 11,
-	3, 2, 2, 2, 117, 118, 7, 26, 2, 2, 118, 13, 3, 2, 2, 2, 119, 120, 7, 9,
-	2, 2, 120, 15, 3, 2, 2, 2, 121, 122, 7, 19, 2, 2, 122, 17, 3, 2, 2, 2,
-	123, 127, 7, 10, 2, 2, 124, 125, 5, 24, 13, 2, 125, 126, 7, 18, 2, 2, 126,
-	128, 3, 2, 2, 2, 127, 124, 3, 2, 2, 2, 127, 128, 3, 2, 2, 2, 128, 129,
-	3, 2, 2, 2, 129, 130, 5, 20, 11, 2, 130, 131, 7, 11, 2, 2, 131, 19, 3,
-	2, 2, 2, 132, 134, 7, 12, 2, 2, 133, 135, 5, 26, 14, 2, 134, 133, 3, 2,
-	2, 2, 134, 135, 3, 2, 2, 2, 135, 21, 3, 2, 2, 2, 136, 137, 5, 24, 13, 2,
-	137, 138, 7, 2, 2, 3, 138, 23, 3, 2, 2, 2, 139, 144, 5, 26, 14, 2, 140,
-	141, 7, 18, 2, 2, 141, 143, 5, 26, 14, 2, 142, 140, 3, 2, 2, 2, 143, 146,
-	3, 2, 2, 2, 144, 142, 3, 2, 2, 2, 144, 145, 3, 2, 2, 2, 145, 25, 3, 2,
-	2, 2, 146, 144, 3, 2, 2, 2, 147, 152, 5, 28, 15, 2, 148, 149, 7, 17, 2,
-	2, 149, 151, 5, 28, 15, 2, 150, 148, 3, 2, 2, 2, 151, 154, 3, 2, 2, 2,
-	152, 150, 3, 2, 2, 2, 152, 153, 3, 2, 2, 2, 153, 27, 3, 2, 2, 2, 154, 152,
-	3, 2, 2, 2, 155, 159, 5, 30, 16, 2, 156, 159, 5, 32, 17, 2, 157, 159, 5,
-	38, 20, 2, 158, 155, 3, 2, 2, 2, 158, 156, 3, 2, 2, 2, 158, 157, 3, 2,
-	2, 2, 159, 29, 3, 2, 2, 2, 160, 161, 7, 13, 2, 2, 161, 162, 7, 26, 2, 2,
-	162, 31, 3, 2, 2, 2, 163, 164, 7, 14, 2, 2, 164, 165, 5, 34, 18, 2, 165,
-	166, 7, 6, 2, 2, 166, 169, 5, 26, 14, 2, 167, 168, 7, 6, 2, 2, 168, 170,
-	5, 36, 19, 2, 169, 167, 3, 2, 2, 2, 169, 170, 3, 2, 2, 2, 170, 171, 3,
-	2, 2, 2, 171, 172, 7, 14, 2, 2, 172, 33, 3, 2, 2, 2, 173, 174, 5, 42, 22,
-	2, 174, 35, 3, 2, 2, 2, 175, 176, 5, 42, 22, 2, 176, 37, 3, 2, 2, 2, 177,
-	182, 5, 40, 21, 2, 178, 179, 7, 6, 2, 2, 179, 181, 5, 40, 21, 2, 180, 178,
-	3, 2, 2, 2, 181, 184, 3, 2, 2, 2, 182, 180, 3, 2, 2, 2, 182, 183, 3, 2,
-	2, 2, 183, 39, 3, 2, 2, 2, 184, 182, 3, 2, 2, 2, 185, 188, 5, 30, 16, 2,
-	186, 188, 5, 42, 22, 2, 187, 185, 3, 2, 2, 2, 187, 186, 3, 2, 2, 2, 188,
-	41, 3, 2, 2, 2, 189, 191, 5, 44, 23, 2, 190, 192, 5, 46, 24, 2, 191, 190,
-	3, 2, 2, 2, 191, 192, 3, 2, 2, 2, 192, 43, 3, 2, 2, 2, 193, 198, 7, 26,
-	2, 2, 194, 195, 7, 4, 2, 2, 195, 197, 7, 26, 2, 2, 196, 194, 3, 2, 2, 2,
-	197, 200, 3, 2, 2, 2, 198, 196, 3, 2, 2, 2, 198, 199, 3, 2, 2, 2, 199,
-	45, 3, 2, 2, 2, 200, 198, 3, 2, 2, 2, 201, 213, 7, 5, 2, 2, 202, 207, 5,
-	48, 25, 2, 203, 204, 7, 6, 2, 2, 204, 206, 5, 48, 25, 2, 205, 203, 3, 2,
-	2, 2, 206, 209, 3, 2, 2, 2, 207, 205, 3, 2, 2, 2, 207, 208, 3, 2, 2, 2,
-	208, 211, 3, 2, 2, 2, 209, 207, 3, 2, 2, 2, 210, 212, 7, 6, 2, 2, 211,
-	210, 3, 2, 2, 2, 211, 212, 3, 2, 2, 2, 212, 214, 3, 2, 2, 2, 213, 202,
-	3, 2, 2, 2, 213, 214, 3, 2, 2, 2, 214, 215, 3, 2, 2, 2, 215, 216, 7, 7,
-	2, 2, 216, 47, 3, 2, 2, 2, 217, 219, 5, 50, 26, 2, 218, 217, 3, 2, 2, 2,
-	218, 219, 3, 2, 2, 2, 219, 220, 3, 2, 2, 2, 220, 221, 5, 52, 27, 2, 221,
-	49, 3, 2, 2, 2, 222, 223, 7, 26, 2, 2, 223, 224, 7, 8, 2, 2, 224, 51, 3,
-	2, 2, 2, 225, 231, 5, 54, 28, 2, 226, 231, 5, 56, 29, 2, 227, 231, 5, 66,
-	34, 2, 228, 231, 5, 72, 37, 2, 229, 231, 5, 74, 38, 2, 230, 225, 3, 2,
-	2, 2, 230, 226, 3, 2, 2, 2, 230, 227, 3, 2, 2, 2, 230, 228, 3, 2, 2, 2,
-	230, 229, 3, 2, 2, 2, 231, 53, 3, 2, 2, 2, 232, 233, 7, 13, 2, 2, 233,
-	234, 7, 26, 2, 2, 234, 55, 3, 2, 2, 2, 235, 237, 7, 15, 2, 2, 236, 238,
-	5, 58, 30, 2, 237, 236, 3, 2, 2, 2, 237, 238, 3, 2, 2, 2, 238, 239, 3,
-	2, 2, 2, 239, 240, 7, 16, 2, 2, 240, 57, 3, 2, 2, 2, 241, 246, 5, 60, 31,
-	2, 242, 243, 7, 6, 2, 2, 243, 245, 5, 60, 31, 2, 244, 242, 3, 2, 2, 2,
-	245, 248, 3, 2, 2, 2, 246, 244, 3, 2, 2, 2, 246, 247, 3, 2, 2, 2, 247,
-	59, 3, 2, 2, 2, 248, 246, 3, 2, 2, 2, 249, 250, 5, 62, 32, 2, 250, 251,
-	7, 8, 2, 2, 251, 253, 3, 2, 2, 2, 252, 249, 3, 2, 2, 2, 252, 253, 3, 2,
-	2, 2, 253, 254, 3, 2, 2, 2, 254, 255, 5, 64, 33, 2, 255, 61, 3, 2, 2, 2,
-	256, 257, 7, 26, 2, 2, 257, 63, 3, 2, 2, 2, 258, 264, 5, 66, 34, 2, 259,
-	264, 5, 70, 36, 2, 260, 264, 5, 72, 37, 2, 261, 264, 5, 74, 38, 2, 262,
-	264, 5, 54, 28, 2, 263, 258, 3, 2, 2, 2, 263, 259, 3, 2, 2, 2, 263, 260,
-	3, 2, 2, 2, 263, 261, 3, 2, 2, 2, 263, 262, 3, 2, 2, 2, 264, 65, 3, 2,
-	2, 2, 265, 268, 5, 68, 35, 2, 266, 268, 5, 70, 36, 2, 267, 265, 3, 2, 2,
-	2, 267, 266, 3, 2, 2, 2, 268, 67, 3, 2, 2, 2, 269, 270, 7, 20, 2, 2, 270,
-	69, 3, 2, 2, 2, 271, 272, 7, 21, 2, 2, 272, 71, 3, 2, 2, 2, 273, 274, 7,
-	22, 2, 2, 274, 73, 3, 2, 2, 2, 275, 276, 7, 23, 2, 2, 276, 75, 3, 2, 2,
-	2, 27, 79, 94, 103, 106, 112, 127, 134, 144, 152, 158, 169, 182, 187, 191,
-	198, 207, 211, 213, 218, 230, 237, 246, 252, 263, 267,
+	154, 11, 14, 3, 15, 3, 15, 5, 15, 158, 10, 15, 3, 16, 3, 16, 3, 16, 3,
+	16, 3, 16, 3, 16, 5, 16, 166, 10, 16, 3, 16, 3, 16, 3, 17, 3, 17, 3, 18,
+	3, 18, 3, 19, 3, 19, 3, 19, 7, 19, 177, 10, 19, 12, 19, 14, 19, 180, 11,
+	19, 3, 20, 3, 20, 5, 20, 184, 10, 20, 3, 21, 3, 21, 3, 21, 3, 22, 3, 22,
+	5, 22, 191, 10, 22, 3, 23, 3, 23, 3, 23, 7, 23, 196, 10, 23, 12, 23, 14,
+	23, 199, 11, 23, 3, 24, 3, 24, 3, 24, 3, 24, 7, 24, 205, 10, 24, 12, 24,
+	14, 24, 208, 11, 24, 3, 24, 5, 24, 211, 10, 24, 5, 24, 213, 10, 24, 3,
+	24, 3, 24, 3, 25, 5, 25, 218, 10, 25, 3, 25, 3, 25, 3, 26, 3, 26, 3, 26,
+	3, 27, 3, 27, 3, 27, 3, 27, 3, 27, 5, 27, 230, 10, 27, 3, 28, 3, 28, 3,
+	28, 3, 29, 3, 29, 5, 29, 237, 10, 29, 3, 29, 3, 29, 3, 30, 3, 30, 3, 30,
+	7, 30, 244, 10, 30, 12, 30, 14, 30, 247, 11, 30, 3, 31, 3, 31, 3, 31, 5,
+	31, 252, 10, 31, 3, 31, 3, 31, 3, 32, 3, 32, 3, 33, 3, 33, 3, 33, 3, 33,
+	3, 33, 5, 33, 263, 10, 33, 3, 34, 3, 34, 5, 34, 267, 10, 34, 3, 35, 3,
+	35, 3, 36, 3, 36, 3, 37, 3, 37, 3, 38, 3, 38, 3, 38, 2, 2, 39, 2, 4, 6,
+	8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42,
+	44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 2, 2, 2,
+	270, 2, 79, 3, 2, 2, 2, 4, 84, 3, 2, 2, 2, 6, 89, 3, 2, 2, 2, 8, 97, 3,
+	2, 2, 2, 10, 110, 3, 2, 2, 2, 12, 117, 3, 2, 2, 2, 14, 119, 3, 2, 2, 2,
+	16, 121, 3, 2, 2, 2, 18, 123, 3, 2, 2, 2, 20, 132, 3, 2, 2, 2, 22, 136,
+	3, 2, 2, 2, 24, 139, 3, 2, 2, 2, 26, 147, 3, 2, 2, 2, 28, 157, 3, 2, 2,
+	2, 30, 159, 3, 2, 2, 2, 32, 169, 3, 2, 2, 2, 34, 171, 3, 2, 2, 2, 36, 173,
+	3, 2, 2, 2, 38, 183, 3, 2, 2, 2, 40, 185, 3, 2, 2, 2, 42, 188, 3, 2, 2,
+	2, 44, 192, 3, 2, 2, 2, 46, 200, 3, 2, 2, 2, 48, 217, 3, 2, 2, 2, 50, 221,
+	3, 2, 2, 2, 52, 229, 3, 2, 2, 2, 54, 231, 3, 2, 2, 2, 56, 234, 3, 2, 2,
+	2, 58, 240, 3, 2, 2, 2, 60, 251, 3, 2, 2, 2, 62, 255, 3, 2, 2, 2, 64, 262,
+	3, 2, 2, 2, 66, 266, 3, 2, 2, 2, 68, 268, 3, 2, 2, 2, 70, 270, 3, 2, 2,
+	2, 72, 272, 3, 2, 2, 2, 74, 274, 3, 2, 2, 2, 76, 78, 5, 4, 3, 2, 77, 76,
+	3, 2, 2, 2, 78, 81, 3, 2, 2, 2, 79, 77, 3, 2, 2, 2, 79, 80, 3, 2, 2, 2,
+	80, 82, 3, 2, 2, 2, 81, 79, 3, 2, 2, 2, 82, 83, 7, 2, 2, 3, 83, 3, 3, 2,
+	2, 2, 84, 85, 7, 3, 2, 2, 85, 86, 5, 6, 4, 2, 86, 87, 5, 8, 5, 2, 87, 88,
+	5, 18, 10, 2, 88, 5, 3, 2, 2, 2, 89, 94, 7, 26, 2, 2, 90, 91, 7, 4, 2,
+	2, 91, 93, 7, 26, 2, 2, 92, 90, 3, 2, 2, 2, 93, 96, 3, 2, 2, 2, 94, 92,
+	3, 2, 2, 2, 94, 95, 3, 2, 2, 2, 95, 7, 3, 2, 2, 2, 96, 94, 3, 2, 2, 2,
+	97, 106, 7, 5, 2, 2, 98, 103, 5, 10, 6, 2, 99, 100, 7, 6, 2, 2, 100, 102,
+	5, 10, 6, 2, 101, 99, 3, 2, 2, 2, 102, 105, 3, 2, 2, 2, 103, 101, 3, 2,
+	2, 2, 103, 104, 3, 2, 2, 2, 104, 107, 3, 2, 2, 2, 105, 103, 3, 2, 2, 2,
+	106, 98, 3, 2, 2, 2, 106, 107, 3, 2, 2, 2, 107, 108, 3, 2, 2, 2, 108, 109,
+	7, 7, 2, 2, 109, 9, 3, 2, 2, 2, 110, 112, 5, 12, 7, 2, 111, 113, 5, 14,
+	8, 2, 112, 111, 3, 2, 2, 2, 112, 113, 3, 2, 2, 2, 113, 114, 3, 2, 2, 2,
+	114, 115, 7, 8, 2, 2, 115, 116, 5, 16, 9, 2, 116, 11, 3, 2, 2, 2, 117,
+	118, 7, 26, 2, 2, 118, 13, 3, 2, 2, 2, 119, 120, 7, 9, 2, 2, 120, 15, 3,
+	2, 2, 2, 121, 122, 7, 19, 2, 2, 122, 17, 3, 2, 2, 2, 123, 127, 7, 10, 2,
+	2, 124, 125, 5, 24, 13, 2, 125, 126, 7, 18, 2, 2, 126, 128, 3, 2, 2, 2,
+	127, 124, 3, 2, 2, 2, 127, 128, 3, 2, 2, 2, 128, 129, 3, 2, 2, 2, 129,
+	130, 5, 20, 11, 2, 130, 131, 7, 11, 2, 2, 131, 19, 3, 2, 2, 2, 132, 134,
+	7, 12, 2, 2, 133, 135, 5, 26, 14, 2, 134, 133, 3, 2, 2, 2, 134, 135, 3,
+	2, 2, 2, 135, 21, 3, 2, 2, 2, 136, 137, 5, 24, 13, 2, 137, 138, 7, 2, 2,
+	3, 138, 23, 3, 2, 2, 2, 139, 144, 5, 26, 14, 2, 140, 141, 7, 18, 2, 2,
+	141, 143, 5, 26, 14, 2, 142, 140, 3, 2, 2, 2, 143, 146, 3, 2, 2, 2, 144,
+	142, 3, 2, 2, 2, 144, 145, 3, 2, 2, 2, 145, 25, 3, 2, 2, 2, 146, 144, 3,
+	2, 2, 2, 147, 152, 5, 28, 15, 2, 148, 149, 7, 17, 2, 2, 149, 151, 5, 28,
+	15, 2, 150, 148, 3, 2, 2, 2, 151, 154, 3, 2, 2, 2, 152, 150, 3, 2, 2, 2,
+	152, 153, 3, 2, 2, 2, 153, 27, 3, 2, 2, 2, 154, 152, 3, 2, 2, 2, 155, 158,
+	5, 30, 16, 2, 156, 158, 5, 36, 19, 2, 157, 155, 3, 2, 2, 2, 157, 156, 3,
+	2, 2, 2, 158, 29, 3, 2, 2, 2, 159, 160, 7, 13, 2, 2, 160, 161, 5, 32, 17,
+	2, 161, 162, 7, 6, 2, 2, 162, 165, 5, 26, 14, 2, 163, 164, 7, 6, 2, 2,
+	164, 166, 5, 34, 18, 2, 165, 163, 3, 2, 2, 2, 165, 166, 3, 2, 2, 2, 166,
+	167, 3, 2, 2, 2, 167, 168, 7, 13, 2, 2, 168, 31, 3, 2, 2, 2, 169, 170,
+	5, 42, 22, 2, 170, 33, 3, 2, 2, 2, 171, 172, 5, 42, 22, 2, 172, 35, 3,
+	2, 2, 2, 173, 178, 5, 38, 20, 2, 174, 175, 7, 6, 2, 2, 175, 177, 5, 38,
+	20, 2, 176, 174, 3, 2, 2, 2, 177, 180, 3, 2, 2, 2, 178, 176, 3, 2, 2, 2,
+	178, 179, 3, 2, 2, 2, 179, 37, 3, 2, 2, 2, 180, 178, 3, 2, 2, 2, 181, 184,
+	5, 40, 21, 2, 182, 184, 5, 42, 22, 2, 183, 181, 3, 2, 2, 2, 183, 182, 3,
+	2, 2, 2, 184, 39, 3, 2, 2, 2, 185, 186, 7, 14, 2, 2, 186, 187, 7, 26, 2,
+	2, 187, 41, 3, 2, 2, 2, 188, 190, 5, 44, 23, 2, 189, 191, 5, 46, 24, 2,
+	190, 189, 3, 2, 2, 2, 190, 191, 3, 2, 2, 2, 191, 43, 3, 2, 2, 2, 192, 197,
+	7, 26, 2, 2, 193, 194, 7, 4, 2, 2, 194, 196, 7, 26, 2, 2, 195, 193, 3,
+	2, 2, 2, 196, 199, 3, 2, 2, 2, 197, 195, 3, 2, 2, 2, 197, 198, 3, 2, 2,
+	2, 198, 45, 3, 2, 2, 2, 199, 197, 3, 2, 2, 2, 200, 212, 7, 5, 2, 2, 201,
+	206, 5, 48, 25, 2, 202, 203, 7, 6, 2, 2, 203, 205, 5, 48, 25, 2, 204, 202,
+	3, 2, 2, 2, 205, 208, 3, 2, 2, 2, 206, 204, 3, 2, 2, 2, 206, 207, 3, 2,
+	2, 2, 207, 210, 3, 2, 2, 2, 208, 206, 3, 2, 2, 2, 209, 211, 7, 6, 2, 2,
+	210, 209, 3, 2, 2, 2, 210, 211, 3, 2, 2, 2, 211, 213, 3, 2, 2, 2, 212,
+	201, 3, 2, 2, 2, 212, 213, 3, 2, 2, 2, 213, 214, 3, 2, 2, 2, 214, 215,
+	7, 7, 2, 2, 215, 47, 3, 2, 2, 2, 216, 218, 5, 50, 26, 2, 217, 216, 3, 2,
+	2, 2, 217, 218, 3, 2, 2, 2, 218, 219, 3, 2, 2, 2, 219, 220, 5, 52, 27,
+	2, 220, 49, 3, 2, 2, 2, 221, 222, 7, 26, 2, 2, 222, 223, 7, 8, 2, 2, 223,
+	51, 3, 2, 2, 2, 224, 230, 5, 54, 28, 2, 225, 230, 5, 56, 29, 2, 226, 230,
+	5, 66, 34, 2, 227, 230, 5, 72, 37, 2, 228, 230, 5, 74, 38, 2, 229, 224,
+	3, 2, 2, 2, 229, 225, 3, 2, 2, 2, 229, 226, 3, 2, 2, 2, 229, 227, 3, 2,
+	2, 2, 229, 228, 3, 2, 2, 2, 230, 53, 3, 2, 2, 2, 231, 232, 7, 14, 2, 2,
+	232, 233, 7, 26, 2, 2, 233, 55, 3, 2, 2, 2, 234, 236, 7, 15, 2, 2, 235,
+	237, 5, 58, 30, 2, 236, 235, 3, 2, 2, 2, 236, 237, 3, 2, 2, 2, 237, 238,
+	3, 2, 2, 2, 238, 239, 7, 16, 2, 2, 239, 57, 3, 2, 2, 2, 240, 245, 5, 60,
+	31, 2, 241, 242, 7, 6, 2, 2, 242, 244, 5, 60, 31, 2, 243, 241, 3, 2, 2,
+	2, 244, 247, 3, 2, 2, 2, 245, 243, 3, 2, 2, 2, 245, 246, 3, 2, 2, 2, 246,
+	59, 3, 2, 2, 2, 247, 245, 3, 2, 2, 2, 248, 249, 5, 62, 32, 2, 249, 250,
+	7, 8, 2, 2, 250, 252, 3, 2, 2, 2, 251, 248, 3, 2, 2, 2, 251, 252, 3, 2,
+	2, 2, 252, 253, 3, 2, 2, 2, 253, 254, 5, 64, 33, 2, 254, 61, 3, 2, 2, 2,
+	255, 256, 7, 26, 2, 2, 256, 63, 3, 2, 2, 2, 257, 263, 5, 66, 34, 2, 258,
+	263, 5, 70, 36, 2, 259, 263, 5, 72, 37, 2, 260, 263, 5, 74, 38, 2, 261,
+	263, 5, 54, 28, 2, 262, 257, 3, 2, 2, 2, 262, 258, 3, 2, 2, 2, 262, 259,
+	3, 2, 2, 2, 262, 260, 3, 2, 2, 2, 262, 261, 3, 2, 2, 2, 263, 65, 3, 2,
+	2, 2, 264, 267, 5, 68, 35, 2, 265, 267, 5, 70, 36, 2, 266, 264, 3, 2, 2,
+	2, 266, 265, 3, 2, 2, 2, 267, 67, 3, 2, 2, 2, 268, 269, 7, 20, 2, 2, 269,
+	69, 3, 2, 2, 2, 270, 271, 7, 21, 2, 2, 271, 71, 3, 2, 2, 2, 272, 273, 7,
+	22, 2, 2, 273, 73, 3, 2, 2, 2, 274, 275, 7, 23, 2, 2, 275, 75, 3, 2, 2,
+	2, 27, 79, 94, 103, 106, 112, 127, 134, 144, 152, 157, 165, 178, 183, 190,
+	197, 206, 210, 212, 217, 229, 236, 245, 251, 262, 266,
 }
 var deserializer = antlr.NewATNDeserializer(nil)
 var deserializedATN = deserializer.DeserializeFromUInt16(parserATN)
 
 var literalNames = []string{
 	"", "'def'", "'.'", "'('", "','", "')'", "':'", "'?'", "'{'", "'}'", "'return'",
-	"'$'", "'/'", "'['", "']'", "", "", "", "", "", "", "", "'true'", "'false'",
+	"'/'", "'$'", "'['", "']'", "", "", "", "", "", "", "", "'true'", "'false'",
 }
 var symbolicNames = []string{
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Connect",
@@ -149,12 +148,12 @@ var symbolicNames = []string{
 var ruleNames = []string{
 	"script", "funcDef", "funcName", "funcParamsDef", "funcParamDef", "funcParamName",
 	"optionalParamFlag", "funcParamType", "funcBody", "returnStatement", "cmd",
-	"multiPipe", "pipe", "pipeNode", "variableNode", "streamNode", "streamSplitter",
-	"streamCollector", "pipeNodeArray", "pipeNodeElement", "functionNode",
-	"functionName", "functionParameters", "functionParameter", "functionParameterLabel",
-	"functionParameterValue", "variableValue", "dictValue", "dictEntries",
-	"dictEntry", "dictEntryLabel", "dictEntryValue", "numberValue", "integerValue",
-	"decimalValue", "stringValue", "booleanValue",
+	"multiPipe", "pipe", "pipeNode", "streamNode", "streamSplitter", "streamCollector",
+	"pipeNodeArray", "pipeNodeElement", "variableNode", "functionNode", "functionName",
+	"functionParameters", "functionParameter", "functionParameterLabel", "functionParameterValue",
+	"variableValue", "dictValue", "dictEntries", "dictEntry", "dictEntryLabel",
+	"dictEntryValue", "numberValue", "integerValue", "decimalValue", "stringValue",
+	"booleanValue",
 }
 var decisionToDFA = make([]*antlr.DFA, len(deserializedATN.DecisionToState))
 
@@ -228,12 +227,12 @@ const (
 	PipeParserRULE_multiPipe              = 11
 	PipeParserRULE_pipe                   = 12
 	PipeParserRULE_pipeNode               = 13
-	PipeParserRULE_variableNode           = 14
-	PipeParserRULE_streamNode             = 15
-	PipeParserRULE_streamSplitter         = 16
-	PipeParserRULE_streamCollector        = 17
-	PipeParserRULE_pipeNodeArray          = 18
-	PipeParserRULE_pipeNodeElement        = 19
+	PipeParserRULE_streamNode             = 14
+	PipeParserRULE_streamSplitter         = 15
+	PipeParserRULE_streamCollector        = 16
+	PipeParserRULE_pipeNodeArray          = 17
+	PipeParserRULE_pipeNodeElement        = 18
+	PipeParserRULE_variableNode           = 19
 	PipeParserRULE_functionNode           = 20
 	PipeParserRULE_functionName           = 21
 	PipeParserRULE_functionParameters     = 22
@@ -1838,16 +1837,6 @@ func NewPipeNodeContext(parser antlr.Parser, parent antlr.ParserRuleContext, inv
 
 func (s *PipeNodeContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *PipeNodeContext) VariableNode() IVariableNodeContext {
-	var t = s.GetTypedRuleContext(reflect.TypeOf((*IVariableNodeContext)(nil)).Elem(), 0)
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IVariableNodeContext)
-}
-
 func (s *PipeNodeContext) StreamNode() IStreamNodeContext {
 	var t = s.GetTypedRuleContext(reflect.TypeOf((*IStreamNodeContext)(nil)).Elem(), 0)
 
@@ -1908,125 +1897,26 @@ func (p *PipeParser) PipeNode() (localctx IPipeNodeContext) {
 		}
 	}()
 
-	p.SetState(156)
+	p.SetState(155)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 9, p.GetParserRuleContext()) {
-	case 1:
+
+	switch p.GetTokenStream().LA(1) {
+	case PipeParserT__10:
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(153)
-			p.VariableNode()
-		}
-
-	case 2:
-		p.EnterOuterAlt(localctx, 2)
-		{
-			p.SetState(154)
 			p.StreamNode()
 		}
 
-	case 3:
-		p.EnterOuterAlt(localctx, 3)
+	case PipeParserT__11, PipeParserIdentifier:
+		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(155)
+			p.SetState(154)
 			p.PipeNodeArray()
 		}
 
-	}
-
-	return localctx
-}
-
-// IVariableNodeContext is an interface to support dynamic dispatch.
-type IVariableNodeContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsVariableNodeContext differentiates from other interfaces.
-	IsVariableNodeContext()
-}
-
-type VariableNodeContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyVariableNodeContext() *VariableNodeContext {
-	var p = new(VariableNodeContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = PipeParserRULE_variableNode
-	return p
-}
-
-func (*VariableNodeContext) IsVariableNodeContext() {}
-
-func NewVariableNodeContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *VariableNodeContext {
-	var p = new(VariableNodeContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = PipeParserRULE_variableNode
-
-	return p
-}
-
-func (s *VariableNodeContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *VariableNodeContext) Identifier() antlr.TerminalNode {
-	return s.GetToken(PipeParserIdentifier, 0)
-}
-
-func (s *VariableNodeContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *VariableNodeContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *VariableNodeContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(PipeListener); ok {
-		listenerT.EnterVariableNode(s)
-	}
-}
-
-func (s *VariableNodeContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(PipeListener); ok {
-		listenerT.ExitVariableNode(s)
-	}
-}
-
-func (p *PipeParser) VariableNode() (localctx IVariableNodeContext) {
-	localctx = NewVariableNodeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 28, PipeParserRULE_variableNode)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(158)
-		p.Match(PipeParserT__10)
-	}
-	{
-		p.SetState(159)
-		p.Match(PipeParserIdentifier)
+	default:
+		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
 	}
 
 	return localctx
@@ -2122,7 +2012,7 @@ func (s *StreamNodeContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *PipeParser) StreamNode() (localctx IStreamNodeContext) {
 	localctx = NewStreamNodeContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 30, PipeParserRULE_streamNode)
+	p.EnterRule(localctx, 28, PipeParserRULE_streamNode)
 	var _la int
 
 	defer func() {
@@ -2143,39 +2033,39 @@ func (p *PipeParser) StreamNode() (localctx IStreamNodeContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(161)
-		p.Match(PipeParserT__11)
+		p.SetState(157)
+		p.Match(PipeParserT__10)
 	}
 	{
-		p.SetState(162)
+		p.SetState(158)
 		p.StreamSplitter()
 	}
 	{
-		p.SetState(163)
+		p.SetState(159)
 		p.Match(PipeParserT__3)
 	}
 	{
-		p.SetState(164)
+		p.SetState(160)
 		p.Pipe()
 	}
-	p.SetState(167)
+	p.SetState(163)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == PipeParserT__3 {
 		{
-			p.SetState(165)
+			p.SetState(161)
 			p.Match(PipeParserT__3)
 		}
 		{
-			p.SetState(166)
+			p.SetState(162)
 			p.StreamCollector()
 		}
 
 	}
 	{
-		p.SetState(169)
-		p.Match(PipeParserT__11)
+		p.SetState(165)
+		p.Match(PipeParserT__10)
 	}
 
 	return localctx
@@ -2251,7 +2141,7 @@ func (s *StreamSplitterContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *PipeParser) StreamSplitter() (localctx IStreamSplitterContext) {
 	localctx = NewStreamSplitterContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 32, PipeParserRULE_streamSplitter)
+	p.EnterRule(localctx, 30, PipeParserRULE_streamSplitter)
 
 	defer func() {
 		p.ExitRule()
@@ -2271,7 +2161,7 @@ func (p *PipeParser) StreamSplitter() (localctx IStreamSplitterContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(171)
+		p.SetState(167)
 		p.FunctionNode()
 	}
 
@@ -2348,7 +2238,7 @@ func (s *StreamCollectorContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *PipeParser) StreamCollector() (localctx IStreamCollectorContext) {
 	localctx = NewStreamCollectorContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 34, PipeParserRULE_streamCollector)
+	p.EnterRule(localctx, 32, PipeParserRULE_streamCollector)
 
 	defer func() {
 		p.ExitRule()
@@ -2368,7 +2258,7 @@ func (p *PipeParser) StreamCollector() (localctx IStreamCollectorContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(173)
+		p.SetState(169)
 		p.FunctionNode()
 	}
 
@@ -2458,7 +2348,7 @@ func (s *PipeNodeArrayContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *PipeParser) PipeNodeArray() (localctx IPipeNodeArrayContext) {
 	localctx = NewPipeNodeArrayContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 36, PipeParserRULE_pipeNodeArray)
+	p.EnterRule(localctx, 34, PipeParserRULE_pipeNodeArray)
 
 	defer func() {
 		p.ExitRule()
@@ -2480,26 +2370,26 @@ func (p *PipeParser) PipeNodeArray() (localctx IPipeNodeArrayContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(175)
+		p.SetState(171)
 		p.PipeNodeElement()
 	}
-	p.SetState(180)
+	p.SetState(176)
 	p.GetErrorHandler().Sync(p)
 	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 11, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(176)
+				p.SetState(172)
 				p.Match(PipeParserT__3)
 			}
 			{
-				p.SetState(177)
+				p.SetState(173)
 				p.PipeNodeElement()
 			}
 
 		}
-		p.SetState(182)
+		p.SetState(178)
 		p.GetErrorHandler().Sync(p)
 		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 11, p.GetParserRuleContext())
 	}
@@ -2587,7 +2477,7 @@ func (s *PipeNodeElementContext) ExitRule(listener antlr.ParseTreeListener) {
 
 func (p *PipeParser) PipeNodeElement() (localctx IPipeNodeElementContext) {
 	localctx = NewPipeNodeElementContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 38, PipeParserRULE_pipeNodeElement)
+	p.EnterRule(localctx, 36, PipeParserRULE_pipeNodeElement)
 
 	defer func() {
 		p.ExitRule()
@@ -2605,26 +2495,121 @@ func (p *PipeParser) PipeNodeElement() (localctx IPipeNodeElementContext) {
 		}
 	}()
 
-	p.SetState(185)
+	p.SetState(181)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
-	case PipeParserT__10:
+	case PipeParserT__11:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(183)
+			p.SetState(179)
 			p.VariableNode()
 		}
 
 	case PipeParserIdentifier:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(184)
+			p.SetState(180)
 			p.FunctionNode()
 		}
 
 	default:
 		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
+	}
+
+	return localctx
+}
+
+// IVariableNodeContext is an interface to support dynamic dispatch.
+type IVariableNodeContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsVariableNodeContext differentiates from other interfaces.
+	IsVariableNodeContext()
+}
+
+type VariableNodeContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyVariableNodeContext() *VariableNodeContext {
+	var p = new(VariableNodeContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = PipeParserRULE_variableNode
+	return p
+}
+
+func (*VariableNodeContext) IsVariableNodeContext() {}
+
+func NewVariableNodeContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *VariableNodeContext {
+	var p = new(VariableNodeContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = PipeParserRULE_variableNode
+
+	return p
+}
+
+func (s *VariableNodeContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *VariableNodeContext) Identifier() antlr.TerminalNode {
+	return s.GetToken(PipeParserIdentifier, 0)
+}
+
+func (s *VariableNodeContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *VariableNodeContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *VariableNodeContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(PipeListener); ok {
+		listenerT.EnterVariableNode(s)
+	}
+}
+
+func (s *VariableNodeContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(PipeListener); ok {
+		listenerT.ExitVariableNode(s)
+	}
+}
+
+func (p *PipeParser) VariableNode() (localctx IVariableNodeContext) {
+	localctx = NewVariableNodeContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 38, PipeParserRULE_variableNode)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(183)
+		p.Match(PipeParserT__11)
+	}
+	{
+		p.SetState(184)
+		p.Match(PipeParserIdentifier)
 	}
 
 	return localctx
@@ -2731,16 +2716,16 @@ func (p *PipeParser) FunctionNode() (localctx IFunctionNodeContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(187)
+		p.SetState(186)
 		p.FunctionName()
 	}
-	p.SetState(189)
+	p.SetState(188)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == PipeParserT__2 {
 		{
-			p.SetState(188)
+			p.SetState(187)
 			p.FunctionParameters()
 		}
 
@@ -2838,24 +2823,24 @@ func (p *PipeParser) FunctionName() (localctx IFunctionNameContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(191)
+		p.SetState(190)
 		p.Match(PipeParserIdentifier)
 	}
-	p.SetState(196)
+	p.SetState(195)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	for _la == PipeParserT__1 {
 		{
-			p.SetState(192)
+			p.SetState(191)
 			p.Match(PipeParserT__1)
 		}
 		{
-			p.SetState(193)
+			p.SetState(192)
 			p.Match(PipeParserIdentifier)
 		}
 
-		p.SetState(198)
+		p.SetState(197)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
@@ -2969,45 +2954,45 @@ func (p *PipeParser) FunctionParameters() (localctx IFunctionParametersContext) 
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(199)
+		p.SetState(198)
 		p.Match(PipeParserT__2)
 	}
-	p.SetState(211)
+	p.SetState(210)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<PipeParserT__10)|(1<<PipeParserT__12)|(1<<PipeParserIntegerLiteral)|(1<<PipeParserDecimalLiteral)|(1<<PipeParserStringLiteral)|(1<<PipeParserBooleanLiteral)|(1<<PipeParserIdentifier))) != 0 {
+	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<PipeParserT__11)|(1<<PipeParserT__12)|(1<<PipeParserIntegerLiteral)|(1<<PipeParserDecimalLiteral)|(1<<PipeParserStringLiteral)|(1<<PipeParserBooleanLiteral)|(1<<PipeParserIdentifier))) != 0 {
 		{
-			p.SetState(200)
+			p.SetState(199)
 			p.FunctionParameter()
 		}
-		p.SetState(205)
+		p.SetState(204)
 		p.GetErrorHandler().Sync(p)
 		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 15, p.GetParserRuleContext())
 
 		for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 			if _alt == 1 {
 				{
-					p.SetState(201)
+					p.SetState(200)
 					p.Match(PipeParserT__3)
 				}
 				{
-					p.SetState(202)
+					p.SetState(201)
 					p.FunctionParameter()
 				}
 
 			}
-			p.SetState(207)
+			p.SetState(206)
 			p.GetErrorHandler().Sync(p)
 			_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 15, p.GetParserRuleContext())
 		}
-		p.SetState(209)
+		p.SetState(208)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		if _la == PipeParserT__3 {
 			{
-				p.SetState(208)
+				p.SetState(207)
 				p.Match(PipeParserT__3)
 			}
 
@@ -3015,7 +3000,7 @@ func (p *PipeParser) FunctionParameters() (localctx IFunctionParametersContext) 
 
 	}
 	{
-		p.SetState(213)
+		p.SetState(212)
 		p.Match(PipeParserT__4)
 	}
 
@@ -3122,19 +3107,19 @@ func (p *PipeParser) FunctionParameter() (localctx IFunctionParameterContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(216)
+	p.SetState(215)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == PipeParserIdentifier {
 		{
-			p.SetState(215)
+			p.SetState(214)
 			p.FunctionParameterLabel()
 		}
 
 	}
 	{
-		p.SetState(218)
+		p.SetState(217)
 		p.FunctionParameterValue()
 	}
 
@@ -3225,11 +3210,11 @@ func (p *PipeParser) FunctionParameterLabel() (localctx IFunctionParameterLabelC
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(220)
+		p.SetState(219)
 		p.Match(PipeParserIdentifier)
 	}
 	{
-		p.SetState(221)
+		p.SetState(220)
 		p.Match(PipeParserT__5)
 	}
 
@@ -3364,42 +3349,42 @@ func (p *PipeParser) FunctionParameterValue() (localctx IFunctionParameterValueC
 		}
 	}()
 
-	p.SetState(228)
+	p.SetState(227)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
-	case PipeParserT__10:
+	case PipeParserT__11:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(223)
+			p.SetState(222)
 			p.VariableValue()
 		}
 
 	case PipeParserT__12:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(224)
+			p.SetState(223)
 			p.DictValue()
 		}
 
 	case PipeParserIntegerLiteral, PipeParserDecimalLiteral:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(225)
+			p.SetState(224)
 			p.NumberValue()
 		}
 
 	case PipeParserStringLiteral:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(226)
+			p.SetState(225)
 			p.StringValue()
 		}
 
 	case PipeParserBooleanLiteral:
 		p.EnterOuterAlt(localctx, 5)
 		{
-			p.SetState(227)
+			p.SetState(226)
 			p.BooleanValue()
 		}
 
@@ -3494,11 +3479,11 @@ func (p *PipeParser) VariableValue() (localctx IVariableValueContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(230)
-		p.Match(PipeParserT__10)
+		p.SetState(229)
+		p.Match(PipeParserT__11)
 	}
 	{
-		p.SetState(231)
+		p.SetState(230)
 		p.Match(PipeParserIdentifier)
 	}
 
@@ -3596,22 +3581,22 @@ func (p *PipeParser) DictValue() (localctx IDictValueContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(233)
+		p.SetState(232)
 		p.Match(PipeParserT__12)
 	}
-	p.SetState(235)
+	p.SetState(234)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<PipeParserT__10)|(1<<PipeParserIntegerLiteral)|(1<<PipeParserDecimalLiteral)|(1<<PipeParserStringLiteral)|(1<<PipeParserBooleanLiteral)|(1<<PipeParserIdentifier))) != 0 {
+	if ((_la)&-(0x1f+1)) == 0 && ((1<<uint(_la))&((1<<PipeParserT__11)|(1<<PipeParserIntegerLiteral)|(1<<PipeParserDecimalLiteral)|(1<<PipeParserStringLiteral)|(1<<PipeParserBooleanLiteral)|(1<<PipeParserIdentifier))) != 0 {
 		{
-			p.SetState(234)
+			p.SetState(233)
 			p.DictEntries()
 		}
 
 	}
 	{
-		p.SetState(237)
+		p.SetState(236)
 		p.Match(PipeParserT__13)
 	}
 
@@ -3722,24 +3707,24 @@ func (p *PipeParser) DictEntries() (localctx IDictEntriesContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(239)
+		p.SetState(238)
 		p.DictEntry()
 	}
-	p.SetState(244)
+	p.SetState(243)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	for _la == PipeParserT__3 {
 		{
-			p.SetState(240)
+			p.SetState(239)
 			p.Match(PipeParserT__3)
 		}
 		{
-			p.SetState(241)
+			p.SetState(240)
 			p.DictEntry()
 		}
 
-		p.SetState(246)
+		p.SetState(245)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
@@ -3847,23 +3832,23 @@ func (p *PipeParser) DictEntry() (localctx IDictEntryContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(250)
+	p.SetState(249)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == PipeParserIdentifier {
 		{
-			p.SetState(247)
+			p.SetState(246)
 			p.DictEntryLabel()
 		}
 		{
-			p.SetState(248)
+			p.SetState(247)
 			p.Match(PipeParserT__5)
 		}
 
 	}
 	{
-		p.SetState(252)
+		p.SetState(251)
 		p.DictEntryValue()
 	}
 
@@ -3954,7 +3939,7 @@ func (p *PipeParser) DictEntryLabel() (localctx IDictEntryLabelContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(254)
+		p.SetState(253)
 		p.Match(PipeParserIdentifier)
 	}
 
@@ -4089,41 +4074,41 @@ func (p *PipeParser) DictEntryValue() (localctx IDictEntryValueContext) {
 		}
 	}()
 
-	p.SetState(261)
+	p.SetState(260)
 	p.GetErrorHandler().Sync(p)
 	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 23, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(256)
+			p.SetState(255)
 			p.NumberValue()
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(257)
+			p.SetState(256)
 			p.DecimalValue()
 		}
 
 	case 3:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(258)
+			p.SetState(257)
 			p.StringValue()
 		}
 
 	case 4:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(259)
+			p.SetState(258)
 			p.BooleanValue()
 		}
 
 	case 5:
 		p.EnterOuterAlt(localctx, 5)
 		{
-			p.SetState(260)
+			p.SetState(259)
 			p.VariableValue()
 		}
 
@@ -4230,21 +4215,21 @@ func (p *PipeParser) NumberValue() (localctx INumberValueContext) {
 		}
 	}()
 
-	p.SetState(265)
+	p.SetState(264)
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
 	case PipeParserIntegerLiteral:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(263)
+			p.SetState(262)
 			p.IntegerValue()
 		}
 
 	case PipeParserDecimalLiteral:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(264)
+			p.SetState(263)
 			p.DecimalValue()
 		}
 
@@ -4339,7 +4324,7 @@ func (p *PipeParser) IntegerValue() (localctx IIntegerValueContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(267)
+		p.SetState(266)
 		p.Match(PipeParserIntegerLiteral)
 	}
 
@@ -4430,7 +4415,7 @@ func (p *PipeParser) DecimalValue() (localctx IDecimalValueContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(269)
+		p.SetState(268)
 		p.Match(PipeParserDecimalLiteral)
 	}
 
@@ -4521,7 +4506,7 @@ func (p *PipeParser) StringValue() (localctx IStringValueContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(271)
+		p.SetState(270)
 		p.Match(PipeParserStringLiteral)
 	}
 
@@ -4612,7 +4597,7 @@ func (p *PipeParser) BooleanValue() (localctx IBooleanValueContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(273)
+		p.SetState(272)
 		p.Match(PipeParserBooleanLiteral)
 	}
 
