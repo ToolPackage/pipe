@@ -9,6 +9,7 @@ require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.6.3
+	github.com/vipally/binary v0.0.0-20171111162941-29b974f0b01d
 	github.com/yosssi/gohtml v0.0.0-20201013000340-ee4748c638f4
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
 )

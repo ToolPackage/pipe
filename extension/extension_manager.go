@@ -5,6 +5,7 @@ import (
 	"github.com/ToolPackage/pipe/parser"
 	. "github.com/ToolPackage/pipe/parser/definition"
 	"github.com/ToolPackage/pipe/registry"
+	"github.com/vipally/binary"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,7 +14,7 @@ import (
 )
 
 const storageDirName = ".pipe"
-const byteCodeSuffix = ".pipe"
+const funcBinarySuffix = ".pipe"
 
 var scriptStoragePath = getStoragePath()
 var funcDefMapping = make(map[string]*CompactFunction)
@@ -32,13 +33,14 @@ func loadLibraries() error {
 		}
 		return err
 	}
+
 	for _, fileInfo := range files {
-		if strings.HasSuffix(fileInfo.Name(), byteCodeSuffix) {
-			byteCode, err := ioutil.ReadFile(filepath.Join(scriptStoragePath, fileInfo.Name()))
+		if strings.HasSuffix(fileInfo.Name(), funcBinarySuffix) {
+			bytes, err := ioutil.ReadFile(filepath.Join(scriptStoragePath, fileInfo.Name()))
 			if err != nil {
 				return err
 			}
-			funcDef := deserializeFunction(byteCode)
+			funcDef := deserializeFunction(bytes)
 			// register function to registry
 			registry.RegisterFunction(DefLibFunc(funcDef.Name, funcDef.Callable.Exec, funcDef.Params))
 			// add function to mapping for convenience to query function md5
@@ -49,40 +51,40 @@ func loadLibraries() error {
 	return nil
 }
 
-func serializeFunction(funcDef *CompactFunction) {
-
-}
-
-func deserializeFunction(bytecode []byte) *CompactFunction {
-	return nil
-}
-
 func Install(filename string) error {
 	pipeScript := parser.ParseScript(filename)
+	// TODO: loading animation
 	for idx := range pipeScript.Funcs {
 		funcDef := pipeScript.Funcs[idx]
-		old, ok := getOldVersionFuncDef(funcDef)
-		if ok {
-			if funcDef.Md5 == old.Md5 {
-				fmt.Println("no update on function", funcDef.Name)
-			}
+		old, ok := funcDefMapping[funcDef.Name]
+		// save function when:
+		// - if old version definition is found and their md5 are not equal
+		// - no old version definition is found
+		if ok && funcDef.Md5 == old.Md5 {
+			fmt.Println("no update on function", funcDef.Name)
+			continue
 		}
-		// TODO:
-		// 如果func已加载，则比对md5，若md5不相等则序列化funcDef写入storagePath
-		// 若没加载直接序列化写入
+		// convert to byte code and save to file
+		bytes := serializeFunction(&funcDef)
+		if err := ioutil.WriteFile(filepath.Join(storageDirName, funcDef.Name+funcBinarySuffix),
+			bytes, 0666); err != nil {
+			return err
+		}
 	}
-
 	return nil
 }
 
-func getOldVersionFuncDef(function CompactFunction) (*CompactFunction, bool) {
-	_, err := registry.GetFunction(function.Name)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+func serializeFunction(funcDef *CompactFunction) []byte {
+	encoder := binary.NewEncoder(0)
+	return encoder.Buffer()
+}
 
-	return nil, true
+func deserializeFunction(bytes []byte) *CompactFunction {
+	funcDef := &CompactFunction{}
+	if err := binary.Decode(bytes, funcDef); err != nil {
+		panic(err)
+	}
+	return funcDef
 }
 
 func getStoragePath() string {
