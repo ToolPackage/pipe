@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/ToolPackage/pipe/util"
+	"github.com/vipally/binary"
 	"io"
 	"io/ioutil"
 	"strconv"
@@ -12,6 +13,20 @@ import (
 )
 
 const indentSpacing = "  "
+const FuncNameLenLimit = 255
+const FuncParamLenLimit = 255
+const FuncParamConstValueLenLimit = 255
+const FuncVariableLenLimit = 255
+const VariableNameLenLimit = 255
+const FuncMultiPipeLenLimit = 65535
+
+// pipe node type
+const (
+	variableNode = iota
+	streamNode
+	pipeNodeArray
+	functionNode
+)
 
 // PipeScript
 type PipeScript struct {
@@ -39,6 +54,27 @@ type CompactFunction struct {
 	Params   []ParameterDefinition
 	Md5      string
 	Callable *CompactFunctionCallable
+}
+
+func (c *CompactFunction) WriteTo(out *binary.Encoder) {
+	// write func name length
+	out.Uint8(uint8(len(c.Name)))
+	// write func name
+	out.String(c.Name)
+	// write func param length
+	out.Uint8(uint8(len(c.Name)))
+	// write func params
+	for idx := range c.Params {
+		c.Params[idx].WriteTo(out)
+	}
+	// write func md5 (16)
+	out.String(c.Md5)
+	// write callable
+	c.Callable.WriteTo(out)
+}
+
+func (c *CompactFunction) ReadFrom(in *binary.Decoder) {
+	// TODO:
 }
 
 func (c *CompactFunction) String() string {
@@ -71,6 +107,31 @@ type ParameterDefinition struct {
 	Type       ValueType
 	Optional   bool
 	ConstValue []interface{}
+}
+
+func (p *ParameterDefinition) WriteTo(out *binary.Encoder) {
+	// write param name length
+	out.Uint8(uint8(len(p.Name)))
+	// write param name
+	out.String(p.Name)
+	// write param type
+	out.Uint8(uint8(p.Type))
+	// write optional flag
+	if p.Optional {
+		out.Uint8(1)
+	} else {
+		out.Uint8(0)
+	}
+	// write param const value length
+	out.Uint8(uint8(len(p.ConstValue)))
+	// write param const value
+	for _, v := range p.ConstValue {
+		// TODO: handle other type of const value
+		// write value length
+		out.Uint8(uint8(len(v.(string))))
+		// write value
+		out.String(v.(string))
+	}
 }
 
 func (p *ParameterDefinition) String() string {
@@ -125,7 +186,12 @@ type CompactFunctionCallable struct {
 }
 
 func (c *CompactFunctionCallable) Exec(params Parameters, in io.Reader, out io.Writer) error {
+	// TODO:
 	return nil
+}
+
+func (c *CompactFunctionCallable) WriteTo(out *binary.Encoder) {
+	c.Pipes.WriteTo(out)
 }
 
 func (c *CompactFunctionCallable) String() string {
@@ -144,6 +210,25 @@ func (c *CompactFunctionCallable) String() string {
 type MultiPipe struct {
 	Variables map[string]*ImmutableValue
 	Pipes     []Pipe
+}
+
+func (m *MultiPipe) WriteTo(out *binary.Encoder) {
+	// write variables length
+	out.Uint8(uint8(len(m.Variables)))
+	// write variables
+	for name := range m.Variables {
+		// write variable name len
+		out.Uint8(uint8(len(name)))
+		// write variable name
+		out.String(name)
+		// no need to serialize ImmutableValue
+	}
+	// write pipe length
+	out.Uint16(uint16(len(m.Pipes)), false)
+	// write pipes
+	for idx := range m.Pipes {
+		m.Pipes[idx].WriteTo(out)
+	}
 }
 
 func (m *MultiPipe) String() string {
@@ -184,6 +269,15 @@ func (p *Pipe) Exec(in io.Reader, out io.Writer) error {
 	return err
 }
 
+func (p *Pipe) WriteTo(out *binary.Encoder) {
+	// write nodes len
+	out.Uint16(uint16(len(p.Nodes)), false)
+	// write nodes
+	for idx := range p.Nodes {
+		p.Nodes[idx].WriteTo(out)
+	}
+}
+
 func (p *Pipe) String() string {
 	builder := util.NewStringBuilder(indentSpacing)
 	builder.WriteLine("Pipe [")
@@ -201,6 +295,7 @@ func (p *Pipe) String() string {
 // PipeNode
 type PipeNode interface {
 	Exec(in io.Reader, out io.Writer) error
+	WriteTo(out *binary.Encoder)
 	String() string
 }
 
@@ -217,6 +312,15 @@ func (v *VariableNode) Exec(in io.Reader, out io.Writer) error {
 	v.Value.Assign(string(input))
 	_, err = out.Write(input)
 	return err
+}
+
+func (v *VariableNode) WriteTo(out *binary.Encoder) {
+	// write node type
+	out.Uint8(uint8(variableNode))
+	// write variable name len
+	out.Uint8(uint8(len(v.Name)))
+	// write variable name
+	out.String(v.Name)
 }
 
 func (v *VariableNode) String() string {
@@ -280,6 +384,15 @@ func (s *StreamNode) Exec(in io.Reader, out io.Writer) error {
 	}
 }
 
+func (s *StreamNode) WriteTo(out *binary.Encoder) {
+	// write node type
+	out.Uint8(uint8(streamNode))
+
+	s.Splitter.WriteTo(out)
+	s.Processor.WriteTo(out)
+	s.Collector.WriteTo(out)
+}
+
 func (s *StreamNode) String() string {
 	builder := util.NewStringBuilder(indentSpacing)
 	builder.WriteLine("StreamNode {")
@@ -325,6 +438,17 @@ func (m *PipeNodeArray) Exec(in io.Reader, out io.Writer) error {
 	return nil
 }
 
+func (m *PipeNodeArray) WriteTo(out *binary.Encoder) {
+	// write node type
+	out.Uint8(uint8(pipeNodeArray))
+	// write nodes len
+	out.Uint8(uint8(len(m.Nodes)))
+	// write nodes
+	for idx := range m.Nodes {
+		m.Nodes[idx].WriteTo(out)
+	}
+}
+
 func (m *PipeNodeArray) String() string {
 	builder := util.NewStringBuilder(indentSpacing)
 	builder.WriteLine("PipeNodeArray [")
@@ -360,6 +484,10 @@ func (f *FunctionNode) Exec(in io.Reader, out io.Writer) error {
 		}
 	}
 	return nil
+}
+
+func (f *FunctionNode) WriteTo(out *binary.Encoder) {
+	// TODO: move all WriteTo methods to a single method
 }
 
 func (f *FunctionNode) String() string {

@@ -10,3 +10,4 @@
 
 - parser_script
 - stream: splitter & collector
+- func def -> const value

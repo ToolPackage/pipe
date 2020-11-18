@@ -64,11 +64,19 @@ func (p *pipeScriptListener) EnterFuncDef(ctx *FuncDefContext) {
 }
 
 func (p *pipeScriptListener) EnterFuncName(c *FuncNameContext) {
-	p.lastFuncDef().Name = c.GetText()
+	funcName := c.GetText()
+	if len(funcName) > FuncNameLenLimit {
+		panic(fmt.Errorf("function name length cannot exceed %d characters", FuncNameLenLimit))
+	}
+	p.lastFuncDef().Name = funcName
 }
 
 func (p *pipeScriptListener) EnterFuncParamDef(c *FuncParamDefContext) {
-	p.lastFuncDef().Params = append(p.lastFuncDef().Params, ParameterDefinition{})
+	funcDef := p.lastFuncDef()
+	if len(funcDef.Params) == FuncParamLenLimit {
+		panic(fmt.Errorf("function parameter length cannot exceed %d", FuncParamLenLimit))
+	}
+	funcDef.Params = append(funcDef.Params, ParameterDefinition{})
 }
 
 func (p *pipeScriptListener) EnterFuncParamName(c *FuncParamNameContext) {

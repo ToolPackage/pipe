@@ -76,14 +76,14 @@ func Install(filename string) error {
 
 func serializeFunction(funcDef *CompactFunction) []byte {
 	encoder := binary.NewEncoder(0)
+	funcDef.WriteTo(encoder)
 	return encoder.Buffer()
 }
 
 func deserializeFunction(bytes []byte) *CompactFunction {
+	decoder := binary.NewDecoder(bytes)
 	funcDef := &CompactFunction{}
-	if err := binary.Decode(bytes, funcDef); err != nil {
-		panic(err)
-	}
+	funcDef.ReadFrom(decoder)
 	return funcDef
 }
 
