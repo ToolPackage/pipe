@@ -10,7 +10,7 @@ const (
 	ScopeStreamNode
 	ScopeStreamSplitter
 	ScopeStreamCollector
-	ScopeMultiFunctionNode
+	ScopePipeNodeArray
 )
 
 type ScopeStack struct {

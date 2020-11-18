@@ -20,6 +20,7 @@ func ParseMultiPipe(script string) *MultiPipe {
 	listener := newMultiPipeListener()
 	antlr.ParseTreeWalkerDefault.Walk(listener, tree)
 
+	//fmt.Println(listener.multiPipe.String(0))
 	return listener.multiPipe
 }
 
@@ -92,9 +93,9 @@ func (m *multiPipeListener) lastFunctionNode() *FunctionNode {
 	case ScopeStreamCollector:
 		node := m.lastPipeNode().(*StreamNode)
 		return node.Collector
-	case ScopeMultiFunctionNode:
-		node := m.lastPipeNode().(*MultiFunctionNode)
-		return node.Nodes[len(node.Nodes)-1]
+	case ScopePipeNodeArray:
+		node := m.lastPipeNode().(*PipeNodeArray)
+		return node.Nodes[len(node.Nodes)-1].(*FunctionNode)
 	}
 	return nil
 }
@@ -127,6 +128,7 @@ func (m *multiPipeListener) ExitPipe(c *PipeContext) {
 
 // EnterVariableNode
 func (m *multiPipeListener) EnterVariableNode(c *VariableNodeContext) {
+	parentScope := m.currentScope()
 	m.enterScope(ScopeVariableNode)
 
 	variableName := c.GetText()[1:]
@@ -136,9 +138,18 @@ func (m *multiPipeListener) EnterVariableNode(c *VariableNodeContext) {
 	}
 	v := NewImmutableValue()
 	m.multiPipe.Variables[variableName] = v
+	newNode := &VariableNode{Name: variableName, Value: v}
 
-	pipe := m.lastPipe()
-	pipe.Nodes = append(pipe.Nodes, &VariableNode{Name: variableName, Value: v})
+	switch parentScope {
+	case ScopePipe:
+		pipe := m.lastPipe()
+		pipe.Nodes = append(pipe.Nodes, newNode)
+	case ScopePipeNodeArray:
+		arr := m.lastPipeNode().(*PipeNodeArray)
+		arr.Nodes = append(arr.Nodes, newNode)
+	default:
+		panic(fmt.Sprintf("unexpected scope: %d", parentScope))
+	}
 }
 
 func (m *multiPipeListener) ExitVariableNode(c *VariableNodeContext) {
@@ -171,13 +182,13 @@ func (m *multiPipeListener) ExitStreamCollector(c *StreamCollectorContext) {
 	m.exitScope()
 }
 
-func (m *multiPipeListener) EnterMultiFunctionNode(c *MultiFunctionNodeContext) {
-	m.enterScope(ScopeMultiFunctionNode)
+func (m *multiPipeListener) EnterPipeNodeArray(c *PipeNodeArrayContext) {
+	m.enterScope(ScopePipeNodeArray)
 	pipe := m.lastPipe()
-	pipe.Nodes = append(pipe.Nodes, &MultiFunctionNode{Nodes: make([]*FunctionNode, 0)})
+	pipe.Nodes = append(pipe.Nodes, &PipeNodeArray{Nodes: make([]PipeNode, 0)})
 }
 
-func (m *multiPipeListener) ExitMultiFunctionNode(c *MultiFunctionNodeContext) {
+func (m *multiPipeListener) ExitPipeNodeArray(c *PipeNodeArrayContext) {
 	m.exitScope()
 }
 
@@ -191,9 +202,11 @@ func (m *multiPipeListener) EnterFunctionNode(c *FunctionNodeContext) {
 	case ScopeStreamCollector:
 		node := m.lastPipeNode().(*StreamNode)
 		node.Collector = newNode
-	case ScopeMultiFunctionNode:
-		node := m.lastPipeNode().(*MultiFunctionNode)
+	case ScopePipeNodeArray:
+		node := m.lastPipeNode().(*PipeNodeArray)
 		node.Nodes = append(node.Nodes, newNode)
+	default:
+		panic(fmt.Sprintf("unexpected scope: %d", m.currentScope()))
 	}
 }
 

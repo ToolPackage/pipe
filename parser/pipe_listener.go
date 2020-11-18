@@ -62,8 +62,11 @@ type PipeListener interface {
 	// EnterStreamCollector is called when entering the streamCollector production.
 	EnterStreamCollector(c *StreamCollectorContext)
 
-	// EnterMultiFunctionNode is called when entering the multiFunctionNode production.
-	EnterMultiFunctionNode(c *MultiFunctionNodeContext)
+	// EnterPipeNodeArray is called when entering the pipeNodeArray production.
+	EnterPipeNodeArray(c *PipeNodeArrayContext)
+
+	// EnterPipeNodeElement is called when entering the pipeNodeElement production.
+	EnterPipeNodeElement(c *PipeNodeElementContext)
 
 	// EnterFunctionNode is called when entering the functionNode production.
 	EnterFunctionNode(c *FunctionNodeContext)
@@ -170,8 +173,11 @@ type PipeListener interface {
 	// ExitStreamCollector is called when exiting the streamCollector production.
 	ExitStreamCollector(c *StreamCollectorContext)
 
-	// ExitMultiFunctionNode is called when exiting the multiFunctionNode production.
-	ExitMultiFunctionNode(c *MultiFunctionNodeContext)
+	// ExitPipeNodeArray is called when exiting the pipeNodeArray production.
+	ExitPipeNodeArray(c *PipeNodeArrayContext)
+
+	// ExitPipeNodeElement is called when exiting the pipeNodeElement production.
+	ExitPipeNodeElement(c *PipeNodeElementContext)
 
 	// ExitFunctionNode is called when exiting the functionNode production.
 	ExitFunctionNode(c *FunctionNodeContext)

@@ -251,37 +251,32 @@ func (s *StreamNode) String(indent int) string {
 	return builder.String()
 }
 
-// MultiFunctionNode
-type MultiFunctionNode struct {
-	Nodes []*FunctionNode
+// PipeNodeArray
+type PipeNodeArray struct {
+	Nodes []PipeNode
 }
 
 // Exec: exec each function node sequentially
-func (m *MultiFunctionNode) Exec(in io.Reader, out io.Writer) error {
+func (m *PipeNodeArray) Exec(in io.Reader, out io.Writer) error {
 	input, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
 	}
 
-	sep := ""
 	for _, node := range m.Nodes {
-		if _, err = out.Write([]byte(sep)); err != nil {
-			return err
-		}
 		if err = node.Exec(bytes.NewReader(input), out); err != nil {
 			return err
 		}
-		sep = "\n"
 	}
 
 	return nil
 }
 
-func (m *MultiFunctionNode) String(indent int) string {
+func (m *PipeNodeArray) String(indent int) string {
 	indentStr := strings.Repeat(indentSpacing, indent)
 	builder := strings.Builder{}
 	builder.WriteString(indentStr)
-	builder.WriteString("MultiFunctionNode [\n")
+	builder.WriteString("PipeNodeArray [\n")
 	for _, node := range m.Nodes {
 		builder.WriteString(node.String(indent + 1))
 		builder.WriteRune('\n')
