@@ -11,12 +11,6 @@ import (
 )
 
 const indentSpacing = "  "
-const FuncNameLenLimit = 255
-const FuncParamLenLimit = 255
-const FuncParamConstValueLenLimit = 255
-const FuncVariableLenLimit = 255
-const VariableNameLenLimit = 255
-const FuncMultiPipeLenLimit = 65535
 
 const (
 	IntegerValue = iota
@@ -75,7 +69,7 @@ func (m *MultiPipe) String() string {
 	return builder.String()
 }
 
-type Pipes []Pipe
+type Pipes []*Pipe
 
 // Pipe
 type Pipe struct {
@@ -147,7 +141,7 @@ func (v *VariableNode) String() string {
 // StreamNode
 type StreamNode struct {
 	Splitter  *FunctionNode
-	Processor Pipe
+	Processor *Pipe
 	Collector *FunctionNode
 }
 
@@ -308,7 +302,7 @@ func (f *FunctionNode) String() string {
 	return builder.String()
 }
 
-type Parameters []Parameter
+type Parameters []*Parameter
 
 func (p Parameters) Len() int {
 	return len(p)
@@ -319,10 +313,10 @@ func (p Parameters) GetParameter(label string, idx int) (*Parameter, bool) {
 
 	for i := range p {
 		if p[i].Name == label {
-			return &p[i], true
+			return p[i], true
 		}
 		if i == idx {
-			param = &p[i]
+			param = p[i]
 			break
 		}
 	}
@@ -338,7 +332,7 @@ func (p Parameters) GetParameterByIndex(idx int) (*Parameter, bool) {
 		return nil, false
 	}
 
-	return &p[idx], true
+	return p[idx], true
 }
 
 type Parameter struct {

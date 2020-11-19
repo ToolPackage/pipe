@@ -12,6 +12,16 @@ const (
 	functionNode
 )
 
+const (
+	FuncNameLenLimit            = 255
+	FuncParamLenLimit           = 255
+	FuncParamConstValueLenLimit = 255
+	FuncVariableLenLimit        = 255
+	VariableNameLenLimit        = 255
+	FuncMultiPipeLenLimit       = 65535
+	FuncMultiPipeNodeLenLimit   = 65535
+)
+
 func Serialize(funcDef *CompactFunction) []byte {
 	encoder := binary.NewEncoder(funcDef.Size())
 	writeCompactFunction(funcDef, encoder)
@@ -47,19 +57,32 @@ func writeParameterDefinition(p *ParameterDefinition, out *binary.Encoder) {
 	// write param const value length
 	out.Uint8(uint8(len(p.ConstValue)))
 	// write param const value
+	constValueWriter := getBasicTypeValueWriter(p.Type)
 	for _, v := range p.ConstValue {
-		// write value
-		switch v.(type) {
-		case int:
-			out.Int(v.(int))
-		case float64:
-			out.Float64(v.(float64))
-		case string:
-			out.String(v.(string))
-		case bool:
-			out.Bool(v.(bool))
-			// TODO:
+		constValueWriter(out, v)
+	}
+}
+
+func getBasicTypeValueWriter(valueType ValueType) func(out *binary.Encoder, i interface{}) {
+	switch valueType {
+	case IntegerValue:
+		return func(out *binary.Encoder, i interface{}) {
+			out.Int(i.(int))
 		}
+	case FloatValue:
+		return func(out *binary.Encoder, i interface{}) {
+			out.Float64(i.(float64))
+		}
+	case StringValue:
+		return func(out *binary.Encoder, i interface{}) {
+			out.String(i.(string))
+		}
+	case BoolValue:
+		return func(out *binary.Encoder, i interface{}) {
+			out.Bool(i.(bool))
+		}
+	default:
+		panic("invalid const value type")
 	}
 }
 
@@ -80,7 +103,7 @@ func writeMultiPipe(m *MultiPipe, out *binary.Encoder) {
 	out.Uint16(uint16(len(m.PipeList)), false)
 	// write pipes
 	for idx := range m.PipeList {
-		writePipe(&m.PipeList[idx], out)
+		writePipe(m.PipeList[idx], out)
 	}
 }
 
@@ -94,10 +117,6 @@ func writePipe(p *Pipe, out *binary.Encoder) {
 }
 
 func writePipeNode(p PipeNode, out *binary.Encoder) {
-	if v, ok := p.(*VariableNode); ok {
-		writeVariableNode(v, out)
-		return
-	}
 	if s, ok := p.(*StreamNode); ok {
 		writeStreamNode(s, out)
 		return
@@ -120,7 +139,7 @@ func writeStreamNode(s *StreamNode, out *binary.Encoder) {
 	out.Uint8(uint8(streamNode))
 
 	writeFunctionNode(s.Splitter, out)
-	writePipe(&s.Processor, out)
+	writePipe(s.Processor, out)
 	writeFunctionNode(s.Collector, out)
 }
 
@@ -131,7 +150,15 @@ func writePipeNodeArray(p *PipeNodeArray, out *binary.Encoder) {
 	out.Uint8(uint8(len(p.Nodes)))
 	// write nodes
 	for idx := range p.Nodes {
-		writePipeNode(p.Nodes[idx], out)
+		node := p.Nodes[idx]
+		switch node.(type) {
+		case *VariableNode:
+			writeVariableNode(node.(*VariableNode), out)
+		case *FunctionNode:
+			writeFunctionNode(node.(*FunctionNode), out)
+		default:
+			panic("serialization error: invalid node type")
+		}
 	}
 }
 
@@ -144,7 +171,7 @@ func writeFunctionNode(f *FunctionNode, out *binary.Encoder) {
 	out.Uint8(uint8(len(f.Params)))
 	// write parameters
 	for idx := range f.Params {
-		writeParameter(&f.Params[idx], out)
+		writeParameter(f.Params[idx], out)
 	}
 }
 
@@ -188,20 +215,168 @@ func Deserialize(bytes []byte) *CompactFunction {
 }
 
 func readCompactFunction(in *binary.Decoder) *CompactFunction {
-	// TODO:
 	funcDef := &CompactFunction{}
-	//len := in.Uint8()
+	funcDef.Name = in.String()
+	funcDef.Md5 = in.String()
+	// read params
+	sz := in.Uint8()
+	funcDef.Params = make(FunctionParameters, sz)
+	for i := uint8(0); i < sz; i++ {
+		paramDef := &funcDef.Params[i]
+		paramDef.Name = in.String()
+		paramDef.Type = ValueType(in.Uint8())
+		paramDef.Optional = in.Uint8() == 1
+		// read const value
+		constValueSz := in.Uint8()
+		paramDef.ConstValue = make([]interface{}, constValueSz)
+		constValueReader := getBasicTypeValueReader(paramDef.Type)
+		for j := uint8(0); j < constValueSz; j++ {
+			paramDef.ConstValue[j] = constValueReader(in)
+		}
+	}
+	// read callable
+	funcDef.Callable = readCompactFunctionCallable(in)
+
 	return funcDef
+}
+
+func getBasicTypeValueReader(valueType ValueType) func(in *binary.Decoder) interface{} {
+	switch valueType {
+	case IntegerValue:
+		return func(in *binary.Decoder) interface{} {
+			return in.Int()
+		}
+	case FloatValue:
+		return func(in *binary.Decoder) interface{} {
+			return in.Float64()
+		}
+	case StringValue:
+		return func(in *binary.Decoder) interface{} {
+			return in.String()
+		}
+	case BoolValue:
+		return func(in *binary.Decoder) interface{} {
+			return in.Bool()
+		}
+	default:
+		panic("invalid const value type")
+	}
+}
+
+func readCompactFunctionCallable(in *binary.Decoder) *CompactFunctionCallable {
+	c := &CompactFunctionCallable{}
+	// read MultiPipe
+	// read variables
+	sz := in.Uint8()
+	c.Pipes = &MultiPipe{Variables: make(map[string]*ImmutableValue)}
+	for i := uint8(0); i < sz; i++ {
+		name := in.String()
+		c.Pipes.Variables[name] = NewImmutableValue()
+	}
+	// read pipes
+	pipeSz := in.Uint16(false)
+	c.Pipes.PipeList = make(Pipes, pipeSz)
+	for i := uint16(0); i < pipeSz; i++ {
+		c.Pipes.PipeList[i] = readPipe(in)
+	}
+	return c
+}
+
+func readPipe(in *binary.Decoder) *Pipe {
+	pipe := &Pipe{}
+	// read nodes
+	nodeSz := in.Uint16(false)
+	pipe.Nodes = make(PipeNodes, nodeSz)
+	for j := uint16(0); j < nodeSz; j++ {
+		pipe.Nodes[j] = readPipeNode(in)
+	}
+	return pipe
+}
+
+func readPipeNode(in *binary.Decoder) PipeNode {
+	switch in.Uint8() {
+	case streamNode:
+		n := &StreamNode{}
+		n.Splitter = readFunctionNode(in)
+		n.Processor = readPipe(in)
+		n.Collector = readFunctionNode(in)
+		return n
+	case pipeNodeArray:
+		n := &PipeNodeArray{}
+		nodeSz := in.Uint8()
+		n.Nodes = make(PipeNodes, nodeSz)
+		for i := uint8(0); i < nodeSz; i++ {
+			switch in.Uint8() {
+			case variableNode:
+				n.Nodes[i] = &VariableNode{Name: in.String()}
+			case functionNode:
+				n.Nodes[i] = readFunctionNode(in)
+			default:
+				panic("deserialization error: invalid node type")
+			}
+		}
+		return n
+	default:
+		panic("invalid node type")
+	}
+}
+
+func readFunctionNode(in *binary.Decoder) *FunctionNode {
+	n := &FunctionNode{}
+	n.Name = in.String()
+	// read parameters
+	sz := in.Uint8()
+	n.Params = make(Parameters, sz)
+	for i := uint8(0); i < sz; i++ {
+		n.Params[i] = readParameter(in)
+	}
+	return n
+}
+
+func readParameter(in *binary.Decoder) *Parameter {
+	p := &Parameter{}
+	p.Name = in.String()
+	p.Value = readValue(in)
+	return p
+}
+
+func readValue(in *binary.Decoder) Value {
+	valueType := in.Uint8()
+	switch valueType {
+	case DictValue:
+		d := &DictParameterValue{Value: make(map[string]Value)}
+		sz := in.Uint8()
+		for i := uint8(0); i < sz; i++ {
+			name := in.String()
+			d.Value[name] = readValue(in)
+		}
+		return d
+	case ReferenceValue:
+		r := &ReferenceParameterValue{}
+		// read reference type
+		r.RefType = ValueType(in.Uint8())
+		// read reference name
+		r.Name = in.String()
+		// TODO: refer to variables
+		return r
+	default:
+		b := &BaseParameterValue{}
+		b.ValueType = ValueType(valueType)
+		b.Value = in.String()
+		return b
+	}
 }
 
 // implement BinarySizer
 
 func (c *CompactFunction) Size() int {
+	// func name + md5 + params + callable
 	return binary.Sizeof(c.Name) + binary.Sizeof(c.Md5) + c.Params.Size() + c.Callable.Size()
 }
 
 func (fp FunctionParameters) Size() int {
-	var sz = 1
+	// param len byte + params
+	sz := 1
 	for idx := range fp {
 		sz += fp[idx].Size()
 	}
@@ -209,9 +384,8 @@ func (fp FunctionParameters) Size() int {
 }
 
 func (p *ParameterDefinition) Size() int {
-	var sz int
 	// name sz + type byte + optional type + const value len byte
-	sz += binary.Sizeof(p.Name) + 1 + 1 + 1
+	sz := binary.Sizeof(p.Name) + 1 + 1 + 1
 	for idx := range p.ConstValue {
 		sz += binary.Sizeof(p.ConstValue[idx])
 	}
@@ -223,7 +397,8 @@ func (c *CompactFunctionCallable) Size() int {
 }
 
 func (m *MultiPipe) Size() int {
-	sz := 1 // variables len byte
+	// variable len byte + variables + pipes
+	sz := 1
 	for name := range m.Variables {
 		sz += binary.Sizeof(name)
 	}
@@ -232,7 +407,8 @@ func (m *MultiPipe) Size() int {
 }
 
 func (p Pipes) Size() int {
-	sz := 2 // pipe len byte
+	// len byte 2 + pipes
+	sz := 2
 	for idx := range p {
 		sz += p[idx].Size()
 	}
@@ -244,7 +420,8 @@ func (p *Pipe) Size() int {
 }
 
 func (p PipeNodes) Size() int {
-	sz := 2 // len byte
+	// len byte 2 + nodes
+	sz := 2
 	for idx := range p {
 		sz += p[idx].Size()
 	}
@@ -252,22 +429,27 @@ func (p PipeNodes) Size() int {
 }
 
 func (v *VariableNode) Size() int {
+	// node type + variable name
 	return 1 + binary.Sizeof(v.Name)
 }
 
 func (s *StreamNode) Size() int {
+	// node type + slitter + processor + collector
 	return 1 + s.Splitter.Size() + s.Processor.Size() + s.Collector.Size()
 }
 
 func (m *PipeNodeArray) Size() int {
+	// node type + nodes
 	return 1 + m.Nodes.Size()
 }
 
 func (f *FunctionNode) Size() int {
-	return binary.Sizeof(f.Name) + f.Params.Size()
+	// node type + func name + params
+	return 1 + binary.Sizeof(f.Name) + f.Params.Size()
 }
 
 func (p Parameters) Size() int {
+	// param len byte + params
 	sz := 1
 	for idx := range p {
 		sz += p[idx].Size()
@@ -277,15 +459,17 @@ func (p Parameters) Size() int {
 
 func (p *Parameter) Size() int {
 	// name + type byte + value
-	return binary.Sizeof(p.Name) + 1 + p.Value.Size()
+	return binary.Sizeof(p.Name) + p.Value.Size()
 }
 
 func (b *BaseParameterValue) Size() int {
-	return binary.Sizeof(b.Value)
+	// value type + value
+	return 1 + binary.Sizeof(b.Value)
 }
 
 func (d *DictParameterValue) Size() int {
-	sz := 1
+	// value type + entry len byte + entries
+	sz := 2
 	for name, value := range d.Value {
 		sz += binary.Sizeof(name) + value.Size()
 	}
@@ -293,6 +477,6 @@ func (d *DictParameterValue) Size() int {
 }
 
 func (r *ReferenceParameterValue) Size() int {
-	// refType byte + name
-	return 1 + binary.Sizeof(r.Name)
+	// value type + refType byte + name
+	return 2 + binary.Sizeof(r.Name)
 }
