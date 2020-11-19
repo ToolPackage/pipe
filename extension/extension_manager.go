@@ -18,14 +18,6 @@ const funcBinarySuffix = ".pipe"
 var scriptStoragePath = getStoragePath()
 var funcDefMapping = make(map[string]*CompactFunction)
 
-// pipe node type
-const (
-	variableNode = iota
-	streamNode
-	pipeNodeArray
-	functionNode
-)
-
 func init() {
 	if err := loadLibraries(); err != nil {
 		panic(err)
@@ -47,7 +39,7 @@ func loadLibraries() error {
 			if err != nil {
 				return err
 			}
-			funcDef := deserialize(bytes)
+			funcDef := Deserialize(bytes)
 			// register function to registry
 			registry.RegisterFunction(DefLibFunc(funcDef.Name, funcDef.Callable.Exec, funcDef.Params))
 			// add function to mapping for convenience to query function md5
@@ -72,7 +64,7 @@ func Install(filename string) error {
 			continue
 		}
 		// convert to byte code and save to file
-		bytes := serialize(&funcDef)
+		bytes := Serialize(&funcDef)
 		if err := ioutil.WriteFile(filepath.Join(storageDirName, funcDef.Name+funcBinarySuffix),
 			bytes, 0666); err != nil {
 			return err

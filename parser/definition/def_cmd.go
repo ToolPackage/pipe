@@ -58,7 +58,7 @@ func (v ValueType) String() string {
 // MultiPipe
 type MultiPipe struct {
 	Variables map[string]*ImmutableValue
-	Pipes     []Pipe
+	Pipes     Pipes
 }
 
 func (m *MultiPipe) String() string {
@@ -75,9 +75,11 @@ func (m *MultiPipe) String() string {
 	return builder.String()
 }
 
+type Pipes []Pipe
+
 // Pipe
 type Pipe struct {
-	Nodes []PipeNode
+	Nodes PipeNodes
 }
 
 func (p *Pipe) Exec(in io.Reader, out io.Writer) error {
@@ -113,9 +115,12 @@ func (p *Pipe) String() string {
 	return builder.String()
 }
 
+type PipeNodes []PipeNode
+
 // PipeNode
 type PipeNode interface {
 	Exec(in io.Reader, out io.Writer) error
+	Size() int
 	String() string
 }
 
@@ -216,7 +221,7 @@ func (s *StreamNode) String() string {
 
 // PipeNodeArray
 type PipeNodeArray struct {
-	Nodes []PipeNode
+	Nodes PipeNodes
 }
 
 // Exec: exec each function node sequentially
@@ -284,7 +289,7 @@ func (f *FunctionNode) String() string {
 
 	builder.WriteLine("Name: ", f.Name)
 
-	if f.Params.Size() > 0 {
+	if f.Params.Len() > 0 {
 		builder.WriteLine("Params: [")
 		builder.IncIndent()
 		for _, param := range f.Params {
@@ -305,7 +310,7 @@ func (f *FunctionNode) String() string {
 
 type Parameters []Parameter
 
-func (p Parameters) Size() int {
+func (p Parameters) Len() int {
 	return len(p)
 }
 
@@ -363,6 +368,7 @@ type Value interface {
 	Type() ValueType
 	// get converted value
 	Get() interface{}
+	Size() int
 	String() string
 }
 
@@ -406,7 +412,7 @@ func (d *DictParameterValue) Type() ValueType {
 	return DictValue
 }
 
-func (d *DictParameterValue) Size() int {
+func (d *DictParameterValue) Len() int {
 	return len(d.Value)
 }
 
@@ -436,7 +442,7 @@ func (d *DictParameterValue) GetValueByLabel(label string) (Value, bool) {
 }
 
 func (d *DictParameterValue) GetValueByIndex(idx int) (Value, bool) {
-	if idx < 0 || idx >= d.Size() {
+	if idx < 0 || idx >= d.Len() {
 		return nil, false
 	}
 	label := d.ValueOrderMap[idx]

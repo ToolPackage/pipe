@@ -1,0 +1,9 @@
+def text.enhance(pattern: string) {
+    return $pattern
+}
+
+def text.enhance2(filename: string, idx?: float) {
+    in.file($filename)=regexp.replace('buildId=\w{8}', '')=$buildId;
+    $buildId=out;
+    return
+}

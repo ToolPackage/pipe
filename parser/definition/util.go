@@ -8,15 +8,15 @@ func DefFuncs(funcDefList ...*FunctionDefinition) []*FunctionDefinition {
 	return funcDefList
 }
 
-func DefLibFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
+func DefLibFunc(name string, handler FunctionHandler, paramConstraint FunctionParameters) *FunctionDefinition {
 	return &FunctionDefinition{Name: name, Builtin: false, Handler: handler, ParamConstraint: paramConstraint}
 }
 
-func DefBuiltinFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
+func DefBuiltinFunc(name string, handler FunctionHandler, paramConstraint FunctionParameters) *FunctionDefinition {
 	return &FunctionDefinition{Name: name, Builtin: true, Handler: handler, ParamConstraint: paramConstraint}
 }
 
-func DefParams(paramDefList ...ParameterDefinition) FuncParamConstraint {
+func DefParams(paramDefList ...ParameterDefinition) FunctionParameters {
 	return paramDefList
 }
 
@@ -25,5 +25,6 @@ func DefParam(paramType ValueType, label string, optional bool, constValue ...in
 	if len(label) == 0 {
 		panic(InvalidFuncParamDefError)
 	}
+	// TODO: check const value's type
 	return ParameterDefinition{Type: paramType, Name: label, Optional: optional, ConstValue: constValue}
 }

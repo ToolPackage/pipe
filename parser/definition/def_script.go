@@ -29,8 +29,8 @@ func (p *PipeScript) String() string {
 // CompactFunction
 type CompactFunction struct {
 	Name     string
-	Params   []ParameterDefinition
 	Md5      string
+	Params   FunctionParameters
 	Callable *CompactFunctionCallable
 }
 
@@ -103,12 +103,12 @@ type FunctionDefinition struct {
 	Name            string
 	Builtin         bool
 	Handler         FunctionHandler
-	ParamConstraint FuncParamConstraint
+	ParamConstraint FunctionParameters
 }
 
-type FuncParamConstraint []ParameterDefinition
+type FunctionParameters []ParameterDefinition
 
-func (fpc FuncParamConstraint) Validate(params Parameters) error {
+func (fp FunctionParameters) Validate(params Parameters) error {
 	// 1.validate labeled params
 	idx := 0
 	// skip all non-labeled parameters
@@ -121,11 +121,11 @@ func (fpc FuncParamConstraint) Validate(params Parameters) error {
 		}
 	}
 
-	paramSz := params.Size()
-	for idx, paramDef := range fpc {
+	paramSz := params.Len()
+	for idx, paramDef := range fp {
 		// 2.validate parameters size
 		if idx == paramSz {
-			for ; idx < len(fpc); idx++ {
+			for ; idx < len(fp); idx++ {
 				if !paramDef.Optional {
 					return NotEnoughParameterError
 				}

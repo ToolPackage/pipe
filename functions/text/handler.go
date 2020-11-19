@@ -100,7 +100,7 @@ func join(params Parameters, _ io.Reader, out io.Writer) error {
 	elems, _ := params.GetParameter("elems", 0)
 	dict := elems.Value.(*DictParameterValue)
 	items := make([]string, 0)
-	for i := 0; i < dict.Size(); i++ {
+	for i := 0; i < dict.Len(); i++ {
 		v, _ := dict.GetValueByIndex(i)
 		if v.Type() == ReferenceValue {
 			tmp, err := v.(*ReferenceParameterValue).GetAs(StringValue)
