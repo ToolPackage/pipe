@@ -7,6 +7,8 @@
 [![codecov](https://codecov.io/gh/ToolPackage/pipe/branch/master/graph/badge.svg)](https://codecov.io/gh/goccy/go-yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ToolPackage/pipe)](https://goreportcard.com/report/github.com/ToolPackage/pipe)
 
+<b>Shelved!</b>
+
 pipe is a command util which has a set of useful builtin functions, and you could use or combine these functions in the way using a unix pipe. For example, print "Hello, world!" in terminal: ```pipe run in.text('Hello, world!')=out```, to avoid conflicts with terminal special character, I use **=** instead of **|** or **>**.
 
 Maybe you are thinking it's much more complex to print "Hello, world!" using pipe than echo? That's ture, but pipe can do mush more that echo!
