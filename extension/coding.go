@@ -5,7 +5,7 @@ import (
 	"github.com/vipally/binary"
 )
 
-func serializeFunction(funcDef *CompactFunction) []byte {
+func serialize(funcDef *CompactFunction) []byte {
 	encoder := binary.NewEncoder(0)
 	writeCompactFunction(funcDef, encoder)
 	return encoder.Buffer()
@@ -183,9 +183,13 @@ func writeValue(v Value, out *binary.Encoder) {
 	}
 }
 
-func deserializeFunction(bytes []byte) *CompactFunction {
+func deserialize(bytes []byte) *CompactFunction {
 	decoder := binary.NewDecoder(bytes)
+	return readCompactFunction(decoder)
+}
+
+func readCompactFunction(in *binary.Decoder) *CompactFunction {
 	funcDef := &CompactFunction{}
-	funcDef.ReadFrom(decoder)
+	//len := in.Uint8()
 	return funcDef
 }

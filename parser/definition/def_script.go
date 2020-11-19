@@ -2,7 +2,6 @@ package definition
 
 import (
 	"github.com/ToolPackage/pipe/util"
-	"github.com/vipally/binary"
 	"io"
 	"strconv"
 )
@@ -33,10 +32,6 @@ type CompactFunction struct {
 	Params   []ParameterDefinition
 	Md5      string
 	Callable *CompactFunctionCallable
-}
-
-func (c *CompactFunction) ReadFrom(in *binary.Decoder) {
-	// TODO:
 }
 
 func (c *CompactFunction) String() string {

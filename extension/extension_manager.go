@@ -47,7 +47,7 @@ func loadLibraries() error {
 			if err != nil {
 				return err
 			}
-			funcDef := deserializeFunction(bytes)
+			funcDef := deserialize(bytes)
 			// register function to registry
 			registry.RegisterFunction(DefLibFunc(funcDef.Name, funcDef.Callable.Exec, funcDef.Params))
 			// add function to mapping for convenience to query function md5
@@ -72,7 +72,7 @@ func Install(filename string) error {
 			continue
 		}
 		// convert to byte code and save to file
-		bytes := serializeFunction(&funcDef)
+		bytes := serialize(&funcDef)
 		if err := ioutil.WriteFile(filepath.Join(storageDirName, funcDef.Name+funcBinarySuffix),
 			bytes, 0666); err != nil {
 			return err
