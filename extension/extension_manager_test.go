@@ -1,26 +1,26 @@
 package extension
 
 import (
-	"fmt"
 	"github.com/ToolPackage/pipe/functions"
 	"github.com/ToolPackage/pipe/parser"
-	"github.com/ToolPackage/pipe/parser/definition"
+	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
 func TestCoding(t *testing.T) {
 	functions.Register()
 	script := parser.ParseScript("./test.pipe")
-	bytes := make([][]byte, 0)
+	bytes := make([][]byte, 2)
+	expectation := strings.Builder{}
 	for idx, funcDef := range script.Funcs {
-		bytes[idx] = definition.Serialize(&funcDef)
-		fmt.Println(funcDef.String())
+		bytes[idx] = Serialize(&funcDef)
+		expectation.WriteString(funcDef.String())
 	}
-	result := make([]*definition.CompactFunction, 0)
+	result := strings.Builder{}
 	for idx := range bytes {
-		funcDef := definition.Deserialize(bytes[idx])
-		result = append(result, funcDef)
-		fmt.Println(funcDef.String())
+		funcDef := Deserialize(bytes[idx])
+		result.WriteString(funcDef.String())
 	}
-	// TODO: compare result with input
+	assert.Equal(t, expectation.String(), result.String())
 }

@@ -49,6 +49,16 @@ func (v ValueType) String() string {
 	}
 }
 
+const (
+	FuncNameLenLimit            = 255
+	FuncParamLenLimit           = 255
+	FuncParamConstValueLenLimit = 255
+	FuncVariableLenLimit        = 255
+	VariableNameLenLimit        = 255
+	FuncMultiPipeLenLimit       = 65535
+	FuncMultiPipeNodeLenLimit   = 65535
+)
+
 // MultiPipe
 type MultiPipe struct {
 	Variables map[string]*ImmutableValue
@@ -295,7 +305,11 @@ func (f *FunctionNode) String() string {
 		builder.WriteLine("Params: []")
 	}
 
-	builder.WriteLine("Handler: ", fmt.Sprintf("%p", f.Handler))
+	if f.Handler != nil {
+		builder.WriteLine("Handler: linked")
+	} else {
+		builder.WriteLine("Handler: nil")
+	}
 
 	builder.DecIndent()
 	builder.WriteWithIndent("}")

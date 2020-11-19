@@ -59,14 +59,14 @@ type multiPipeListener struct {
 // NewMultiPipeListener
 func newMultiPipeListener() *multiPipeListener {
 	return &multiPipeListener{
-		multiPipe: &MultiPipe{Variables: make(map[string]*ImmutableValue), PipeList: make([]Pipe, 0)},
+		multiPipe: &MultiPipe{Variables: make(map[string]*ImmutableValue), PipeList: make(Pipes, 0)},
 	}
 }
 
 // help function
 
 func (m *multiPipeListener) lastPipe() *Pipe {
-	return &m.multiPipe.PipeList[len(m.multiPipe.PipeList)-1]
+	return m.multiPipe.PipeList[len(m.multiPipe.PipeList)-1]
 }
 
 func (m *multiPipeListener) lastPipeNode() PipeNode {
@@ -95,7 +95,7 @@ func (m *multiPipeListener) lastFunctionNode() *FunctionNode {
 
 func (m *multiPipeListener) lastFunctionNodeParameter() *Parameter {
 	param := m.lastFunctionNode().Params
-	return &param[len(param)-1]
+	return param[len(param)-1]
 }
 
 func (m *multiPipeListener) enterScope(scope Scope) {
@@ -112,7 +112,7 @@ func (m *multiPipeListener) exitScope() {
 
 func (m *multiPipeListener) EnterPipe(c *PipeContext) {
 	m.enterScope(ScopePipe)
-	m.multiPipe.PipeList = append(m.multiPipe.PipeList, Pipe{Nodes: make([]PipeNode, 0)})
+	m.multiPipe.PipeList = append(m.multiPipe.PipeList, &Pipe{Nodes: make([]PipeNode, 0)})
 }
 
 func (m *multiPipeListener) ExitPipe(c *PipeContext) {
@@ -189,7 +189,7 @@ func (m *multiPipeListener) ExitVariableNode(c *VariableNodeContext) {
 
 // EnterFunctionNode
 func (m *multiPipeListener) EnterFunctionNode(c *FunctionNodeContext) {
-	newNode := &FunctionNode{Params: make([]Parameter, 0)}
+	newNode := &FunctionNode{Params: make(Parameters, 0)}
 	switch m.currentScope() {
 	case ScopeStreamSplitter:
 		node := m.lastPipeNode().(*StreamNode)
@@ -216,7 +216,7 @@ func (m *multiPipeListener) EnterFunctionName(c *FunctionNameContext) {
 
 func (m *multiPipeListener) EnterFunctionParameter(c *FunctionParameterContext) {
 	node := m.lastFunctionNode()
-	node.Params = append(node.Params, Parameter{})
+	node.Params = append(node.Params, &Parameter{})
 }
 
 func (m *multiPipeListener) EnterFunctionParameterLabel(c *FunctionParameterLabelContext) {

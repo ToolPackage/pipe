@@ -102,7 +102,7 @@ func (p *pipeScriptListener) EnterFuncBody(c *FuncBodyContext) {
 		localVars[paramDef.Name] = NewImmutableValue()
 	}
 
-	p.multiPipeListener.multiPipe = &MultiPipe{Variables: localVars, PipeList: make([]Pipe, 0)}
+	p.multiPipeListener.multiPipe = &MultiPipe{Variables: localVars, PipeList: make(Pipes, 0)}
 }
 
 func (p *pipeScriptListener) ExitFuncBody(c *FuncBodyContext) {
