@@ -5,8 +5,8 @@ import "github.com/vipally/binary"
 // implement BinarySizer
 
 func (c *CompactFunction) Size() int {
-	// func name + md5 + params + callable
-	return binary.Sizeof(c.Name) + binary.Sizeof(c.Md5) + c.Params.Size() + c.Callable.Size()
+	// func name + md5 + params + pipes
+	return binary.Sizeof(c.Name) + binary.Sizeof(c.Md5) + c.Params.Size() + c.Pipes.Size()
 }
 
 func (fp FunctionParameters) Size() int {
@@ -25,10 +25,6 @@ func (p *ParameterDefinition) Size() int {
 		sz += binary.Sizeof(p.ConstValue[idx])
 	}
 	return sz
-}
-
-func (c *CompactFunctionCallable) Size() int {
-	return c.Pipes.Size()
 }
 
 func (m *MultiPipe) Size() int {

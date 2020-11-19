@@ -32,8 +32,8 @@ func writeCompactFunction(c *CompactFunction, out *binary.Encoder) {
 	for idx := range c.Params {
 		writeParameterDefinition(&c.Params[idx], out)
 	}
-	// write callable
-	writeCompactFunctionCallable(c.Callable, out)
+	// write pipes
+	writeMultiPipe(c.Pipes, out)
 }
 
 func writeParameterDefinition(p *ParameterDefinition, out *binary.Encoder) {
@@ -79,10 +79,6 @@ func getBasicTypeValueWriter(valueType ValueType) func(out *binary.Encoder, i in
 	default:
 		panic("invalid const value type")
 	}
-}
-
-func writeCompactFunctionCallable(c *CompactFunctionCallable, out *binary.Encoder) {
-	writeMultiPipe(c.Pipes, out)
 }
 
 func writeMultiPipe(m *MultiPipe, out *binary.Encoder) {
@@ -231,8 +227,21 @@ func readCompactFunction(in *binary.Decoder) *CompactFunction {
 			}
 		}
 	}
-	// read callable
-	funcDef.Callable = readCompactFunctionCallable(in)
+	// read MultiPipe
+	// read variables
+	sz = in.Uint8()
+	funcDef.Pipes = &MultiPipe{Variables: make(map[string]*ImmutableValue)}
+	global.SetMultiPipe(funcDef.Pipes)
+	for i := uint8(0); i < sz; i++ {
+		name := in.String()
+		funcDef.Pipes.Variables[name] = NewImmutableValue()
+	}
+	// read pipes
+	pipeSz := in.Uint16(false)
+	funcDef.Pipes.PipeList = make(Pipes, pipeSz)
+	for i := uint16(0); i < pipeSz; i++ {
+		funcDef.Pipes.PipeList[i] = readPipe(in)
+	}
 
 	return funcDef
 }
@@ -272,26 +281,6 @@ func (c *CodingContext) SetMultiPipe(m *MultiPipe) {
 
 func (c *CodingContext) GetMultiPipe() *MultiPipe {
 	return c.multiPipe
-}
-
-func readCompactFunctionCallable(in *binary.Decoder) *CompactFunctionCallable {
-	c := &CompactFunctionCallable{}
-	// read MultiPipe
-	// read variables
-	sz := in.Uint8()
-	c.Pipes = &MultiPipe{Variables: make(map[string]*ImmutableValue)}
-	global.SetMultiPipe(c.Pipes)
-	for i := uint8(0); i < sz; i++ {
-		name := in.String()
-		c.Pipes.Variables[name] = NewImmutableValue()
-	}
-	// read pipes
-	pipeSz := in.Uint16(false)
-	c.Pipes.PipeList = make(Pipes, pipeSz)
-	for i := uint16(0); i < pipeSz; i++ {
-		c.Pipes.PipeList[i] = readPipe(in)
-	}
-	return c
 }
 
 func readPipe(in *binary.Decoder) *Pipe {

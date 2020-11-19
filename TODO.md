@@ -16,3 +16,5 @@
 - local和global覆盖的问题，允不允许覆盖？如果允许覆盖registry和MD5都有问题
 - 增强usage命令
 - script function document
+
+- script optional param

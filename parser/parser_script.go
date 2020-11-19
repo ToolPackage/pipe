@@ -106,6 +106,6 @@ func (p *pipeScriptListener) EnterFuncBody(c *FuncBodyContext) {
 }
 
 func (p *pipeScriptListener) ExitFuncBody(c *FuncBodyContext) {
-	p.lastFuncDef().Callable = &CompactFunctionCallable{Pipes: p.multiPipeListener.multiPipe}
+	p.lastFuncDef().Pipes = p.multiPipeListener.multiPipe
 	p.multiPipeListener.multiPipe = nil
 }

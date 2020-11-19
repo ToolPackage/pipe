@@ -51,7 +51,7 @@ func loadLibrary(libPath string) error {
 			}
 			funcDef := Deserialize(bytes)
 			// register function to registry
-			registry.RegisterFunction(DefLibFunc(funcDef.Name, funcDef.Callable.Exec, funcDef.Params))
+			registry.RegisterFunction(DefLibFunc(funcDef.Name, funcDef.Exec, funcDef.Params))
 			// add function to mapping for convenience to query function md5
 			funcDefMapping[funcDef.Name] = funcDef
 		}

@@ -30,8 +30,24 @@ func (p *PipeScript) String() string {
 type CompactFunction struct {
 	Name     string
 	Md5      string
+	FilePath string
 	Params   FunctionParameters
-	Callable *CompactFunctionCallable
+	Pipes    *MultiPipe
+}
+
+func (c *CompactFunction) Exec(params Parameters, in io.Reader, out io.Writer) error {
+	for idx := range c.Params {
+		paramDef := c.Params[idx]
+		param, ok := params.GetParameter(paramDef.Name, idx)
+		if !ok {
+			panic("Oops!")
+		}
+		v, _ := c.Pipes.Variables[paramDef.Name]
+		v.Assign(param.Value.Get())
+		// TODO: ???
+		// use variable to accept dict value?
+	}
+	return nil
 }
 
 func (c *CompactFunction) String() string {
@@ -49,35 +65,12 @@ func (c *CompactFunction) String() string {
 	builder.DecIndent()
 	builder.WriteLine("]")
 
-	builder.WriteIndent()
-	builder.WriteString("Callable: ")
-	builder.WriteMultiLine(c.Callable.String(), false)
+	builder.WriteWithIndent("Pipes: ")
+	builder.WriteMultiLine(c.Pipes.String(), false)
 
 	builder.DecIndent()
 	builder.WriteWithIndent("}")
 
-	return builder.String()
-}
-
-// CompactFunctionCallable
-type CompactFunctionCallable struct {
-	Pipes *MultiPipe
-}
-
-func (c *CompactFunctionCallable) Exec(params Parameters, in io.Reader, out io.Writer) error {
-	// TODO:
-	return nil
-}
-
-func (c *CompactFunctionCallable) String() string {
-	builder := util.NewStringBuilder(indentSpacing)
-	builder.WriteLine("CompactFunctionCallable {")
-	builder.IncIndent()
-
-	builder.WriteMultiLine(c.Pipes.String(), true)
-
-	builder.DecIndent()
-	builder.WriteWithIndent("}")
 	return builder.String()
 }
 

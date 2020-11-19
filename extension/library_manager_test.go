@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"fmt"
 	"github.com/ToolPackage/pipe/functions"
 	"github.com/ToolPackage/pipe/parser"
 	"github.com/stretchr/testify/assert"
@@ -22,5 +23,6 @@ func TestCoding(t *testing.T) {
 		funcDef := Deserialize(bytes[idx])
 		result.WriteString(funcDef.String())
 	}
+	fmt.Println(expectation.String())
 	assert.Equal(t, expectation.String(), result.String())
 }
