@@ -58,7 +58,7 @@ func (v ValueType) String() string {
 // MultiPipe
 type MultiPipe struct {
 	Variables map[string]*ImmutableValue
-	Pipes     Pipes
+	PipeList  Pipes
 }
 
 func (m *MultiPipe) String() string {
@@ -66,7 +66,7 @@ func (m *MultiPipe) String() string {
 	builder.WriteLine("MultiPipe [")
 	builder.IncIndent()
 
-	for _, pipe := range m.Pipes {
+	for _, pipe := range m.PipeList {
 		builder.WriteMultiLine(pipe.String(), true)
 	}
 

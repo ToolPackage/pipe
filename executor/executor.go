@@ -28,10 +28,10 @@ func Execute(params []string, parallel bool) error {
 	if parallel {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 
-		syncList := make([]chan error, len(multiPipe.Pipes))
-		for idx := range multiPipe.Pipes {
+		syncList := make([]chan error, len(multiPipe.PipeList))
+		for idx := range multiPipe.PipeList {
 			syncList[idx] = make(chan error, 1)
-			go runPipe(&multiPipe.Pipes[idx], syncList[idx])
+			go runPipe(&multiPipe.PipeList[idx], syncList[idx])
 		}
 
 		errMsg := strings.Builder{}
@@ -45,8 +45,8 @@ func Execute(params []string, parallel bool) error {
 			return errors.New(errMsg.String())
 		}
 	} else {
-		for idx := range multiPipe.Pipes {
-			if err := runPipeSync(&multiPipe.Pipes[idx]); err != nil {
+		for idx := range multiPipe.PipeList {
+			if err := runPipeSync(&multiPipe.PipeList[idx]); err != nil {
 				return fmt.Errorf("pipe [%d] error: %v\n", idx+1, err)
 			}
 		}

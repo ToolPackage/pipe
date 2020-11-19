@@ -59,14 +59,14 @@ type multiPipeListener struct {
 // NewMultiPipeListener
 func newMultiPipeListener() *multiPipeListener {
 	return &multiPipeListener{
-		multiPipe: &MultiPipe{Variables: make(map[string]*ImmutableValue), Pipes: make([]Pipe, 0)},
+		multiPipe: &MultiPipe{Variables: make(map[string]*ImmutableValue), PipeList: make([]Pipe, 0)},
 	}
 }
 
 // help function
 
 func (m *multiPipeListener) lastPipe() *Pipe {
-	return &m.multiPipe.Pipes[len(m.multiPipe.Pipes)-1]
+	return &m.multiPipe.PipeList[len(m.multiPipe.PipeList)-1]
 }
 
 func (m *multiPipeListener) lastPipeNode() PipeNode {
@@ -112,7 +112,7 @@ func (m *multiPipeListener) exitScope() {
 
 func (m *multiPipeListener) EnterPipe(c *PipeContext) {
 	m.enterScope(ScopePipe)
-	m.multiPipe.Pipes = append(m.multiPipe.Pipes, Pipe{Nodes: make([]PipeNode, 0)})
+	m.multiPipe.PipeList = append(m.multiPipe.PipeList, Pipe{Nodes: make([]PipeNode, 0)})
 }
 
 func (m *multiPipeListener) ExitPipe(c *PipeContext) {

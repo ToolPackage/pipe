@@ -21,14 +21,14 @@ func Serialize(funcDef *CompactFunction) []byte {
 func writeCompactFunction(c *CompactFunction, out *binary.Encoder) {
 	// write func name
 	out.String(c.Name)
+	// write func md5 (16)
+	out.String(c.Md5)
 	// write func param length
 	out.Uint8(uint8(len(c.Name)))
 	// write func params
 	for idx := range c.Params {
 		writeParameterDefinition(&c.Params[idx], out)
 	}
-	// write func md5 (16)
-	out.String(c.Md5)
 	// write callable
 	writeCompactFunctionCallable(c.Callable, out)
 }
@@ -73,14 +73,14 @@ func writeMultiPipe(m *MultiPipe, out *binary.Encoder) {
 	// write variables
 	for name := range m.Variables {
 		// write variable name
-		out.String(name)
 		// no need to serialize ImmutableValue
+		out.String(name)
 	}
 	// write pipe length
-	out.Uint16(uint16(len(m.Pipes)), false)
+	out.Uint16(uint16(len(m.PipeList)), false)
 	// write pipes
-	for idx := range m.Pipes {
-		writePipe(&m.Pipes[idx], out)
+	for idx := range m.PipeList {
+		writePipe(&m.PipeList[idx], out)
 	}
 }
 
@@ -210,8 +210,8 @@ func (fp FunctionParameters) Size() int {
 
 func (p *ParameterDefinition) Size() int {
 	var sz int
-	// name sz + type byte + optional type
-	sz += binary.Sizeof(p.Name) + 1 + 1
+	// name sz + type byte + optional type + const value len byte
+	sz += binary.Sizeof(p.Name) + 1 + 1 + 1
 	for idx := range p.ConstValue {
 		sz += binary.Sizeof(p.ConstValue[idx])
 	}
@@ -227,12 +227,12 @@ func (m *MultiPipe) Size() int {
 	for name := range m.Variables {
 		sz += binary.Sizeof(name)
 	}
-	sz += m.Pipes.Size()
+	sz += m.PipeList.Size()
 	return sz
 }
 
 func (p Pipes) Size() int {
-	sz := 1 // pipe len byte
+	sz := 2 // pipe len byte
 	for idx := range p {
 		sz += p[idx].Size()
 	}
@@ -244,7 +244,7 @@ func (p *Pipe) Size() int {
 }
 
 func (p PipeNodes) Size() int {
-	sz := 1 // len byte
+	sz := 2 // len byte
 	for idx := range p {
 		sz += p[idx].Size()
 	}
