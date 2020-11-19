@@ -9,7 +9,7 @@ import (
 )
 
 func TestCoding(t *testing.T) {
-	functions.Register()
+	functions.LoadBuiltinFunctions()
 	script := parser.ParseScript("./test.pipe")
 	bytes := make([][]byte, 2)
 	expectation := strings.Builder{}

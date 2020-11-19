@@ -20,7 +20,7 @@ import (
 
 var o sync.Once
 
-func Register() {
+func LoadBuiltinFunctions() {
 	o.Do(func() {
 		registry.RegisterFunctions(input.Register())
 		registry.RegisterFunctions(output.Register())

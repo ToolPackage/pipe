@@ -12,20 +12,30 @@ import (
 	"strings"
 )
 
-const storageDirName = ".pipe"
-const funcBinarySuffix = ".pipe"
+const libraryDirName = ".pipe-lib"
+const libScriptSuffix = ".pipe"
 
-var scriptStoragePath = getStoragePath()
+var centralLibraryPath = getCentralLibraryPath()
 var funcDefMapping = make(map[string]*CompactFunction)
 
-func init() {
-	if err := loadLibraries(); err != nil {
-		panic(err)
+func LoadLibraries() {
+	cwd, err := os.Getwd()
+	exitWhenError(err)
+	err = loadLibrary(filepath.Join(cwd, libraryDirName))
+	exitWhenError(err)
+	err = loadLibrary(centralLibraryPath)
+	exitWhenError(err)
+}
+
+func exitWhenError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 
-func loadLibraries() error {
-	files, err := ioutil.ReadDir(scriptStoragePath)
+func loadLibrary(libPath string) error {
+	files, err := ioutil.ReadDir(libPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -34,8 +44,8 @@ func loadLibraries() error {
 	}
 
 	for _, fileInfo := range files {
-		if strings.HasSuffix(fileInfo.Name(), funcBinarySuffix) {
-			bytes, err := ioutil.ReadFile(filepath.Join(scriptStoragePath, fileInfo.Name()))
+		if strings.HasSuffix(fileInfo.Name(), libScriptSuffix) {
+			bytes, err := ioutil.ReadFile(filepath.Join(libPath, fileInfo.Name()))
 			if err != nil {
 				return err
 			}
@@ -50,7 +60,12 @@ func loadLibraries() error {
 	return nil
 }
 
-func Install(filename string) error {
+func Install(filename string, global bool) error {
+	libPath, err := getLibraryPath(global)
+	if err != nil {
+		return err
+	}
+
 	pipeScript := parser.ParseScript(filename)
 	// TODO: loading animation
 	for idx := range pipeScript.Funcs {
@@ -65,7 +80,7 @@ func Install(filename string) error {
 		}
 		// convert to byte code and save to file
 		bytes := Serialize(&funcDef)
-		if err := ioutil.WriteFile(filepath.Join(storageDirName, funcDef.Name+funcBinarySuffix),
+		if err := ioutil.WriteFile(filepath.Join(libPath, funcDef.Name+libScriptSuffix),
 			bytes, 0666); err != nil {
 			return err
 		}
@@ -73,8 +88,22 @@ func Install(filename string) error {
 	return nil
 }
 
-func getStoragePath() string {
-	return filepath.Join(getUserHomeDir(), storageDirName)
+func getLibraryPath(central bool) (libPath string, err error) {
+	if central {
+		libPath = centralLibraryPath
+	} else {
+		libPath, err = os.Getwd()
+		if err != nil {
+			return
+		}
+		libPath = filepath.Join(libPath, libraryDirName)
+	}
+	err = os.MkdirAll(libPath, 0666)
+	return
+}
+
+func getCentralLibraryPath() string {
+	return filepath.Join(getUserHomeDir(), libraryDirName)
 }
 
 func getUserHomeDir() string {

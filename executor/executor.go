@@ -3,6 +3,7 @@ package executor
 import (
 	"errors"
 	"fmt"
+	"github.com/ToolPackage/pipe/extension"
 	"github.com/ToolPackage/pipe/functions"
 	"github.com/ToolPackage/pipe/parser"
 	. "github.com/ToolPackage/pipe/parser/definition"
@@ -13,7 +14,8 @@ import (
 )
 
 func init() {
-	functions.Register()
+	functions.LoadBuiltinFunctions()
+	extension.LoadLibraries()
 }
 
 func Execute(params []string, parallel bool) error {
@@ -31,7 +33,7 @@ func Execute(params []string, parallel bool) error {
 		syncList := make([]chan error, len(multiPipe.PipeList))
 		for idx := range multiPipe.PipeList {
 			syncList[idx] = make(chan error, 1)
-			go runPipe(&multiPipe.PipeList[idx], syncList[idx])
+			go runPipe(multiPipe.PipeList[idx], syncList[idx])
 		}
 
 		errMsg := strings.Builder{}
@@ -46,7 +48,7 @@ func Execute(params []string, parallel bool) error {
 		}
 	} else {
 		for idx := range multiPipe.PipeList {
-			if err := runPipeSync(&multiPipe.PipeList[idx]); err != nil {
+			if err := runPipeSync(multiPipe.PipeList[idx]); err != nil {
 				return fmt.Errorf("pipe [%d] error: %v\n", idx+1, err)
 			}
 		}

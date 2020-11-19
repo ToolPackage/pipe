@@ -11,3 +11,7 @@
 - parser_script
 - stream: splitter & collector
 - func def -> const value
+
+- compactfunction.exec
+- local和global覆盖的问题
+- 增强usage命令

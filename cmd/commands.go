@@ -26,7 +26,8 @@ func (r *RunSubCommands) Execute(args []string) error {
 }
 
 type InstallSubCommands struct {
-	File string `long:"file" short:"f" description:"script file name" required:"false"`
+	Global bool   `long:"global" short:"g" description:"install script to central library"`
+	File   string `long:"file" short:"f" description:"script file name" required:"false"`
 }
 
 func (i *InstallSubCommands) Execute(args []string) error {
@@ -37,7 +38,7 @@ func (i *InstallSubCommands) Execute(args []string) error {
 		}
 		filename = args[0]
 	}
-	return extension.Install(filename)
+	return extension.Install(filename, i.Global)
 }
 
 type UsageSubCommands struct{}
