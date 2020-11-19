@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/ToolPackage/pipe/util"
-	"github.com/vipally/binary"
 	"io"
 	"io/ioutil"
 	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -20,127 +18,22 @@ const FuncVariableLenLimit = 255
 const VariableNameLenLimit = 255
 const FuncMultiPipeLenLimit = 65535
 
-// pipe node type
 const (
-	variableNode = iota
-	streamNode
-	pipeNodeArray
-	functionNode
+	IntegerValue = iota
+	FloatValue
+	StringValue
+	BoolValue
+	DictValue
+	ReferenceValue
+	Unknown
 )
 
-// PipeScript
-type PipeScript struct {
-	Funcs []CompactFunction
-}
-
-func (p *PipeScript) String() string {
-	builder := util.NewStringBuilder(indentSpacing)
-	builder.WriteLine("PipeScript [")
-	builder.IncIndent()
-
-	for _, funcDef := range p.Funcs {
-		builder.WriteMultiLine(funcDef.String(), true)
-	}
-
-	builder.DecIndent()
-	builder.WriteWithIndent("]")
-
-	return builder.String()
-}
-
-// CompactFunction
-type CompactFunction struct {
-	Name     string
-	Params   []ParameterDefinition
-	Md5      string
-	Callable *CompactFunctionCallable
-}
-
-func (c *CompactFunction) WriteTo(out *binary.Encoder) {
-	// write func name length
-	out.Uint8(uint8(len(c.Name)))
-	// write func name
-	out.String(c.Name)
-	// write func param length
-	out.Uint8(uint8(len(c.Name)))
-	// write func params
-	for idx := range c.Params {
-		c.Params[idx].WriteTo(out)
-	}
-	// write func md5 (16)
-	out.String(c.Md5)
-	// write callable
-	c.Callable.WriteTo(out)
-}
-
-func (c *CompactFunction) ReadFrom(in *binary.Decoder) {
-	// TODO:
-}
-
-func (c *CompactFunction) String() string {
-	builder := util.NewStringBuilder(indentSpacing)
-	builder.WriteLine("CompactFunction {")
-
-	builder.IncIndent()
-	builder.WriteLine("Name: ", c.Name)
-
-	builder.WriteLine("Params: [")
-	builder.IncIndent()
-	for _, paramDef := range c.Params {
-		builder.WriteMultiLine(paramDef.String(), true)
-	}
-	builder.DecIndent()
-	builder.WriteLine("]")
-
-	builder.WriteIndent()
-	builder.WriteString("Callable: ")
-	builder.WriteMultiLine(c.Callable.String(), false)
-
-	builder.DecIndent()
-	builder.WriteWithIndent("}")
-
-	return builder.String()
-}
-
-type ParameterDefinition struct {
-	Name       string
-	Type       ValueType
-	Optional   bool
-	ConstValue []interface{}
-}
-
-func (p *ParameterDefinition) WriteTo(out *binary.Encoder) {
-	// write param name length
-	out.Uint8(uint8(len(p.Name)))
-	// write param name
-	out.String(p.Name)
-	// write param type
-	out.Uint8(uint8(p.Type))
-	// write optional flag
-	if p.Optional {
-		out.Uint8(1)
-	} else {
-		out.Uint8(0)
-	}
-	// write param const value length
-	out.Uint8(uint8(len(p.ConstValue)))
-	// write param const value
-	for _, v := range p.ConstValue {
-		// TODO: handle other type of const value
-		// write value length
-		out.Uint8(uint8(len(v.(string))))
-		// write value
-		out.String(v.(string))
-	}
-}
-
-func (p *ParameterDefinition) String() string {
-	builder := util.NewStringBuilder(indentSpacing)
-	builder.WriteWithIndent("FuncParamDef { Name: ", p.Name,
-		", Optional: ", strconv.FormatBool(p.Optional),
-		", Type: ", ValueType(p.Type).String(),
-		" }")
-	return builder.String()
+var TypeMappings = map[string]ValueType{
+	"int":    IntegerValue,
+	"float":  FloatValue,
+	"string": StringValue,
+	"bool":   BoolValue,
+	"dict":   DictValue,
 }
 
 type ValueType int
@@ -162,73 +55,10 @@ func (v ValueType) String() string {
 	}
 }
 
-const (
-	IntegerValue = iota
-	FloatValue
-	StringValue
-	BoolValue
-	DictValue
-	ReferenceValue
-	Unknown
-)
-
-var TypeMappings = map[string]ValueType{
-	"int":    IntegerValue,
-	"float":  FloatValue,
-	"string": StringValue,
-	"bool":   BoolValue,
-	"dict":   DictValue,
-}
-
-// CompactFunctionCallable
-type CompactFunctionCallable struct {
-	Pipes *MultiPipe
-}
-
-func (c *CompactFunctionCallable) Exec(params Parameters, in io.Reader, out io.Writer) error {
-	// TODO:
-	return nil
-}
-
-func (c *CompactFunctionCallable) WriteTo(out *binary.Encoder) {
-	c.Pipes.WriteTo(out)
-}
-
-func (c *CompactFunctionCallable) String() string {
-	builder := util.NewStringBuilder(indentSpacing)
-	builder.WriteLine("CompactFunctionCallable {")
-	builder.IncIndent()
-
-	builder.WriteMultiLine(c.Pipes.String(), true)
-
-	builder.DecIndent()
-	builder.WriteWithIndent("}")
-	return builder.String()
-}
-
 // MultiPipe
 type MultiPipe struct {
 	Variables map[string]*ImmutableValue
 	Pipes     []Pipe
-}
-
-func (m *MultiPipe) WriteTo(out *binary.Encoder) {
-	// write variables length
-	out.Uint8(uint8(len(m.Variables)))
-	// write variables
-	for name := range m.Variables {
-		// write variable name len
-		out.Uint8(uint8(len(name)))
-		// write variable name
-		out.String(name)
-		// no need to serialize ImmutableValue
-	}
-	// write pipe length
-	out.Uint16(uint16(len(m.Pipes)), false)
-	// write pipes
-	for idx := range m.Pipes {
-		m.Pipes[idx].WriteTo(out)
-	}
 }
 
 func (m *MultiPipe) String() string {
@@ -269,15 +99,6 @@ func (p *Pipe) Exec(in io.Reader, out io.Writer) error {
 	return err
 }
 
-func (p *Pipe) WriteTo(out *binary.Encoder) {
-	// write nodes len
-	out.Uint16(uint16(len(p.Nodes)), false)
-	// write nodes
-	for idx := range p.Nodes {
-		p.Nodes[idx].WriteTo(out)
-	}
-}
-
 func (p *Pipe) String() string {
 	builder := util.NewStringBuilder(indentSpacing)
 	builder.WriteLine("Pipe [")
@@ -295,7 +116,6 @@ func (p *Pipe) String() string {
 // PipeNode
 type PipeNode interface {
 	Exec(in io.Reader, out io.Writer) error
-	WriteTo(out *binary.Encoder)
 	String() string
 }
 
@@ -312,15 +132,6 @@ func (v *VariableNode) Exec(in io.Reader, out io.Writer) error {
 	v.Value.Assign(string(input))
 	_, err = out.Write(input)
 	return err
-}
-
-func (v *VariableNode) WriteTo(out *binary.Encoder) {
-	// write node type
-	out.Uint8(uint8(variableNode))
-	// write variable name len
-	out.Uint8(uint8(len(v.Name)))
-	// write variable name
-	out.String(v.Name)
 }
 
 func (v *VariableNode) String() string {
@@ -384,15 +195,6 @@ func (s *StreamNode) Exec(in io.Reader, out io.Writer) error {
 	}
 }
 
-func (s *StreamNode) WriteTo(out *binary.Encoder) {
-	// write node type
-	out.Uint8(uint8(streamNode))
-
-	s.Splitter.WriteTo(out)
-	s.Processor.WriteTo(out)
-	s.Collector.WriteTo(out)
-}
-
 func (s *StreamNode) String() string {
 	builder := util.NewStringBuilder(indentSpacing)
 	builder.WriteLine("StreamNode {")
@@ -438,17 +240,6 @@ func (m *PipeNodeArray) Exec(in io.Reader, out io.Writer) error {
 	return nil
 }
 
-func (m *PipeNodeArray) WriteTo(out *binary.Encoder) {
-	// write node type
-	out.Uint8(uint8(pipeNodeArray))
-	// write nodes len
-	out.Uint8(uint8(len(m.Nodes)))
-	// write nodes
-	for idx := range m.Nodes {
-		m.Nodes[idx].WriteTo(out)
-	}
-}
-
 func (m *PipeNodeArray) String() string {
 	builder := util.NewStringBuilder(indentSpacing)
 	builder.WriteLine("PipeNodeArray [")
@@ -484,10 +275,6 @@ func (f *FunctionNode) Exec(in io.Reader, out io.Writer) error {
 		}
 	}
 	return nil
-}
-
-func (f *FunctionNode) WriteTo(out *binary.Encoder) {
-	// TODO: move all WriteTo methods to a single method
 }
 
 func (f *FunctionNode) String() string {
@@ -753,89 +540,4 @@ func (v *ImmutableValue) SyncAndGet() interface{} {
 		<-v.sync
 	}
 	return v.Value
-}
-
-// FunctionDefinition
-
-type FunctionDefinition struct {
-	Name            string
-	Builtin         bool
-	Handler         FunctionHandler
-	ParamConstraint FuncParamConstraint
-}
-
-type FuncParamConstraint []ParameterDefinition
-
-func (fpc FuncParamConstraint) Validate(params Parameters) error {
-	// 1.validate labeled params
-	idx := 0
-	// skip all non-labeled parameters
-	for ; idx < len(params) && !params[idx].Labeled(); idx++ {
-	}
-	// check all following parameters are labeled
-	for ; idx < len(params); idx++ {
-		if !params[idx].Labeled() {
-			return InvalidNonLabeledParameterError
-		}
-	}
-
-	paramSz := params.Size()
-	for idx, paramDef := range fpc {
-		// 2.validate parameters size
-		if idx == paramSz {
-			for ; idx < len(fpc); idx++ {
-				if !paramDef.Optional {
-					return NotEnoughParameterError
-				}
-			}
-			return nil
-		}
-		param, ok := params.GetParameter(paramDef.Name, idx)
-		if !ok {
-			return nil
-		}
-		// 3.validate parameter type
-		if param.Value.Type() == ReferenceValue {
-			// if parameter is a variable, check if function param type is dict
-			if paramDef.Type == DictValue {
-				return InvalidUsageOfVariableError
-			}
-			// set reference value's type which will be used to convert variable text value to typed value
-			refValue := param.Value.(*ReferenceParameterValue)
-			refValue.RefType = paramDef.Type
-		} else if param.Value.Type() != paramDef.Type {
-			return InvalidTypeOfParameterError
-		}
-		// 4.validate parameter value
-		if len(paramDef.ConstValue) > 0 && !util.SliceContains(paramDef.ConstValue, param.Value.Get()) {
-			return InvalidConstValueError
-		}
-	}
-	return nil
-}
-
-// Define function utils
-
-func DefFuncs(funcDefList ...*FunctionDefinition) []*FunctionDefinition {
-	return funcDefList
-}
-
-func DefLibFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
-	return &FunctionDefinition{Name: name, Builtin: false, Handler: handler, ParamConstraint: paramConstraint}
-}
-
-func DefBuiltinFunc(name string, handler FunctionHandler, paramConstraint FuncParamConstraint) *FunctionDefinition {
-	return &FunctionDefinition{Name: name, Builtin: true, Handler: handler, ParamConstraint: paramConstraint}
-}
-
-func DefParams(paramDefList ...ParameterDefinition) FuncParamConstraint {
-	return paramDefList
-}
-
-func DefParam(paramType ValueType, label string, optional bool, constValue ...interface{}) ParameterDefinition {
-	label = strings.Trim(label, " \t\n\r")
-	if len(label) == 0 {
-		panic(InvalidFuncParamDefError)
-	}
-	return ParameterDefinition{Type: paramType, Name: label, Optional: optional, ConstValue: constValue}
 }
