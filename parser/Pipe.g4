@@ -10,13 +10,23 @@ funcName: Identifier ('.' Identifier)*;
 
 funcParamsDef: '(' (funcParamDef (',' funcParamDef)*)? ')';
 
-funcParamDef: funcParamName optionalParamFlag? ':' funcParamType;
+funcParamDef: funcParamName optionalParamFlag? ':' (funcParamType | funcParamConstValue);
 
 funcParamName: Identifier;
 
 optionalParamFlag: '?';
 
 funcParamType: ValueType;
+
+funcParamConstValue: '[' (integerConstValue | decimalConstValue | stringConstValue | booleanConstValue)  ']';
+
+integerConstValue: integerValue (',' integerValue)*;
+
+decimalConstValue: decimalValue (',' decimalValue)*;
+
+stringConstValue: stringValue (',' stringValue)*;
+
+booleanConstValue: booleanValue (',' booleanValue)*;
 
 funcBody: '{' (multiPipe PipeSeparator)? returnStatement '}';
 
